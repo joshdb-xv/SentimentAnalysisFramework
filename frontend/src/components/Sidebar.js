@@ -45,10 +45,10 @@ export default function Sidebar() {
 
   return (
     <div className="w-1/5 h-screen bg-[#1E293B]">
-      <div className="px-4 py-4">
+      <div className="px-4 h-20 flex items-center">
         <Link
           href="/"
-          className="font-bold text-xl text-[#FFFFFF] tracking-widest"
+          className="font-bold text-2xl text-[#FFFFFF] tracking-widest"
         >
           SAF
         </Link>

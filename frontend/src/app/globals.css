@@ -2,5 +2,23 @@
 
 * {
   font-family: "poppins";
-  user-select: none;
+}
+
+@theme {
+  --color-black: #222222;
+
+  --color-primary: #0a3d91;
+  --color-primary-dark: #1e293b;
+
+  --color-white: #f8fafc;
+  --color-bluish-white: #fbfcfd;
+  --color-bluish-gray: #e2e8f0;
+
+  --color-gray: #8a8b8c;
+  --color-gray-light: #94a3b8;
+  --color-gray-mid: #6b7280;
+  --color-gray-dark: #475569;
+
+  --color-blue: #7dd3fc;
+  --color-red: #f87171;
 }
