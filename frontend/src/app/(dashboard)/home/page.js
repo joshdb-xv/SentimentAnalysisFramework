@@ -1,0 +1,14 @@
+async function getData() {
+  await new Promise((resolve) => setTimeout(resolve, 800));
+  return {};
+}
+
+export default async function HomePage() {
+  await getData();
+
+  return (
+    <div className="p-8">
+      <p>Home Page</p>
+    </div>
+  );
+}

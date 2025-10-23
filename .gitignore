@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual env
+venv/
+.env
+
+# SQLite (if you test with it)
+*.db
+
+# Alembic migrations cache
+alembic/versions/*.pyc
+
+# FastText Vector Files
+*.vec
