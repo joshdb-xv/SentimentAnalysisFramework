@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-11-01T16:27:39.854423",
+  "naive_bayes_climate_checker": 83.33333333333334,
+  "detailed_metrics": {
+    "accuracy": 0.8333333333333334,
+    "precision_weighted": 0.8703703703703703,
+    "recall_weighted": 0.8333333333333334,
+    "f1_weighted": 0.8229166666666666,
+    "precision_macro": 0.8888888888888888,
+    "recall_macro": 0.8,
+    "f1_macro": 0.8125,
+    "cv_mean": 0.7988455988455989,
+    "cv_std": 0.16267587023837018
+  },
+  "per_class_metrics": {
+    "0": {
+      "precision": 1.0,
+      "recall": 0.6,
+      "f1_score": 0.75,
+      "support": 5
+    },
+    "1": {
+      "precision": 0.7777777777777778,
+      "recall": 1.0,
+      "f1_score": 0.875,
+      "support": 7
+    }
+  },
+  "confidence_stats": {
+    "mean_confidence": 0.6562404430535848,
+    "std_confidence": 0.06691796748096267,
+    "min_confidence": 0.5010910008533513,
+    "max_confidence": 0.7229552906076677,
+    "median_confidence": 0.6953283064201538
+  },
+  "training_info": {
+    "training_samples": 45,
+    "test_samples": 12
+  }
+}

@@ -12,6 +12,8 @@ import re
 import logging
 from typing import Tuple, Dict, Any, List, Union
 from datetime import datetime
+import json
+
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -635,6 +637,10 @@ def option_1_train_new_model():
         # Save the model with training results
         model_name = f"climate_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
         trainer.save_model(model_name, results)
+        # Export benchmarks
+        metadata = trainer.load_model(model_name)
+        if metadata:
+            export_benchmarks_to_json(metadata)
         
         print("\n✅ TRAINING COMPLETED!")
         print(f"📊 Training samples: {results['training_samples']}")
@@ -861,6 +867,10 @@ def option_3_retrain():
         # Save the updated model
         model_name = f"climate_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
         trainer.save_model(model_name, results)
+
+        metadata = trainer.load_model(model_name)
+        if metadata:
+            export_benchmarks_to_json(metadata)
         
         print(f"\n✅ RETRAINING COMPLETED!")
         print(f"📊 Training samples: {results['training_samples']}")
@@ -1070,6 +1080,51 @@ def option_5_list_files():
     print(f"   Input directory:  {trainer.input_dir}")
     print(f"   Output directory: {trainer.output_dir}")
     print(f"   Models directory: {trainer.model_dir}")
+
+def export_benchmarks_to_json(metadata: Dict[str, Any]):
+    """Export model benchmarks to JSON for frontend consumption"""
+    # Path to frontend public folder
+    backend_dir = Path(__file__).resolve().parent.parent
+    frontend_dir = backend_dir.parent / "frontend"
+    output_path = frontend_dir / "public" / "climaterelated_benchmarks.json"
+    
+    if 'training_results' not in metadata:
+        logger.warning("No training results in metadata")
+        return
+    
+    results = metadata['training_results']
+    eval_data = results.get('evaluation', {})
+    overall = eval_data.get('overall_metrics', {})
+    
+    benchmarks = {
+        "timestamp": results.get('training_timestamp'),
+        "naive_bayes_climate_checker": overall.get('accuracy', 0) * 100,  # ONLY this model's accuracy
+        "detailed_metrics": {
+            "accuracy": overall.get('accuracy', 0),
+            "precision_weighted": overall.get('precision_weighted', 0),
+            "recall_weighted": overall.get('recall_weighted', 0),
+            "f1_weighted": overall.get('f1_weighted', 0),
+            "precision_macro": overall.get('precision_macro', 0),
+            "recall_macro": overall.get('recall_macro', 0),
+            "f1_macro": overall.get('f1_macro', 0),
+            "cv_mean": results.get('cv_mean', 0),
+            "cv_std": results.get('cv_std', 0)
+        },
+        "per_class_metrics": eval_data.get('per_class_metrics', {}),
+        "confidence_stats": eval_data.get('confidence_stats', {}),
+        "training_info": {
+            "training_samples": results.get('training_samples', 0),
+            "test_samples": results.get('test_samples', 0)
+        }
+    }
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(benchmarks, f, indent=2)
+    
+    logger.info(f"✅ Benchmarks exported to {output_path}")
+    return output_path
 
 def main():
     """Main menu loop"""

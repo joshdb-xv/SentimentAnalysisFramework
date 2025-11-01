@@ -12,6 +12,42 @@ export default function ClimateTrendsChart({ location, days }) {
 
   const API_BASE_URL = "http://localhost:8000";
 
+  const categories = [
+    {
+      key: "seaLevelRise",
+      label: "Sea Level Rise / Coastal Hazards",
+      color: "#22D3EE",
+    },
+    { key: "extremeHeat", label: "Extreme Heat / Heatwaves", color: "#FB923C" },
+    {
+      key: "coldWeather",
+      label: "Cold Weather / Temperature Drops",
+      color: "#A855F7",
+    },
+    {
+      key: "flooding",
+      label: "Flooding and Extreme Precipitation",
+      color: "#3B82F6",
+    },
+    {
+      key: "storms",
+      label: "Storms, Typhoons, and Wind Events",
+      color: "#EF4444",
+    },
+    { key: "drought", label: "Drought and Water Scarcity", color: "#FACC15" },
+    {
+      key: "airPollution",
+      label: "Air Pollution and Emissions",
+      color: "#10B981",
+    },
+    {
+      key: "environmental",
+      label: "Environmental Degradation and Land Use",
+      color: "#EC4899",
+    },
+    { key: "geological", label: "Geological Events", color: "#8B5CF6" },
+  ];
+
   // Animate chart on mount and when data changes
   useEffect(() => {
     setAnimationProgress(0);
@@ -46,7 +82,7 @@ export default function ClimateTrendsChart({ location, days }) {
       const data = await response.json();
 
       if (data.status === "ok" && data.trends) {
-        const aggregatedData = aggregateByMonth(data.trends);
+        const aggregatedData = aggregateData(data.trends, days);
         setTimeSeriesData(aggregatedData);
       } else {
         throw new Error(data.error || "Failed to fetch trends data");
@@ -60,7 +96,82 @@ export default function ClimateTrendsChart({ location, days }) {
     }
   };
 
-  const aggregateByMonth = (dailyData) => {
+  const aggregateData = (dailyData, days) => {
+    // For 7 days or less, show daily data
+    if (days <= 7) {
+      return dailyData.map((day) => {
+        const date = new Date(day.date);
+        const dateLabel = date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        });
+
+        const result = { date: dateLabel };
+        categories.forEach((cat) => {
+          result[cat.key] = day.categories[cat.label] || 0;
+        });
+
+        return result;
+      });
+    }
+
+    // For 8-30 days, aggregate by week
+    if (days <= 30) {
+      const weeklyMap = {};
+
+      dailyData.forEach((day) => {
+        const date = new Date(day.date);
+        // Get the week number of the year
+        const startOfYear = new Date(date.getFullYear(), 0, 1);
+        const daysSinceStart = Math.floor(
+          (date - startOfYear) / (24 * 60 * 60 * 1000)
+        );
+        const weekNum = Math.ceil(
+          (daysSinceStart + startOfYear.getDay() + 1) / 7
+        );
+        const weekKey = `${date.getFullYear()}-W${weekNum}`;
+
+        // Calculate week start date for label
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        const weekLabel = `Week ${weekStart.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        })}`;
+
+        if (!weeklyMap[weekKey]) {
+          weeklyMap[weekKey] = {
+            date: weekLabel,
+            categories: {},
+            total: 0,
+          };
+        }
+
+        Object.entries(day.categories).forEach(([category, count]) => {
+          if (!weeklyMap[weekKey].categories[category]) {
+            weeklyMap[weekKey].categories[category] = 0;
+          }
+          weeklyMap[weekKey].categories[category] += count;
+        });
+
+        weeklyMap[weekKey].total += day.total;
+      });
+
+      return Object.keys(weeklyMap)
+        .sort()
+        .map((key) => {
+          const week = weeklyMap[key];
+          const result = { date: week.date };
+
+          categories.forEach((cat) => {
+            result[cat.key] = week.categories[cat.label] || 0;
+          });
+
+          return result;
+        });
+    }
+
+    // For 31+ days, aggregate by month
     const monthlyMap = {};
 
     dailyData.forEach((day) => {
@@ -104,42 +215,6 @@ export default function ClimateTrendsChart({ location, days }) {
         return result;
       });
   };
-
-  const categories = [
-    {
-      key: "seaLevelRise",
-      label: "Sea Level Rise / Coastal Hazards",
-      color: "#22D3EE",
-    },
-    { key: "extremeHeat", label: "Extreme Heat / Heatwaves", color: "#FB923C" },
-    {
-      key: "coldWeather",
-      label: "Cold Weather / Temperature Drops",
-      color: "#A855F7",
-    },
-    {
-      key: "flooding",
-      label: "Flooding and Extreme Precipitation",
-      color: "#3B82F6",
-    },
-    {
-      key: "storms",
-      label: "Storms, Typhoons, and Wind Events",
-      color: "#EF4444",
-    },
-    { key: "drought", label: "Drought and Water Scarcity", color: "#FACC15" },
-    {
-      key: "airPollution",
-      label: "Air Pollution and Emissions",
-      color: "#10B981",
-    },
-    {
-      key: "environmental",
-      label: "Environmental Degradation and Land Use",
-      color: "#EC4899",
-    },
-    { key: "geological", label: "Geological Events", color: "#8B5CF6" },
-  ];
 
   const stackedData = timeSeriesData.map((item) => {
     const stacked = { date: item.date };

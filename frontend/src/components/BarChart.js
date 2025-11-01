@@ -99,18 +99,6 @@ export default function ClimateImpactChart({ location, days }) {
     return (value / total) * 100;
   };
 
-  const getCurrentTimestamp = () => {
-    const now = new Date();
-    return now.toLocaleString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
   // Pagination calculations
   const totalPages = Math.ceil(chartData.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -160,19 +148,6 @@ export default function ClimateImpactChart({ location, days }) {
         <div className="w-3 h-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full"></div>
         <p className="font-medium text-xl text-[#1E293B] tracking-wide">
           CLIMATE CHANGE IMPACT CATEGORIES
-        </p>
-      </div>
-
-      {/* Location Info */}
-      <div className="flex items-center gap-4 text-sm text-[#6B7280] ml-5 mt-4">
-        <div className="flex items-center gap-2 bg-[#E2E8F0] px-4 py-1 rounded-full">
-          <MdMyLocation color="#0A3D91" />
-          <p className="text-[#1E293B] text-lg font-medium">
-            {location || "All Locations"}
-          </p>
-        </div>
-        <p className="font-medium tracking-wide text-[#6B7280]">
-          AS OF {getCurrentTimestamp().toUpperCase()}
         </p>
       </div>
 
@@ -237,7 +212,7 @@ export default function ClimateImpactChart({ location, days }) {
                     </div>
 
                     {/* Total Count */}
-                    <div className="text-base font-semibold text-[#6B7280] w-12 text-right flex-shrink-0">
+                    <div className="text-lg font-semibold text-[#6B7280] w-12 text-right flex-shrink-0">
                       {item.total}
                     </div>
 

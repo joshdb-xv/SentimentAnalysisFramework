@@ -332,7 +332,7 @@ export default function SentimentDistributionChart({ location, days }) {
                       className="w-3 h-3 rounded-xl"
                       style={{ backgroundColor: entry.color }}
                     ></div>
-                    <span className="font-medium text-[#6B7280] uppercase">
+                    <span className="font-medium text-[#6B7280] uppercase text-sm">
                       {entry.name}
                     </span>
                   </div>
@@ -341,20 +341,18 @@ export default function SentimentDistributionChart({ location, days }) {
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex flex-col mx-10 gap-4">
+          <div className="space-y-2">
+            <div className="flex flex-col mx-10 gap-2">
               <div>
                 <div className="text-sm font-semibold text-[#1E293B] mb-1">
-                  MOST POSITIVE (%)
+                  MOST POSITIVE{" "}
+                  {mostPositiveCategory &&
+                    `(${mostPositiveCategory.percentage}%)`}
                 </div>
                 {mostPositiveCategory ? (
                   <div>
                     <div className="text-[#7DD3FC] font-semibold">
                       {mostPositiveCategory.name}
-                    </div>
-                    <div className="text-xs text-[#6B7280] mt-1">
-                      {mostPositiveCategory.percentage}% (
-                      {mostPositiveCategory.count} tweets)
                     </div>
                   </div>
                 ) : (
@@ -366,16 +364,14 @@ export default function SentimentDistributionChart({ location, days }) {
 
               <div>
                 <div className="text-sm font-semibold text-[#1E293B] mb-1">
-                  MOST NEGATIVE (%)
+                  MOST NEGATIVE{" "}
+                  {mostNegativeCategory &&
+                    `(${mostNegativeCategory.percentage}%)`}
                 </div>
                 {mostNegativeCategory ? (
                   <div>
                     <div className="text-[#F87171] font-semibold">
                       {mostNegativeCategory.name}
-                    </div>
-                    <div className="text-xs text-[#6B7280] mt-1">
-                      {mostNegativeCategory.percentage}% (
-                      {mostNegativeCategory.count} tweets)
                     </div>
                   </div>
                 ) : (

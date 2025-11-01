@@ -10,7 +10,8 @@ from routers import (
     weather_router,
     sentiment_router,
     analysis_router,
-    database_router
+    database_router,
+    benchmarks_router  # ADD THIS
 )
 
 # -----------------------------
@@ -71,6 +72,7 @@ app.include_router(weather_router.router, prefix="/weather", tags=["Weather"])
 app.include_router(sentiment_router.router, tags=["Sentiment Analysis"])
 app.include_router(analysis_router.router, tags=["Tweet Analysis"])
 app.include_router(database_router.router, prefix="/database", tags=["Database"])
+app.include_router(benchmarks_router.router, tags=["Benchmarks"])
 
 # -----------------------------
 # Main Entry Point
