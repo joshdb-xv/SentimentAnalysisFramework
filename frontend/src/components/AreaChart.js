@@ -1,18 +1,14 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { IoFilter } from "react-icons/io5";
 
-export default function ClimateTrendsChart({ location }) {
+export default function ClimateTrendsChart({ location, days }) {
   const [hoveredData, setHoveredData] = useState(null);
   const [animationProgress, setAnimationProgress] = useState(0);
   const [timeSeriesData, setTimeSeriesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [days, setDays] = useState(365);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const chartRef = useRef(null);
-  const filterRef = useRef(null);
 
   const API_BASE_URL = "http://localhost:8000";
 
@@ -24,18 +20,6 @@ export default function ClimateTrendsChart({ location }) {
     }, 100);
     return () => clearTimeout(timer);
   }, [timeSeriesData]);
-
-  // Close filter dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (filterRef.current && !filterRef.current.contains(event.target)) {
-        setShowFilterDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // Fetch trends data from backend
   useEffect(() => {
@@ -62,7 +46,6 @@ export default function ClimateTrendsChart({ location }) {
       const data = await response.json();
 
       if (data.status === "ok" && data.trends) {
-        // Aggregate daily data by month
         const aggregatedData = aggregateByMonth(data.trends);
         setTimeSeriesData(aggregatedData);
       } else {
@@ -77,7 +60,6 @@ export default function ClimateTrendsChart({ location }) {
     }
   };
 
-  // Aggregate daily data into monthly buckets
   const aggregateByMonth = (dailyData) => {
     const monthlyMap = {};
 
@@ -99,7 +81,6 @@ export default function ClimateTrendsChart({ location }) {
         };
       }
 
-      // Aggregate category counts
       Object.entries(day.categories).forEach(([category, count]) => {
         if (!monthlyMap[monthKey].categories[category]) {
           monthlyMap[monthKey].categories[category] = 0;
@@ -110,14 +91,12 @@ export default function ClimateTrendsChart({ location }) {
       monthlyMap[monthKey].total += day.total;
     });
 
-    // Convert to array and sort by date
     return Object.keys(monthlyMap)
       .sort()
       .map((key) => {
         const month = monthlyMap[key];
         const result = { date: month.date };
 
-        // Add each category with normalized key
         categories.forEach((cat) => {
           result[cat.key] = month.categories[cat.label] || 0;
         });
@@ -126,20 +105,6 @@ export default function ClimateTrendsChart({ location }) {
       });
   };
 
-  const handleDaysChange = (newDays) => {
-    setDays(newDays);
-    setShowFilterDropdown(false);
-  };
-
-  const daysOptions = [
-    { label: "Last 7 days", value: 7 },
-    { label: "Last 30 days", value: 30 },
-    { label: "Last 3 months", value: 90 },
-    { label: "Last 6 months", value: 180 },
-    { label: "Last year", value: 365 },
-  ];
-
-  // Category definitions with colors
   const categories = [
     {
       key: "seaLevelRise",
@@ -176,7 +141,6 @@ export default function ClimateTrendsChart({ location }) {
     { key: "geological", label: "Geological Events", color: "#8B5CF6" },
   ];
 
-  // Calculate stacked data with animation
   const stackedData = timeSeriesData.map((item) => {
     const stacked = { date: item.date };
     let cumulative = 0;
@@ -193,19 +157,17 @@ export default function ClimateTrendsChart({ location }) {
     return stacked;
   });
 
-  // Chart dimensions
   const chartWidth = 1200;
   const chartHeight = 320;
   const margin = { top: 20, right: 30, bottom: 40, left: 30 };
   const innerWidth = chartWidth - margin.left - margin.right;
   const innerHeight = chartHeight - margin.top - margin.bottom;
 
-  // Scales
   const maxTotal = Math.max(
     ...timeSeriesData.map((item) => {
       return categories.reduce((sum, cat) => sum + (item[cat.key] || 0), 0);
     }),
-    1 // Minimum of 1 to avoid division by zero
+    1
   );
   const xScale = (index) =>
     stackedData.length > 1
@@ -213,7 +175,6 @@ export default function ClimateTrendsChart({ location }) {
       : innerWidth / 2;
   const yScale = (value) => innerHeight - (value / maxTotal) * innerHeight;
 
-  // Generate smooth curved path
   const generateSmoothAreaPath = (categoryKey) => {
     const points = stackedData.map((d, i) => ({
       x: xScale(i),
@@ -223,17 +184,15 @@ export default function ClimateTrendsChart({ location }) {
 
     if (points.length === 0) return "";
 
-    // For single point, create a wider area that occupies space
     if (points.length === 1) {
       const p = points[0];
-      const width = innerWidth * 1; // Use 30% of chart width
+      const width = innerWidth * 1;
       const leftX = Math.max(0, p.x - width / 2);
       const rightX = Math.min(innerWidth, p.x + width / 2);
 
       return `M ${leftX} ${p.yStart} L ${leftX} ${p.yEnd} L ${rightX} ${p.yEnd} L ${rightX} ${p.yStart} Z`;
     }
 
-    // For two points, create straight connections with some width
     if (points.length === 2) {
       const [p1, p2] = points;
       return `M ${p1.x} ${p1.yEnd} L ${p2.x} ${p2.yEnd} L ${p2.x} ${p2.yStart} L ${p1.x} ${p1.yStart} Z`;
@@ -241,7 +200,6 @@ export default function ClimateTrendsChart({ location }) {
 
     let topPath = `M ${points[0].x} ${points[0].yEnd}`;
 
-    // Smooth curves for top line
     for (let i = 1; i < points.length; i++) {
       const prevPoint = points[i - 1];
       const currPoint = points[i];
@@ -251,7 +209,6 @@ export default function ClimateTrendsChart({ location }) {
       topPath += ` C ${cpx1} ${prevPoint.yEnd}, ${cpx2} ${currPoint.yEnd}, ${currPoint.x} ${currPoint.yEnd}`;
     }
 
-    // Bottom line
     for (let i = points.length - 1; i >= 0; i--) {
       if (i === points.length - 1) {
         topPath += ` L ${points[i].x} ${points[i].yStart}`;
@@ -287,8 +244,8 @@ export default function ClimateTrendsChart({ location }) {
               value: dataPoint[cat.key] || 0,
               color: cat.color,
             }))
-            .filter((item) => item.value > 0) // Only show categories with data
-            .sort((a, b) => b.value - a.value), // Sort by value descending
+            .filter((item) => item.value > 0)
+            .sort((a, b) => b.value - a.value),
           total: categories.reduce(
             (sum, cat) => sum + (dataPoint[cat.key] || 0),
             0
@@ -369,38 +326,6 @@ export default function ClimateTrendsChart({ location }) {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Filter Button */}
-        <div className="relative ml-4" ref={filterRef}>
-          <IoFilter
-            size={20}
-            color={"#6B7280"}
-            className="cursor-pointer hover:text-[#0A3D91] transition-colors"
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            title="Filter by time period"
-          />
-
-          {showFilterDropdown && (
-            <div className="absolute top-full right-0 mt-2 bg-white border border-[#E2E8F0] rounded-xl shadow-lg z-50 min-w-[180px]">
-              <div className="px-3 py-2 text-xs text-[#64748B] font-medium border-b border-[#E2E8F0] bg-[#F8FAFC]">
-                Time Period
-              </div>
-              {daysOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleDaysChange(option.value)}
-                  className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-[#F1F5F9] focus:outline-none ${
-                    days === option.value
-                      ? "bg-[#EEF2FF] text-[#0A3D91] font-semibold"
-                      : "text-[#334155]"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -506,7 +431,6 @@ export default function ClimateTrendsChart({ location }) {
                     />
                   ))}
 
-                  {/* Y-axis grid and labels */}
                   {[
                     0,
                     maxTotal * 0.25,
@@ -535,9 +459,7 @@ export default function ClimateTrendsChart({ location }) {
                     </g>
                   ))}
 
-                  {/* X-axis labels */}
                   {stackedData.map((d, i) => {
-                    // Show fewer labels if there are many data points
                     const showLabel =
                       stackedData.length <= 12 ||
                       i % Math.ceil(stackedData.length / 12) === 0;
@@ -556,7 +478,6 @@ export default function ClimateTrendsChart({ location }) {
                     );
                   })}
 
-                  {/* Hover line */}
                   {hoveredData && (
                     <line
                       x1={xScale(hoveredData.index)}

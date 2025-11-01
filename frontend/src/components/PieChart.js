@@ -1,19 +1,15 @@
-import { useState, useEffect, useRef } from "react";
-import { IoFilter } from "react-icons/io5";
+import { useState, useEffect } from "react";
 
-export default function SentimentDistributionChart({ location }) {
+export default function SentimentDistributionChart({ location, days }) {
   const [hoveredData, setHoveredData] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [days, setDays] = useState(365);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [dominantSentiment, setDominantSentiment] = useState("NEUTRAL");
   const [totalAnalyzed, setTotalAnalyzed] = useState(0);
   const [mostPositiveCategory, setMostPositiveCategory] = useState(null);
   const [mostNegativeCategory, setMostNegativeCategory] = useState(null);
-  const filterRef = useRef(null);
 
   const API_BASE_URL = "http://localhost:8000";
 
@@ -23,18 +19,6 @@ export default function SentimentDistributionChart({ location }) {
     NEUTRAL: "#94A3B8",
     NEGATIVE: "#F87171",
   };
-
-  // Close filter dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (filterRef.current && !filterRef.current.contains(event.target)) {
-        setShowFilterDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // Fetch sentiment data from backend
   useEffect(() => {
@@ -62,7 +46,6 @@ export default function SentimentDistributionChart({ location }) {
       const data = await response.json();
 
       if (data.status === "ok" && data.sentiment) {
-        // Transform the sentiment data into chart format
         const formattedData = [
           {
             name: "POSITIVE",
@@ -90,7 +73,6 @@ export default function SentimentDistributionChart({ location }) {
     } catch (err) {
       console.error("Error fetching sentiment data:", err);
       setError(err.message);
-      // Set empty data on error
       setChartData([
         { name: "POSITIVE", value: 0, color: sentimentColors.POSITIVE },
         { name: "NEUTRAL", value: 0, color: sentimentColors.NEUTRAL },
@@ -118,12 +100,10 @@ export default function SentimentDistributionChart({ location }) {
       const data = await response.json();
 
       if (data.status === "ok" && data.categories) {
-        // Filter categories with at least 5 tweets for more meaningful results
         const significantCategories = data.categories.filter(
           (cat) => cat.total >= 5
         );
 
-        // Calculate a weighted score (percentage * log(count)) to balance percentage and volume
         let maxPositiveScore = 0;
         let maxNegativeScore = 0;
         let mostPositive = null;
@@ -134,8 +114,6 @@ export default function SentimentDistributionChart({ location }) {
             const positivePercent = (cat.positive / cat.total) * 100;
             const negativePercent = (cat.negative / cat.total) * 100;
 
-            // Weight score by percentage and log of count to favor both high % and high volume
-            // Using log to prevent extremely high counts from dominating
             const positiveScore = positivePercent * Math.log(cat.positive + 1);
             const negativeScore = negativePercent * Math.log(cat.negative + 1);
 
@@ -194,29 +172,15 @@ export default function SentimentDistributionChart({ location }) {
     }
   };
 
-  const handleDaysChange = (newDays) => {
-    setDays(newDays);
-    setShowFilterDropdown(false);
-  };
-
-  const daysOptions = [
-    { label: "Last 7 days", value: 7 },
-    { label: "Last 30 days", value: 30 },
-    { label: "Last 6 months", value: 180 },
-    { label: "Last year", value: 365 },
-  ];
-
   // Create SVG path for pie slices
   const createPieSlice = (item, index, startAngle, endAngle, radius = 100) => {
     const centerX = 140;
     const centerY = 120;
 
-    // Handle full circle case (when there's only one sentiment)
     const angleDiff = endAngle - startAngle;
     const isFullCircle = angleDiff >= 2 * Math.PI - 0.001;
 
     if (isFullCircle) {
-      // Draw as a full circle
       return (
         <circle
           key={index}
@@ -274,10 +238,9 @@ export default function SentimentDistributionChart({ location }) {
     );
   };
 
-  // Calculate angles for each slice
-  let currentAngle = -Math.PI / 2; // Start from top
+  let currentAngle = -Math.PI / 2;
   const slices = chartData
-    .filter((item) => item.value > 0) // Only render slices with values
+    .filter((item) => item.value > 0)
     .map((item, index) => {
       const sliceAngle =
         totalAnalyzed > 0 ? (item.value / totalAnalyzed) * 2 * Math.PI : 0;
@@ -310,46 +273,12 @@ export default function SentimentDistributionChart({ location }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full"></div>
-          <p className="font-medium text-xl text-[#1E293B] tracking-wide">
-            SENTIMENT DISTRIBUTION
-          </p>
-        </div>
-
-        {/* Filter Button */}
-        <div className="relative" ref={filterRef}>
-          <IoFilter
-            size={20}
-            color={"#6B7280"}
-            className="cursor-pointer hover:text-[#0A3D91] transition-colors"
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            title="Filter by time period"
-          />
-
-          {/* Filter Dropdown */}
-          {showFilterDropdown && (
-            <div className="absolute top-full right-0 mt-2 bg-white border border-[#E2E8F0] rounded-xl shadow-lg z-50 min-w-[180px]">
-              <div className="px-3 py-2 text-xs text-[#64748B] font-medium border-b border-[#E2E8F0] bg-[#F8FAFC]">
-                Time Period
-              </div>
-              {daysOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleDaysChange(option.value)}
-                  className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-[#F1F5F9] focus:outline-none ${
-                    days === option.value
-                      ? "bg-[#EEF2FF] text-[#0A3D91] font-semibold"
-                      : "text-[#334155]"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <div className="w-3 h-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full"></div>
+        <p className="font-medium text-xl text-[#1E293B] tracking-wide">
+          SENTIMENT DISTRIBUTION
+        </p>
       </div>
 
       {/* Loading State */}

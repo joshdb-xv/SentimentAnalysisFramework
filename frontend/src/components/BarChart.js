@@ -1,254 +1,20 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { MdMyLocation, MdSearch } from "react-icons/md";
-import {
-  IoChevronDown,
-  IoFilter,
-  IoChevronBack,
-  IoChevronForward,
-} from "react-icons/io5";
+import { MdMyLocation } from "react-icons/md";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 
-// Location Search Component - Modified for Database Locations
-const LocationSearch = ({ value, onChange, placeholder }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
-  const [locations, setLocations] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const dropdownRef = useRef(null);
-  const debounceTimer = useRef(null);
-
-  const API_BASE_URL = "http://localhost:8000";
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Fetch locations from database
-  const searchLocations = async (query) => {
-    if (!query || query.trim().length < 2) {
-      setLocations([]);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/observations/search-locations?search=${encodeURIComponent(
-          query.trim()
-        )}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.status === "ok" && data.locations) {
-        setLocations(data.locations);
-      } else {
-        setError(data.error || "Failed to fetch locations");
-        setLocations([]);
-      }
-    } catch (err) {
-      console.error("Error searching locations:", err);
-      setError("Could not connect to server");
-      setLocations([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Debounced search
-  useEffect(() => {
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-
-    if (searchTerm.trim().length >= 2) {
-      debounceTimer.current = setTimeout(() => {
-        searchLocations(searchTerm);
-      }, 500);
-    } else {
-      setLocations([]);
-    }
-
-    return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
-    };
-  }, [searchTerm]);
-
-  const handleSelect = (location) => {
-    const locationName =
-      typeof location === "string" ? location : location.name || location;
-    onChange(locationName);
-    setSearchTerm("");
-    setLocations([]);
-    setIsOpen(false);
-  };
-
-  const handleInputChange = (e) => {
-    setSearchTerm(e.target.value);
-    setIsOpen(true);
-  };
-
-  const handleInputFocus = () => {
-    setIsOpen(true);
-    if (searchTerm.trim().length >= 2) {
-      searchLocations(searchTerm);
-    }
-  };
-
-  const handleClear = () => {
-    onChange(null);
-    setSearchTerm("");
-    setLocations([]);
-    setIsOpen(false);
-  };
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={handleInputFocus}
-        className="flex flex-row gap-2 bg-[#E2E8F0] px-4 py-1 rounded-full items-center justify-center cursor-pointer shadow-[0px_2px_8px_0px_rgba(30,41,59,0.25)] hover:bg-[#CBD5E1] transition-colors"
-      >
-        <MdMyLocation color="#0A3D91" />
-        <p className="text-[#1E293B] text-lg font-medium">
-          {value || placeholder}
-        </p>
-        <IoChevronDown className="ml-2" color="#1E293B" />
-      </button>
-
-      {/* Search Dropdown */}
-      {isOpen && (
-        <div className="absolute top-full mt-2 left-0 min-w-[320px] bg-white border border-[#E2E8F0] rounded-xl shadow-lg z-50">
-          {/* Search Input */}
-          <div className="p-3 border-b border-[#E2E8F0]">
-            <div className="relative flex items-center">
-              <MdSearch
-                size={20}
-                color="#64748B"
-                className="absolute left-3 pointer-events-none"
-              />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={handleInputChange}
-                placeholder="Search locations..."
-                autoFocus
-                className="w-full py-2 pl-10 pr-3 bg-[#F8FAFC] text-[#222222] text-sm font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0A3D91] focus:ring-opacity-50"
-              />
-            </div>
-          </div>
-
-          {/* Results */}
-          <div className="max-h-60 overflow-auto">
-            {value && (
-              <button
-                onClick={handleClear}
-                className="w-full text-left px-4 py-3 text-sm font-medium border-b border-[#E2E8F0] hover:bg-[#FEF2F2] text-red-600 transition-colors"
-              >
-                Clear selection
-              </button>
-            )}
-
-            {loading ? (
-              <div className="px-4 py-8 text-center text-sm text-[#64748B]">
-                <div className="inline-block w-6 h-6 border-2 border-[#0A3D91] border-t-transparent rounded-full animate-spin mb-2"></div>
-                <p>Searching locations...</p>
-              </div>
-            ) : error ? (
-              <div className="px-4 py-8 text-center text-sm text-red-500">
-                <p className="font-medium">{error}</p>
-                <p className="text-xs mt-1 text-[#64748B]">
-                  Make sure your backend is running
-                </p>
-              </div>
-            ) : searchTerm.trim().length >= 2 && locations.length > 0 ? (
-              <>
-                <div className="px-3 py-2 text-xs text-[#64748B] font-medium bg-[#F8FAFC]">
-                  {locations.length} location(s) found
-                </div>
-                {locations.map((location, index) => {
-                  const locationName =
-                    typeof location === "string"
-                      ? location
-                      : location.name || location;
-
-                  return (
-                    <button
-                      key={index}
-                      onClick={() => handleSelect(location)}
-                      className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-[#F1F5F9] focus:outline-none ${
-                        value === locationName
-                          ? "bg-[#EEF2FF] text-[#0A3D91] font-semibold"
-                          : "text-[#334155]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <MdMyLocation size={16} className="text-[#64748B]" />
-                        <span>{locationName}</span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </>
-            ) : searchTerm.trim().length >= 2 ? (
-              <div className="px-4 py-8 text-center text-sm text-[#64748B]">
-                <p className="font-medium">No locations found</p>
-                <p className="text-xs mt-1">Try a different search term</p>
-              </div>
-            ) : (
-              <div className="px-4 py-8 text-center text-sm text-[#64748B]">
-                <p>Type at least 2 characters to search</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default function ClimateImpactChart({ location, onLocationChange }) {
+export default function ClimateImpactChart({ location, days }) {
   const [hoveredData, setHoveredData] = useState(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // const [location, setLocation] = useState(null);
-  const [days, setDays] = useState(365); // Increased to 90 days to capture more data
   const [currentPage, setCurrentPage] = useState(1);
-  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const itemsPerPage = 5;
   const filterRef = useRef(null);
 
   const API_BASE_URL = "http://localhost:8000";
-
-  // Close filter dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (filterRef.current && !filterRef.current.contains(event.target)) {
-        setShowFilterDropdown(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   // Fetch category data from backend
   useEffect(() => {
@@ -367,18 +133,6 @@ export default function ClimateImpactChart({ location, onLocationChange }) {
     setCurrentPage(pageNumber);
   };
 
-  const handleDaysChange = (newDays) => {
-    setDays(newDays);
-    setShowFilterDropdown(false);
-  };
-
-  const daysOptions = [
-    { label: "Last 7 days", value: 7 },
-    { label: "Last 30 days", value: 30 },
-    { label: "Last 6 months", value: 180 },
-    { label: "Last year", value: 365 },
-  ];
-
   return (
     <div className="">
       {/* Tooltip */}
@@ -409,13 +163,14 @@ export default function ClimateImpactChart({ location, onLocationChange }) {
         </p>
       </div>
 
-      {/* Location and Date */}
+      {/* Location Info */}
       <div className="flex items-center gap-4 text-sm text-[#6B7280] ml-5 mt-4">
-        <LocationSearch
-          value={location}
-          onChange={onLocationChange} // Use the prop function instead
-          placeholder="All Locations"
-        />
+        <div className="flex items-center gap-2 bg-[#E2E8F0] px-4 py-1 rounded-full">
+          <MdMyLocation color="#0A3D91" />
+          <p className="text-[#1E293B] text-lg font-medium">
+            {location || "All Locations"}
+          </p>
+        </div>
         <p className="font-medium tracking-wide text-[#6B7280]">
           AS OF {getCurrentTimestamp().toUpperCase()}
         </p>
@@ -423,37 +178,7 @@ export default function ClimateImpactChart({ location, onLocationChange }) {
 
       {/* Legend */}
       <div className="flex items-center justify-end gap-14 mt-2 mb-4 mr-13">
-        <div className="relative" ref={filterRef}>
-          <IoFilter
-            size={20}
-            color={"#6B7280"}
-            className="cursor-pointer hover:text-[#0A3D91] transition-colors"
-            onClick={() => setShowFilterDropdown(!showFilterDropdown)}
-            title="Filter by time period"
-          />
-
-          {/* Filter Dropdown */}
-          {showFilterDropdown && (
-            <div className="absolute top-full right-0 mt-2 bg-white border border-[#E2E8F0] rounded-xl shadow-lg z-50 min-w-[180px]">
-              <div className="px-3 py-2 text-xs text-[#64748B] font-medium border-b border-[#E2E8F0] bg-[#F8FAFC]">
-                Time Period
-              </div>
-              {daysOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => handleDaysChange(option.value)}
-                  className={`w-full text-left px-4 py-3 text-sm font-medium transition-colors hover:bg-[#F1F5F9] focus:outline-none ${
-                    days === option.value
-                      ? "bg-[#EEF2FF] text-[#0A3D91] font-semibold"
-                      : "text-[#334155]"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        <div className="relative" ref={filterRef}></div>
         <div className="flex gap-12">
           <div className="flex items-center gap-1">
             <div className="w-3 h-3 bg-[#7DD3FC] rounded-full"></div>
@@ -500,7 +225,7 @@ export default function ClimateImpactChart({ location, onLocationChange }) {
         <>
           {chartData.length > 0 ? (
             <>
-              <div className="space-y-4 min-h-56" onMouseMove={handleMouseMove}>
+              <div className="space-y-5 min-h-56" onMouseMove={handleMouseMove}>
                 {currentData.map((item, index) => (
                   <div
                     key={startIndex + index}
@@ -517,7 +242,7 @@ export default function ClimateImpactChart({ location, onLocationChange }) {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden flex">
+                    <div className="flex-1 h-6 bg-gray-100 rounded-full overflow-hidden flex">
                       <div
                         className="bg-[#7DD3FC] h-full transition-all duration-200 hover:brightness-115 cursor-pointer"
                         style={{
@@ -563,7 +288,7 @@ export default function ClimateImpactChart({ location, onLocationChange }) {
               </div>
 
               {/* Pagination Controls */}
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-4 mt-6">
                 <button
                   onClick={goToPreviousPage}
                   disabled={currentPage === 1}
@@ -606,15 +331,6 @@ export default function ClimateImpactChart({ location, onLocationChange }) {
                   <IoChevronForward size={20} />
                 </button>
               </div>
-
-              {/* Page Info
-              {totalPages > 1 && (
-                <div className="mt-4 text-center text-sm text-[#6B7280]">
-                  Showing {startIndex + 1}-
-                  {Math.min(endIndex, chartData.length)} of {chartData.length}{" "}
-                  categories
-                </div>
-              )} */}
             </>
           ) : (
             <div className="flex items-center justify-center h-64">
