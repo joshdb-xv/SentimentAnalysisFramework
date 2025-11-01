@@ -234,10 +234,18 @@ async def get_category_breakdown(
     days: int = Query(30)
 ):
     """Get detailed category breakdown with sentiment analysis"""
+    print(f"DEBUG - Received location: '{location}'")  # Add this
+    print(f"DEBUG - Location type: {type(location)}")  # Add this
+    
     end_date = datetime.now()
     start_date = end_date - timedelta(days=days)
     
     data = TweetDatabaseService.get_observations_data(db, start_date, end_date, location)
+    
+    print(f"DEBUG - Total tweets found: {data['summary']['total_climate_tweets']}")  # Add this
+    print(f"DEBUG - Categories: {data['climate_categories']['distribution']}")  # Add this
+    
+    # ... rest of the code
     
     # Format for frontend chart
     categories = []
@@ -256,7 +264,7 @@ async def get_category_breakdown(
     
     return {
         "status": "ok",
-        "categories": categories[:10],  # Top 10 categories
+        "categories": categories,  # Return ALL categories, not just [:10]
         "total_categories": len(data["climate_categories"]["distribution"])
     }
 
@@ -283,7 +291,7 @@ async def get_sentiment_distribution(
 async def get_climate_trends(
     db: Session = Depends(get_db),
     location: Optional[str] = Query(None),
-    days: int = Query(30)
+    days: int = Query(365)
 ):
     """Get climate trends data for area chart"""
     end_date = datetime.now()
@@ -316,6 +324,30 @@ async def get_location_stats(
         "status": "ok",
         "locations": data["location_stats"]["distribution"],
         "most_active": data["location_stats"]["most_active"]
+    }
+
+@router.get("/observations/search-locations")
+async def search_locations(
+    db: Session = Depends(get_db),
+    search: str = Query("", min_length=2)
+):
+    """Search for locations in the database"""
+    from database.models import Tweet
+    from sqlalchemy import func
+    
+    # Query distinct locations that match the search term
+    locations = db.query(Tweet.location).filter(
+        Tweet.location.isnot(None),
+        Tweet.location != "",
+        func.lower(Tweet.location).contains(search.lower())
+    ).distinct().limit(20).all()
+    
+    # Extract location strings from tuples
+    location_list = [loc[0] for loc in locations if loc[0]]
+    
+    return {
+        "status": "ok",
+        "locations": location_list
     }
 
 @router.get("/observations/summary")

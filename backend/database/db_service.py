@@ -161,9 +161,9 @@ class TweetDatabaseService:
             Tweet.analyzed_at >= start_date,
             Tweet.analyzed_at <= end_date
         )
-        
+
         if location:
-            query = query.filter(Tweet.location == location)
+          query = query.filter(func.lower(func.trim(Tweet.location)) == func.lower(location.strip()))
         
         tweets = query.all()
         
@@ -235,7 +235,7 @@ class TweetDatabaseService:
         dominant_sentiment = max(sentiment_dist, key=sentiment_dist.get) if sentiment_dist else "neutral"
         
         # Get trend data for chart
-        trend_data = TweetDatabaseService._get_climate_trends(db, start_date, end_date)
+        trend_data = TweetDatabaseService._get_climate_trends(db, start_date, end_date, location)
         
         # Find most positive and negative categories
         most_positive_cat = None
@@ -284,12 +284,12 @@ class TweetDatabaseService:
         }
     
     @staticmethod
-    def _get_climate_trends(db: Session, start_date: datetime, end_date: datetime) -> List[Dict]:
+    def _get_climate_trends(db: Session, start_date: datetime, end_date: datetime, location: Optional[str] = None) -> List[Dict]:
         """Get daily climate tweet trends for visualization"""
         
         try:
             # Query daily counts grouped by category
-            daily_data = db.query(
+            query = db.query(
                 func.date(Tweet.analyzed_at).label('date'),
                 Tweet.category,
                 func.count(Tweet.id).label('count')
@@ -298,7 +298,13 @@ class TweetDatabaseService:
                 Tweet.analyzed_at >= start_date,
                 Tweet.analyzed_at <= end_date,
                 Tweet.category.isnot(None)
-            ).group_by(
+            )
+            
+            # Add location filter if provided
+            if location:
+                query = query.filter(func.lower(func.trim(Tweet.location)) == func.lower(location.strip()))
+            
+            daily_data = query.group_by(
                 func.date(Tweet.analyzed_at),
                 Tweet.category
             ).all()
