@@ -40,5 +40,11 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# FastText Vector Files
+*.vec
 
-*.bin.vectors.npy
+backend/data/fastText-Cebuano.bin.vectors.npy
+backend/data/fastText-Tagalog.bin.vectors.npy
+
+backend/data/fastText-Cebuano.bin
+backend/data/fastText-Tagalog.bin

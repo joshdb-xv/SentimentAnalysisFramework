@@ -17,7 +17,8 @@ alembic/versions/*.pyc
 # FastText Vector Files
 *.vec
 
-*.bin.vectors.npy
-*.npy
 backend/data/fastText-Cebuano.bin.vectors.npy
 backend/data/fastText-Tagalog.bin.vectors.npy
+
+backend/data/fastText-Cebuano.bin
+backend/data/fastText-Tagalog.bin
