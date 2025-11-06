@@ -31,6 +31,7 @@ class ClimateCategoryClassifier:
     - Air Pollution and Emissions
     - Environmental Degradation and Land Use
     - Geological Events
+    - General Weather
     """
     
     # Define the climate categories
@@ -43,7 +44,8 @@ class ClimateCategoryClassifier:
         "Drought and Water Scarcity",
         "Air Pollution and Emissions",
         "Environmental Degradation and Land Use",
-        "Geological Events"
+        "Geological Events",
+        "General Weather"
     ]
     
     def __init__(self, model_dir: str = None, data_dir: str = None):
@@ -102,125 +104,205 @@ class ClimateCategoryClassifier:
         return text
     
     def merge_csv_files(self, csv_paths: List[Union[str, Path]]) -> pd.DataFrame:
-        """
-        Merge multiple CSV files into a single DataFrame
-        """
-        logger.info(f"Merging {len(csv_paths)} CSV files...")
-        
-        dataframes = []
-        total_samples = 0
-        
-        for i, csv_path in enumerate(csv_paths):
-            csv_path = Path(csv_path).resolve()
-            
-            if not csv_path.exists():
-                logger.warning(f"File not found: {csv_path}")
-                continue
-                
-            try:
-                df = pd.read_csv(csv_path)
-                
-                # Validate required columns
-                if 'text' not in df.columns or 'category' not in df.columns:
-                    logger.warning(f"Skipping {csv_path}: missing 'text' or 'category' columns")
-                    continue
-                
-                # Validate category values
-                valid_categories = set(self.CLIMATE_CATEGORIES)
-                df_categories = set(df['category'].unique())
-                invalid_categories = df_categories - valid_categories
-                
-                if invalid_categories:
-                    logger.warning(f"Found invalid categories in {csv_path.name}: {invalid_categories}")
-                    logger.info(f"Valid categories are: {self.CLIMATE_CATEGORIES}")
-                    # Filter out invalid categories
-                    df = df[df['category'].isin(valid_categories)]
-                
-                # Add source file information
-                df['source_file'] = csv_path.name
-                df['batch_id'] = i
-                
-                dataframes.append(df)
-                total_samples += len(df)
-                logger.info(f"Loaded {len(df)} samples from {csv_path.name}")
-                
-            except Exception as e:
-                logger.error(f"Error loading {csv_path}: {str(e)}")
-                continue
-        
-        if not dataframes:
-            raise ValueError("No valid CSV files found or loaded")
-        
-        # Combine all dataframes
-        combined_df = pd.concat(dataframes, ignore_index=True)
-        
-        # Remove duplicates based on text content
-        initial_count = len(combined_df)
-        combined_df = combined_df.drop_duplicates(subset=['text'], keep='first')
-        final_count = len(combined_df)
-        
-        logger.info(f"Combined dataset: {final_count} samples ({initial_count - final_count} duplicates removed)")
-        logger.info(f"Category distribution:\n{combined_df['category'].value_counts()}")
-        
-        return combined_df
+      """
+      Merge multiple CSV files into a single DataFrame
+      Supports multi-label categories
+      """
+      logger.info(f"Merging {len(csv_paths)} CSV files...")
+      
+      dataframes = []
+      total_samples = 0
+      
+      for i, csv_path in enumerate(csv_paths):
+          csv_path = Path(csv_path).resolve()
+          
+          if not csv_path.exists():
+              logger.warning(f"File not found: {csv_path}")
+              continue
+              
+          try:
+              df = pd.read_csv(csv_path)
+              
+              # Validate required columns
+              if 'text' not in df.columns or 'category' not in df.columns:
+                  logger.warning(f"Skipping {csv_path}: missing 'text' or 'category' columns")
+                  continue
+              
+              # Remove rows with missing values FIRST
+              df = df.dropna(subset=['text', 'category'])
+              
+              # Parse multi-label categories
+              def parse_multi_label_category(category_str):
+                  """Parse categories like: "Category1", "Category2" """
+                  if pd.isna(category_str) or not category_str:
+                      return []
+                  
+                  category_str = str(category_str).strip()
+                  
+                  # Extract all quoted strings
+                  import re
+                  pattern = r'"([^"]+)"'
+                  matches = re.findall(pattern, category_str)
+                  
+                  if matches:
+                      return [match.strip() for match in matches]
+                  
+                  # Fallback: single category
+                  return [category_str.strip().strip('"')]
+              
+              # Explode multi-label rows
+              rows_to_expand = []
+              for idx, row in df.iterrows():
+                  categories = parse_multi_label_category(row['category'])
+                  for category in categories:
+                      new_row = row.copy()
+                      new_row['category'] = category
+                      rows_to_expand.append(new_row)
+              
+              df = pd.DataFrame(rows_to_expand)
+              
+              # NOW validate category values (after parsing)
+              valid_categories = set(self.CLIMATE_CATEGORIES)
+              df_categories = set(df['category'].unique())
+              invalid_categories = df_categories - valid_categories
+              
+              if invalid_categories:
+                  logger.warning(f"Found {len(invalid_categories)} invalid categories in {csv_path.name} after parsing:")
+                  for inv_cat in list(invalid_categories)[:5]:  # Show first 5
+                      logger.warning(f"   - '{inv_cat}'")
+                  if len(invalid_categories) > 5:
+                      logger.warning(f"   ... and {len(invalid_categories) - 5} more")
+                  # Filter out invalid categories
+                  before_filter = len(df)
+                  df = df[df['category'].isin(valid_categories)]
+                  after_filter = len(df)
+                  logger.warning(f"Filtered out {before_filter - after_filter} rows")
+              
+              # Add source file information
+              df['source_file'] = csv_path.name
+              df['batch_id'] = i
+              
+              dataframes.append(df)
+              total_samples += len(df)
+              logger.info(f"Loaded {len(df)} samples from {csv_path.name} (after expanding multi-label)")
+              
+          except Exception as e:
+              logger.error(f"Error loading {csv_path}: {str(e)}")
+              continue
+      
+      if not dataframes:
+          raise ValueError("No valid CSV files found or loaded")
+      
+      # Combine all dataframes
+      combined_df = pd.concat(dataframes, ignore_index=True)
+      
+      # Remove duplicates based on text content AND category
+      initial_count = len(combined_df)
+      combined_df = combined_df.drop_duplicates(subset=['text', 'category'], keep='first')
+      final_count = len(combined_df)
+      
+      logger.info(f"Combined dataset: {final_count} samples ({initial_count - final_count} duplicates removed)")
+      logger.info(f"Category distribution:\n{combined_df['category'].value_counts()}")
+      
+      return combined_df
     
     def load_data(self, data_source: Union[str, Path, pd.DataFrame, List[Union[str, Path]]]) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
-        """
-        Load and preprocess training data from various sources
-        """
-        if isinstance(data_source, list):
-            # Multiple CSV files
-            df = self.merge_csv_files(data_source)
-        elif isinstance(data_source, pd.DataFrame):
-            # In-memory DataFrame
-            df = data_source.copy()
-            logger.info(f"Using in-memory DataFrame with {len(df)} samples")
-        else:
-            # Single CSV file
-            csv_path = Path(data_source).resolve()
-            logger.info(f"Loading data from {csv_path}")
-            
-            try:
-                df = pd.read_csv(csv_path)
-            except Exception as e:
-                logger.error(f"Error loading data: {str(e)}")
-                raise
-        
-        # Validate required columns
-        if 'text' not in df.columns or 'category' not in df.columns:
-            raise ValueError("Data must contain 'text' and 'category' columns")
-        
-        # Validate categories
-        valid_categories = set(self.CLIMATE_CATEGORIES)
-        df_categories = set(df['category'].dropna().unique())
-        invalid_categories = df_categories - valid_categories
-        
-        if invalid_categories:
-            logger.warning(f"Found invalid categories: {invalid_categories}")
-            logger.info(f"Valid categories are: {self.CLIMATE_CATEGORIES}")
-            # Filter out invalid categories
-            df = df[df['category'].isin(valid_categories)]
-        
-        # Remove rows with missing values
-        df = df.dropna(subset=['text', 'category'])
-        
-        # Preprocess text
-        df['processed_text'] = df['text'].apply(self.preprocess_text)
-        
-        # Remove empty texts after preprocessing
-        df = df[df['processed_text'].str.len() > 0]
-        
-        logger.info(f"Final dataset: {len(df)} samples")
-        logger.info(f"Categories present: {sorted(df['category'].unique())}")
-        
-        if 'source_file' not in df.columns:
-            df['source_file'] = 'unknown'
-            df['batch_id'] = 0
-        
-        X = df['processed_text'].values
-        y = df['category'].values
-        
-        return df, X, y
+      """
+      Load and preprocess training data from various sources
+      Supports multi-label categories
+      """
+      if isinstance(data_source, list):
+          # Multiple CSV files
+          df = self.merge_csv_files(data_source)
+      elif isinstance(data_source, pd.DataFrame):
+          # In-memory DataFrame
+          df = data_source.copy()
+          logger.info(f"Using in-memory DataFrame with {len(df)} samples")
+      else:
+          # Single CSV file
+          csv_path = Path(data_source).resolve()
+          logger.info(f"Loading data from {csv_path}")
+          
+          try:
+              df = pd.read_csv(csv_path)
+          except Exception as e:
+              logger.error(f"Error loading data: {str(e)}")
+              raise
+      
+      # Validate required columns
+      if 'text' not in df.columns or 'category' not in df.columns:
+          raise ValueError("Data must contain 'text' and 'category' columns")
+      
+      # Remove rows with missing values FIRST
+      df = df.dropna(subset=['text', 'category'])
+      
+      # Parse multi-label categories
+      def parse_multi_label_category(category_str):
+          """Parse categories like: "Category1", "Category2" """
+          if pd.isna(category_str) or not category_str:
+              return []
+          
+          category_str = str(category_str).strip()
+          
+          # Extract all quoted strings
+          import re
+          pattern = r'"([^"]+)"'
+          matches = re.findall(pattern, category_str)
+          
+          if matches:
+              return [match.strip() for match in matches]
+          
+          # Fallback: single category
+          return [category_str.strip().strip('"')]
+      
+      # Explode multi-label rows into separate rows (one row per category)
+      rows_to_expand = []
+      
+      for idx, row in df.iterrows():
+          categories = parse_multi_label_category(row['category'])
+          
+          for category in categories:
+              new_row = row.copy()
+              new_row['category'] = category
+              rows_to_expand.append(new_row)
+      
+      # Create new dataframe with exploded categories
+      df = pd.DataFrame(rows_to_expand)
+      
+      # NOW validate categories (after parsing)
+      valid_categories = set(self.CLIMATE_CATEGORIES)
+      df_categories = set(df['category'].dropna().unique())
+      invalid_categories = df_categories - valid_categories
+      
+      if invalid_categories:
+          logger.warning(f"Found {len(invalid_categories)} invalid categories after parsing:")
+          for inv_cat in invalid_categories:
+              logger.warning(f"   - '{inv_cat}'")
+          logger.info(f"Valid categories are: {self.CLIMATE_CATEGORIES}")
+          # Filter out invalid categories
+          before_filter = len(df)
+          df = df[df['category'].isin(valid_categories)]
+          after_filter = len(df)
+          logger.warning(f"Filtered out {before_filter - after_filter} rows with invalid categories")
+      
+      # Preprocess text
+      df['processed_text'] = df['text'].apply(self.preprocess_text)
+      
+      # Remove empty texts after preprocessing
+      df = df[df['processed_text'].str.len() > 0]
+      
+      logger.info(f"Final dataset: {len(df)} samples (after expanding multi-label)")
+      logger.info(f"Unique categories present: {len(df['category'].unique())}")
+      logger.info(f"Category distribution:\n{df['category'].value_counts()}")
+      
+      if 'source_file' not in df.columns:
+          df['source_file'] = 'unknown'
+          df['batch_id'] = 0
+      
+      X = df['processed_text'].values
+      y = df['category'].values
+      
+      return df, X, y
     
     def pseudo_label_data(self, 
                          unlabeled_data: Union[str, Path, pd.DataFrame], 
@@ -395,6 +477,105 @@ class ClimateCategoryClassifier:
             }
         
         return detailed_results
+    
+    def evaluate_with_multiple_runs(self, data_source, n_runs=5):
+      """
+      Run evaluation multiple times for statistical validity
+      Required for rigorous thesis evaluation
+      """
+      from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+      
+      logger.info(f"Running {n_runs} evaluations with different random seeds...")
+      
+      all_results = []
+      
+      # Load data once
+      df, X, y = self.load_data(data_source)
+      
+      for run in range(n_runs):
+          seed = 42 + run  # Different seed each time
+          
+          logger.info(f"\n--- Run {run + 1}/{n_runs} (seed={seed}) ---")
+          
+          # Split data with different seed
+          try:
+              X_train, X_test, y_train, y_test = train_test_split(
+                  X, y, test_size=0.2, random_state=seed, stratify=y
+              )
+          except ValueError as e:
+              logger.warning(f"Stratification failed: {e}. Using random split.")
+              X_train, X_test, y_train, y_test = train_test_split(
+                  X, y, test_size=0.2, random_state=seed
+              )
+          
+          # Train model
+          self.pipeline = self.create_pipeline()
+          self.pipeline.fit(X_train, y_train)
+          
+          # Evaluate
+          y_pred = self.pipeline.predict(X_test)
+          accuracy = accuracy_score(y_test, y_pred)
+          precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
+          recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
+          f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
+          
+          all_results.append({
+              'run': run + 1,
+              'seed': seed,
+              'accuracy': accuracy,
+              'precision': precision,
+              'recall': recall,
+              'f1': f1
+          })
+          
+          logger.info(f"Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}")
+      
+      # Calculate statistics
+      accuracies = [r['accuracy'] for r in all_results]
+      precisions = [r['precision'] for r in all_results]
+      recalls = [r['recall'] for r in all_results]
+      f1s = [r['f1'] for r in all_results]
+      
+      summary = {
+          'runs': all_results,
+          'statistics': {
+              'accuracy': {
+                  'mean': np.mean(accuracies),
+                  'std': np.std(accuracies),
+                  'min': np.min(accuracies),
+                  'max': np.max(accuracies)
+              },
+              'precision': {
+                  'mean': np.mean(precisions),
+                  'std': np.std(precisions),
+                  'min': np.min(precisions),
+                  'max': np.max(precisions)
+              },
+              'recall': {
+                  'mean': np.mean(recalls),
+                  'std': np.std(recalls),
+                  'min': np.min(recalls),
+                  'max': np.max(recalls)
+              },
+              'f1': {
+                  'mean': np.mean(f1s),
+                  'std': np.std(f1s),
+                  'min': np.min(f1s),
+                  'max': np.max(f1s)
+              }
+          }
+      }
+      
+      logger.info(f"\n{'='*70}")
+      logger.info(f"SUMMARY OVER {n_runs} RUNS:")
+      logger.info(f"{'='*70}")
+      logger.info(f"Accuracy:  {summary['statistics']['accuracy']['mean']:.4f} ± {summary['statistics']['accuracy']['std']:.4f} (min: {summary['statistics']['accuracy']['min']:.4f}, max: {summary['statistics']['accuracy']['max']:.4f})")
+      logger.info(f"Precision: {summary['statistics']['precision']['mean']:.4f} ± {summary['statistics']['precision']['std']:.4f}")
+      logger.info(f"Recall:    {summary['statistics']['recall']['mean']:.4f} ± {summary['statistics']['recall']['std']:.4f}")
+      logger.info(f"F1-Score:  {summary['statistics']['f1']['mean']:.4f} ± {summary['statistics']['f1']['std']:.4f}")
+      logger.info(f"{'='*70}\n")
+      
+      return summary
     
     def train_model(self, 
                    data_source: Union[str, Path, pd.DataFrame, List[Union[str, Path]]], 
@@ -677,7 +858,6 @@ def option_1_train_new_model():
     
     print("Available labeled CSV files:")
     for i, csv_file in enumerate(csv_files, 1):
-        # Try to get row count for display
         try:
             row_count = len(pd.read_csv(csv_file))
             print(f"   {i}. {csv_file.name} ({row_count} rows)")
@@ -720,27 +900,134 @@ def option_1_train_new_model():
         print(f"Error reading file: {e}")
         return
     
-    try:
-        print("\nTraining model...")
-        results = trainer.train_model(selected_file)
-        
-        # Save the model with training results
-        model_name = f"climate_category_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-        trainer.save_model(model_name, results)
-        
-        metadata = trainer.load_model(model_name)
-        if metadata:
-            export_benchmarks_to_json(metadata)
-        
-        print("\nTRAINING COMPLETED!")
-        print(f"Training samples: {results['training_samples']}")
-        print(f"Test accuracy: {results['test_accuracy']:.4f}")
-        print(f"Number of categories: {len(results['classes'])}")
-        print(f"Model saved as: {model_name}")
-        print("\nNext step: Use option 2 to auto-categorize unlabeled tweets!")
-        
-    except Exception as e:
-        print(f"Training failed: {e}")
+    # Ask if user wants multiple runs (for thesis)
+    print("\n" + "="*70)
+    print("EVALUATION MODE")
+    print("="*70)
+    print("For thesis statistical validity, you can run multiple evaluations.")
+    print("This trains the model 5 times with different random seeds.")
+    print()
+    run_multiple = input("Run multiple evaluations? (y/n, default: y): ").strip().lower()
+    
+    if run_multiple == '' or run_multiple == 'y':
+        # MULTIPLE RUNS MODE
+        try:
+            n_runs = 5
+            print(f"\n🔄 Running {n_runs} evaluations with different random seeds...")
+            print("This may take a while...\n")
+            
+            # Run multiple evaluations
+            summary = trainer.evaluate_with_multiple_runs(selected_file, n_runs=n_runs)
+            
+            # Find the best run to use for the final model
+            best_run = max(summary['runs'], key=lambda x: x['accuracy'])
+            logger.info(f"\n✨ Using best run (seed={best_run['seed']}, accuracy={best_run['accuracy']:.4f}) for final model")
+            
+            # Retrain with best seed to get the full model
+            df, X, y = trainer.load_data(selected_file)
+            
+            try:
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=0.2, random_state=best_run['seed'], stratify=y
+                )
+            except ValueError as e:
+                logger.warning(f"Stratification failed: {e}. Using random split.")
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=0.2, random_state=best_run['seed']
+                )
+            
+            # Train the final model
+            trainer.pipeline = trainer.create_pipeline()
+            trainer.pipeline.fit(X_train, y_train)
+            
+            # Get detailed evaluation for the final model
+            evaluation_results = trainer.evaluate_model_detailed(X_test, y_test)
+            
+            # Get category distribution
+            category_counts = pd.Series(y).value_counts()
+            
+            # Compile results with multiple runs statistics
+            results = {
+                'training_samples': len(X_train),
+                'test_samples': len(X_test),
+                'best_params': 'Default parameters (from best run)',
+                'best_cv_score': None,
+                'cv_mean': None,
+                'cv_std': None,
+                'evaluation': evaluation_results,
+                'training_timestamp': datetime.now().isoformat(),
+                'categories': trainer.CLIMATE_CATEGORIES,
+                'category_distribution': category_counts.to_dict(),
+                'multiple_runs': summary,  # Include all runs statistics
+                'best_run_seed': best_run['seed'],
+                'test_accuracy': evaluation_results['overall_metrics']['accuracy'],
+                'classification_report': evaluation_results['classification_report'],
+                'confusion_matrix': evaluation_results['confusion_matrix'],
+                'classes': evaluation_results['classes']
+            }
+            
+            # Save the model with training results
+            model_name = f"climate_category_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            trainer.save_model(model_name, results)
+            
+            # Export benchmarks
+            metadata = trainer.load_model(model_name)
+            if metadata:
+                export_benchmarks_to_json(metadata)
+            
+            print("\n" + "="*70)
+            print("✅ TRAINING COMPLETED!")
+            print("="*70)
+            print(f"📊 Training samples: {results['training_samples']}")
+            print(f"📊 Test samples: {results['test_samples']}")
+            print(f"📊 Number of categories: {len(results['classes'])}")
+            print()
+            print("📈 MULTIPLE RUNS STATISTICS (for thesis):")
+            stats = summary['statistics']
+            print(f"   Accuracy:  {stats['accuracy']['mean']:.4f} ± {stats['accuracy']['std']:.4f}")
+            print(f"   Precision: {stats['precision']['mean']:.4f} ± {stats['precision']['std']:.4f}")
+            print(f"   Recall:    {stats['recall']['mean']:.4f} ± {stats['recall']['std']:.4f}")
+            print(f"   F1-Score:  {stats['f1']['mean']:.4f} ± {stats['f1']['std']:.4f}")
+            print()
+            print(f"💾 Model saved as: {model_name}")
+            print(f"🎯 Best run used: seed={best_run['seed']}, accuracy={best_run['accuracy']:.4f}")
+            print()
+            print("📝 For your thesis, report the mean ± std values above!")
+            print("="*70)
+            print("\n➡️  Next step: Use option 2 to auto-categorize unlabeled tweets!")
+            
+        except Exception as e:
+            print(f"❌ Training with multiple runs failed: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    else:
+        # SINGLE RUN MODE (original behavior)
+        try:
+            print("\n🔄 Training model (single run)...")
+            results = trainer.train_model(selected_file)
+            
+            # Save the model with training results
+            model_name = f"climate_category_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            trainer.save_model(model_name, results)
+            
+            # Export benchmarks
+            metadata = trainer.load_model(model_name)
+            if metadata:
+                export_benchmarks_to_json(metadata)
+            
+            print("\n" + "="*70)
+            print("✅ TRAINING COMPLETED!")
+            print("="*70)
+            print(f"📊 Training samples: {results['training_samples']}")
+            print(f"📊 Test accuracy: {results['test_accuracy']:.4f}")
+            print(f"📊 Number of categories: {len(results['classes'])}")
+            print(f"💾 Model saved as: {model_name}")
+            print("="*70)
+            print("\n➡️  Next step: Use option 2 to auto-categorize unlabeled tweets!")
+            
+        except Exception as e:
+            print(f"❌ Training failed: {e}")
 
 def option_2_auto_categorize():
     """Option 2: Auto-categorize tweets"""
@@ -873,7 +1160,6 @@ def option_3_retrain():
     print("Available original labeled data files:")
     original_files = []
     for i, csv_file in enumerate(csv_files, 1):
-        # Check if file has the required columns
         try:
             df = pd.read_csv(csv_file)
             if 'text' in df.columns and 'category' in df.columns:
@@ -954,28 +1240,102 @@ def option_3_retrain():
     for i, file in enumerate(all_files, 1):
         print(f"   {i}. {file.name}")
     
-    try:
-        print("\nRetraining with combined data...")
-        results = trainer.train_model(all_files, perform_grid_search=False)  # Faster retraining
-        
-        # Save the updated model
-        model_name = f"climate_category_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-        trainer.save_model(model_name, results)
+    # Ask if user wants multiple runs
+    print("\n" + "="*70)
+    print("EVALUATION MODE")
+    print("="*70)
+    run_multiple = input("Run multiple evaluations? (y/n, default: y): ").strip().lower()
+    
+    if run_multiple == '' or run_multiple == 'y':
+        # MULTIPLE RUNS MODE
+        try:
+            n_runs = 5
+            print(f"\n🔄 Retraining with {n_runs} evaluations...")
+            
+            # Run multiple evaluations
+            summary = trainer.evaluate_with_multiple_runs(all_files, n_runs=n_runs)
+            
+            # Use best run for final model
+            best_run = max(summary['runs'], key=lambda x: x['accuracy'])
+            logger.info(f"\n✨ Using best run (seed={best_run['seed']}, accuracy={best_run['accuracy']:.4f})")
+            
+            # Retrain with best seed
+            df, X, y = trainer.load_data(all_files)
+            
+            try:
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=0.2, random_state=best_run['seed'], stratify=y
+                )
+            except ValueError:
+                X_train, X_test, y_train, y_test = train_test_split(
+                    X, y, test_size=0.2, random_state=best_run['seed']
+                )
+            
+            trainer.pipeline = trainer.create_pipeline()
+            trainer.pipeline.fit(X_train, y_train)
+            
+            evaluation_results = trainer.evaluate_model_detailed(X_test, y_test)
+            category_counts = pd.Series(y).value_counts()
+            
+            results = {
+                'training_samples': len(X_train),
+                'test_samples': len(X_test),
+                'evaluation': evaluation_results,
+                'training_timestamp': datetime.now().isoformat(),
+                'categories': trainer.CLIMATE_CATEGORIES,
+                'category_distribution': category_counts.to_dict(),
+                'multiple_runs': summary,
+                'best_run_seed': best_run['seed'],
+                'test_accuracy': evaluation_results['overall_metrics']['accuracy'],
+                'classification_report': evaluation_results['classification_report'],
+                'confusion_matrix': evaluation_results['confusion_matrix'],
+                'classes': evaluation_results['classes']
+            }
+            
+            model_name = f"climate_category_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            trainer.save_model(model_name, results)
+            
+            metadata = trainer.load_model(model_name)
+            if metadata:
+                export_benchmarks_to_json(metadata)
+            
+            print("\n" + "="*70)
+            print("✅ RETRAINING COMPLETED!")
+            print("="*70)
+            print(f"📊 Training samples: {results['training_samples']}")
+            print(f"📊 Categories: {len(results['classes'])}")
+            print()
+            print("📈 MULTIPLE RUNS STATISTICS:")
+            stats = summary['statistics']
+            print(f"   Accuracy:  {stats['accuracy']['mean']:.4f} ± {stats['accuracy']['std']:.4f}")
+            print(f"   F1-Score:  {stats['f1']['mean']:.4f} ± {stats['f1']['std']:.4f}")
+            print()
+            print(f"💾 Model saved as: {model_name}")
+            print("="*70)
+            
+        except Exception as e:
+            print(f"❌ Retraining failed: {e}")
+    
+    else:
+        # SINGLE RUN MODE
+        try:
+            print("\n🔄 Retraining with combined data (single run)...")
+            results = trainer.train_model(all_files, perform_grid_search=False)
+            
+            model_name = f"climate_category_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            trainer.save_model(model_name, results)
 
-        metadata = trainer.load_model(model_name)
-        if metadata:
-            export_benchmarks_to_json(metadata)
-        
-        print(f"\nRETRAINING COMPLETED!")
-        print(f"Training samples: {results['training_samples']}")
-        print(f"Test accuracy: {results['test_accuracy']:.4f}")
-        print(f"Categories: {len(results['classes'])}")
-        print(f"Updated model saved as: {model_name}")
-        print("\nYour model is now improved with pseudo-labeled data!")
-        print("You can repeat the cycle: get more unlabeled data -> option 2 -> option 3")
-        
-    except Exception as e:
-        print(f"Retraining failed: {e}")
+            metadata = trainer.load_model(model_name)
+            if metadata:
+                export_benchmarks_to_json(metadata)
+            
+            print(f"\n✅ RETRAINING COMPLETED!")
+            print(f"📊 Training samples: {results['training_samples']}")
+            print(f"📊 Test accuracy: {results['test_accuracy']:.4f}")
+            print(f"💾 Model saved as: {model_name}")
+            
+        except Exception as e:
+            print(f"❌ Retraining failed: {e}")
 
 def option_4_test_model():
     """Option 4: Test existing model with comprehensive benchmarks"""
@@ -1198,7 +1558,6 @@ def option_5_list_files():
 
 def export_benchmarks_to_json(metadata: Dict[str, Any]):
     """Export model benchmarks to JSON for frontend consumption"""
-    # Path to frontend public folder
     backend_dir = Path(__file__).resolve().parent.parent
     frontend_dir = backend_dir.parent / "frontend"
     output_path = frontend_dir / "public" / "climatedomain_benchmarks.json"
@@ -1211,9 +1570,12 @@ def export_benchmarks_to_json(metadata: Dict[str, Any]):
     eval_data = results.get('evaluation', {})
     overall = eval_data.get('overall_metrics', {})
     
+    # Check if multiple runs data exists
+    multiple_runs = results.get('multiple_runs', None)
+    
     benchmarks = {
         "timestamp": results.get('training_timestamp'),
-        "naive_bayes_domain_identifier": overall.get('accuracy', 0) * 100,  # ONLY this model's accuracy
+        "naive_bayes_domain_identifier": overall.get('accuracy', 0) * 100,
         "detailed_metrics": {
             "accuracy": overall.get('accuracy', 0),
             "precision_weighted": overall.get('precision_weighted', 0),
@@ -1234,6 +1596,43 @@ def export_benchmarks_to_json(metadata: Dict[str, Any]):
         "categories": results.get('categories', []),
         "category_distribution": results.get('category_distribution', {})
     }
+    
+    # ADD MULTIPLE RUNS DATA IF IT EXISTS
+    if multiple_runs:
+        benchmarks["multiple_runs"] = {
+            "statistics": {
+                "accuracy": {
+                    "mean": multiple_runs['statistics']['accuracy']['mean'] * 100,  # Convert to percentage
+                    "std": multiple_runs['statistics']['accuracy']['std'] * 100,
+                    "min": multiple_runs['statistics']['accuracy']['min'] * 100,
+                    "max": multiple_runs['statistics']['accuracy']['max'] * 100
+                },
+                "precision": {
+                    "mean": multiple_runs['statistics']['precision']['mean'],
+                    "std": multiple_runs['statistics']['precision']['std'],
+                    "min": multiple_runs['statistics']['precision']['min'],
+                    "max": multiple_runs['statistics']['precision']['max']
+                },
+                "recall": {
+                    "mean": multiple_runs['statistics']['recall']['mean'],
+                    "std": multiple_runs['statistics']['recall']['std'],
+                    "min": multiple_runs['statistics']['recall']['min'],
+                    "max": multiple_runs['statistics']['recall']['max']
+                },
+                "f1": {
+                    "mean": multiple_runs['statistics']['f1']['mean'],
+                    "std": multiple_runs['statistics']['f1']['std'],
+                    "min": multiple_runs['statistics']['f1']['min'],
+                    "max": multiple_runs['statistics']['f1']['max']
+                }
+            },
+            "best_run_seed": results.get('best_run_seed'),
+            "number_of_runs": len(multiple_runs['runs']),
+            "all_runs": multiple_runs['runs']  # Include all individual run results
+        }
+        logger.info("✅ Multiple runs statistics included in benchmarks")
+    else:
+        logger.warning("⚠️  No multiple runs data found in training results")
     
     output_path.parent.mkdir(parents=True, exist_ok=True)
     

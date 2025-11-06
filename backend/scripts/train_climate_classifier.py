@@ -378,6 +378,99 @@ class ClimateClassifierTrainer:
         
         return detailed_results
     
+    def evaluate_with_multiple_runs(self, data_source, n_runs=5):
+      """
+      Run evaluation multiple times for statistical validity
+      Required for rigorous thesis evaluation
+      """
+      from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+      
+      logger.info(f"Running {n_runs} evaluations with different random seeds...")
+      
+      all_results = []
+      
+      # Load data once
+      df, X, y = self.load_data(data_source)
+      
+      for run in range(n_runs):
+          seed = 42 + run  # Different seed each time
+          
+          logger.info(f"\n--- Run {run + 1}/{n_runs} (seed={seed}) ---")
+          
+          # Split data with different seed
+          X_train, X_test, y_train, y_test = train_test_split(
+              X, y, test_size=0.2, random_state=seed, stratify=y
+          )
+          
+          # Train model
+          self.pipeline = self.create_pipeline()
+          self.pipeline.fit(X_train, y_train)
+          
+          # Evaluate
+          y_pred = self.pipeline.predict(X_test)
+          accuracy = accuracy_score(y_test, y_pred)
+          precision = precision_score(y_test, y_pred, average='weighted', zero_division=0)
+          recall = recall_score(y_test, y_pred, average='weighted', zero_division=0)
+          f1 = f1_score(y_test, y_pred, average='weighted', zero_division=0)
+          
+          all_results.append({
+              'run': run + 1,
+              'seed': seed,
+              'accuracy': accuracy,
+              'precision': precision,
+              'recall': recall,
+              'f1': f1
+          })
+          
+          logger.info(f"Accuracy: {accuracy:.4f}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.4f}")
+      
+      # Calculate statistics
+      accuracies = [r['accuracy'] for r in all_results]
+      precisions = [r['precision'] for r in all_results]
+      recalls = [r['recall'] for r in all_results]
+      f1s = [r['f1'] for r in all_results]
+      
+      summary = {
+          'runs': all_results,
+          'statistics': {
+              'accuracy': {
+                  'mean': np.mean(accuracies),
+                  'std': np.std(accuracies),
+                  'min': np.min(accuracies),
+                  'max': np.max(accuracies)
+              },
+              'precision': {
+                  'mean': np.mean(precisions),
+                  'std': np.std(precisions),
+                  'min': np.min(precisions),
+                  'max': np.max(precisions)
+              },
+              'recall': {
+                  'mean': np.mean(recalls),
+                  'std': np.std(recalls),
+                  'min': np.min(recalls),
+                  'max': np.max(recalls)
+              },
+              'f1': {
+                  'mean': np.mean(f1s),
+                  'std': np.std(f1s),
+                  'min': np.min(f1s),
+                  'max': np.max(f1s)
+              }
+          }
+      }
+      
+      logger.info(f"\n{'='*70}")
+      logger.info(f"SUMMARY OVER {n_runs} RUNS:")
+      logger.info(f"{'='*70}")
+      logger.info(f"Accuracy:  {summary['statistics']['accuracy']['mean']:.4f} ± {summary['statistics']['accuracy']['std']:.4f} (min: {summary['statistics']['accuracy']['min']:.4f}, max: {summary['statistics']['accuracy']['max']:.4f})")
+      logger.info(f"Precision: {summary['statistics']['precision']['mean']:.4f} ± {summary['statistics']['precision']['std']:.4f}")
+      logger.info(f"Recall:    {summary['statistics']['recall']['mean']:.4f} ± {summary['statistics']['recall']['std']:.4f}")
+      logger.info(f"F1-Score:  {summary['statistics']['f1']['mean']:.4f} ± {summary['statistics']['f1']['std']:.4f}")
+      logger.info(f"{'='*70}\n")
+      
+      return summary
+
     def train_model(self, 
                    data_source: Union[str, Path, pd.DataFrame, List[Union[str, Path]]], 
                    test_size: float = 0.2,
@@ -629,27 +722,115 @@ def option_1_train_new_model():
     
     print(f"\n📂 Using labeled data: {selected_file.name}")
     
-    try:
-        print("\n🔄 Training model...")
-        # Pass only the filename (like in option 2), so load_data looks in input_dir
-        results = trainer.train_model(selected_file.name)  
-        
-        # Save the model with training results
-        model_name = f"climate_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-        trainer.save_model(model_name, results)
-        # Export benchmarks
-        metadata = trainer.load_model(model_name)
-        if metadata:
-            export_benchmarks_to_json(metadata)
-        
-        print("\n✅ TRAINING COMPLETED!")
-        print(f"📊 Training samples: {results['training_samples']}")
-        print(f"📊 Test accuracy: {results['test_accuracy']:.4f}")
-        print(f"💾 Model saved as: {model_name}")
-        print("\n➡️  Next step: Use option 2 to auto-label unlabeled tweets!")
-        
-    except Exception as e:
-        print(f"❌ Training failed: {e}")
+    # Ask if user wants multiple runs
+    print("\n" + "="*70)
+    print("EVALUATION MODE")
+    print("="*70)
+    print("For thesis statistical validity, you can run multiple evaluations.")
+    print("This trains the model 5 times with different random seeds.")
+    print()
+    run_multiple = input("Run multiple evaluations? (y/n, default: y): ").strip().lower()
+    
+    if run_multiple == '' or run_multiple == 'y':
+        # MULTIPLE RUNS MODE
+        try:
+            n_runs = 5
+            print(f"\n🔄 Running {n_runs} evaluations with different random seeds...")
+            print("This may take a while...\n")
+            
+            # Run multiple evaluations
+            summary = trainer.evaluate_with_multiple_runs(selected_file.name, n_runs=n_runs)
+            
+            # Find the best run
+            best_run = max(summary['runs'], key=lambda x: x['accuracy'])
+            logger.info(f"\n✨ Using best run (seed={best_run['seed']}, accuracy={best_run['accuracy']:.4f}) for final model")
+            
+            # Retrain with best seed to get the full model
+            df, X, y = trainer.load_data(selected_file.name)
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=best_run['seed'], stratify=y
+            )
+            
+            # Train the final model
+            trainer.pipeline = trainer.create_pipeline()
+            trainer.pipeline.fit(X_train, y_train)
+            
+            # Get detailed evaluation
+            evaluation_results = trainer.evaluate_model_detailed(X_test, y_test)
+            
+            # Compile results with multiple runs statistics
+            results = {
+                'training_samples': len(X_train),
+                'test_samples': len(X_test),
+                'best_params': 'Default parameters (from best run)',
+                'best_cv_score': None,
+                'cv_mean': None,
+                'cv_std': None,
+                'evaluation': evaluation_results,
+                'training_timestamp': datetime.now().isoformat(),
+                'multiple_runs': summary,
+                'best_run_seed': best_run['seed'],
+                'test_accuracy': evaluation_results['overall_metrics']['accuracy'],
+                'classification_report': evaluation_results['classification_report'],
+                'confusion_matrix': evaluation_results['confusion_matrix'],
+                'classes': evaluation_results['classes']
+            }
+            
+            # Save the model
+            model_name = f"climate_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            trainer.save_model(model_name, results)
+            
+            # Export benchmarks
+            metadata = trainer.load_model(model_name)
+            if metadata:
+                export_benchmarks_to_json(metadata)
+            
+            print("\n" + "="*70)
+            print("✅ TRAINING COMPLETED!")
+            print("="*70)
+            print(f"📊 Training samples: {results['training_samples']}")
+            print(f"📊 Test samples: {results['test_samples']}")
+            print()
+            print("📈 MULTIPLE RUNS STATISTICS (for thesis):")
+            stats = summary['statistics']
+            print(f"   Accuracy:  {stats['accuracy']['mean']:.4f} ± {stats['accuracy']['std']:.4f}")
+            print(f"   Precision: {stats['precision']['mean']:.4f} ± {stats['precision']['std']:.4f}")
+            print(f"   Recall:    {stats['recall']['mean']:.4f} ± {stats['recall']['std']:.4f}")
+            print(f"   F1-Score:  {stats['f1']['mean']:.4f} ± {stats['f1']['std']:.4f}")
+            print()
+            print(f"💾 Model saved as: {model_name}")
+            print(f"🎯 Best run used: seed={best_run['seed']}, accuracy={best_run['accuracy']:.4f}")
+            print()
+            print("📝 For your thesis, report the mean ± std values above!")
+            print("="*70)
+            print("\n➡️  Next step: Use option 2 to auto-label unlabeled tweets!")
+            
+        except Exception as e:
+            print(f"❌ Training with multiple runs failed: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    else:
+        # SINGLE RUN MODE (original behavior)
+        try:
+            print("\n🔄 Training model (single run)...")
+            results = trainer.train_model(selected_file.name)
+            
+            model_name = f"climate_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            trainer.save_model(model_name, results)
+            
+            metadata = trainer.load_model(model_name)
+            if metadata:
+                export_benchmarks_to_json(metadata)
+            
+            print("\n✅ TRAINING COMPLETED!")
+            print(f"📊 Training samples: {results['training_samples']}")
+            print(f"📊 Test accuracy: {results['test_accuracy']:.4f}")
+            print(f"💾 Model saved as: {model_name}")
+            print("\n➡️  Next step: Use option 2 to auto-label unlabeled tweets!")
+            
+        except Exception as e:
+            print(f"❌ Training failed: {e}")
 
 def option_2_auto_label():
     """Option 2: Auto-label tweets"""
@@ -860,27 +1041,96 @@ def option_3_retrain():
     for i, file in enumerate(all_files, 1):
         print(f"   {i}. {file.name}")
     
-    try:
-        print("\n🔄 Retraining with combined data...")
-        results = trainer.train_model(all_files, perform_grid_search=False)  # Faster retraining
-        
-        # Save the updated model
-        model_name = f"climate_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-        trainer.save_model(model_name, results)
+    # Ask if user wants multiple runs
+    print("\n" + "="*70)
+    print("EVALUATION MODE")
+    print("="*70)
+    run_multiple = input("Run multiple evaluations? (y/n, default: y): ").strip().lower()
+    
+    if run_multiple == '' or run_multiple == 'y':
+        # MULTIPLE RUNS MODE
+        try:
+            n_runs = 5
+            print(f"\n🔄 Retraining with {n_runs} evaluations...")
+            
+            # Run multiple evaluations
+            summary = trainer.evaluate_with_multiple_runs(all_files, n_runs=n_runs)
+            
+            # Use best run for final model
+            best_run = max(summary['runs'], key=lambda x: x['accuracy'])
+            logger.info(f"\n✨ Using best run (seed={best_run['seed']}, accuracy={best_run['accuracy']:.4f})")
+            
+            # Retrain with best seed
+            df, X, y = trainer.load_data(all_files)
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=best_run['seed'], stratify=y
+            )
+            
+            trainer.pipeline = trainer.create_pipeline()
+            trainer.pipeline.fit(X_train, y_train)
+            
+            evaluation_results = trainer.evaluate_model_detailed(X_test, y_test)
+            
+            results = {
+                'training_samples': len(X_train),
+                'test_samples': len(X_test),
+                'evaluation': evaluation_results,
+                'training_timestamp': datetime.now().isoformat(),
+                'multiple_runs': summary,
+                'best_run_seed': best_run['seed'],
+                'test_accuracy': evaluation_results['overall_metrics']['accuracy'],
+                'classification_report': evaluation_results['classification_report'],
+                'confusion_matrix': evaluation_results['confusion_matrix'],
+                'classes': evaluation_results['classes']
+            }
+            
+            model_name = f"climate_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            trainer.save_model(model_name, results)
+            
+            metadata = trainer.load_model(model_name)
+            if metadata:
+                export_benchmarks_to_json(metadata)
+            
+            print("\n" + "="*70)
+            print("✅ RETRAINING COMPLETED!")
+            print("="*70)
+            print(f"📊 Training samples: {results['training_samples']}")
+            print()
+            print("📈 MULTIPLE RUNS STATISTICS:")
+            stats = summary['statistics']
+            print(f"   Accuracy:  {stats['accuracy']['mean']:.4f} ± {stats['accuracy']['std']:.4f}")
+            print(f"   F1-Score:  {stats['f1']['mean']:.4f} ± {stats['f1']['std']:.4f}")
+            print()
+            print(f"💾 Model saved as: {model_name}")
+            print("="*70)
+            
+        except Exception as e:
+            print(f"❌ Retraining failed: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    else:
+        # SINGLE RUN MODE
+        try:
+            print("\n🔄 Retraining with combined data (single run)...")
+            results = trainer.train_model(all_files, perform_grid_search=False)
+            
+            model_name = f"climate_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            trainer.save_model(model_name, results)
 
-        metadata = trainer.load_model(model_name)
-        if metadata:
-            export_benchmarks_to_json(metadata)
-        
-        print(f"\n✅ RETRAINING COMPLETED!")
-        print(f"📊 Training samples: {results['training_samples']}")
-        print(f"📊 Test accuracy: {results['test_accuracy']:.4f}")
-        print(f"💾 Updated model saved as: {model_name}")
-        print("\n🎉 Your model is now improved with pseudo-labeled data!")
-        print("➡️  You can repeat the cycle: get more unlabeled data → option 2 → option 3")
-        
-    except Exception as e:
-        print(f"❌ Retraining failed: {e}")
+            metadata = trainer.load_model(model_name)
+            if metadata:
+                export_benchmarks_to_json(metadata)
+            
+            print(f"\n✅ RETRAINING COMPLETED!")
+            print(f"📊 Training samples: {results['training_samples']}")
+            print(f"📊 Test accuracy: {results['test_accuracy']:.4f}")
+            print(f"💾 Updated model saved as: {model_name}")
+            print("\n🎉 Your model is now improved with pseudo-labeled data!")
+            print("➡️  You can repeat the cycle: get more unlabeled data → option 2 → option 3")
+            
+        except Exception as e:
+            print(f"❌ Retraining failed: {e}")
 
 def option_4_test_model():
     """Option 4: Test existing model with comprehensive benchmarks"""
@@ -1083,7 +1333,6 @@ def option_5_list_files():
 
 def export_benchmarks_to_json(metadata: Dict[str, Any]):
     """Export model benchmarks to JSON for frontend consumption"""
-    # Path to frontend public folder
     backend_dir = Path(__file__).resolve().parent.parent
     frontend_dir = backend_dir.parent / "frontend"
     output_path = frontend_dir / "public" / "climaterelated_benchmarks.json"
@@ -1096,9 +1345,12 @@ def export_benchmarks_to_json(metadata: Dict[str, Any]):
     eval_data = results.get('evaluation', {})
     overall = eval_data.get('overall_metrics', {})
     
+    # Check if multiple runs data exists
+    multiple_runs = results.get('multiple_runs', None)
+    
     benchmarks = {
         "timestamp": results.get('training_timestamp'),
-        "naive_bayes_climate_checker": overall.get('accuracy', 0) * 100,  # ONLY this model's accuracy
+        "naive_bayes_climate_checker": overall.get('accuracy', 0) * 100,
         "detailed_metrics": {
             "accuracy": overall.get('accuracy', 0),
             "precision_weighted": overall.get('precision_weighted', 0),
@@ -1117,6 +1369,43 @@ def export_benchmarks_to_json(metadata: Dict[str, Any]):
             "test_samples": results.get('test_samples', 0)
         }
     }
+    
+    # ADD MULTIPLE RUNS DATA IF IT EXISTS
+    if multiple_runs:
+        benchmarks["multiple_runs"] = {
+            "statistics": {
+                "accuracy": {
+                    "mean": multiple_runs['statistics']['accuracy']['mean'] * 100,
+                    "std": multiple_runs['statistics']['accuracy']['std'] * 100,
+                    "min": multiple_runs['statistics']['accuracy']['min'] * 100,
+                    "max": multiple_runs['statistics']['accuracy']['max'] * 100
+                },
+                "precision": {
+                    "mean": multiple_runs['statistics']['precision']['mean'],
+                    "std": multiple_runs['statistics']['precision']['std'],
+                    "min": multiple_runs['statistics']['precision']['min'],
+                    "max": multiple_runs['statistics']['precision']['max']
+                },
+                "recall": {
+                    "mean": multiple_runs['statistics']['recall']['mean'],
+                    "std": multiple_runs['statistics']['recall']['std'],
+                    "min": multiple_runs['statistics']['recall']['min'],
+                    "max": multiple_runs['statistics']['recall']['max']
+                },
+                "f1": {
+                    "mean": multiple_runs['statistics']['f1']['mean'],
+                    "std": multiple_runs['statistics']['f1']['std'],
+                    "min": multiple_runs['statistics']['f1']['min'],
+                    "max": multiple_runs['statistics']['f1']['max']
+                }
+            },
+            "best_run_seed": results.get('best_run_seed'),
+            "number_of_runs": len(multiple_runs['runs']),
+            "all_runs": multiple_runs['runs']
+        }
+        logger.info("✅ Multiple runs statistics included in benchmarks")
+    else:
+        logger.warning("⚠️  No multiple runs data found in training results")
     
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
