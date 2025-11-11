@@ -2,17 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { MdChevronRight } from "react-icons/md";
-import ClimateImpactChart from "@/components/BarChart";
-import SentimentDistributionChart from "@/components/PieChart";
-import ClimateTrendsChart from "@/components/AreaChart";
-import GlobalFilterPanel from "@/components/GlobalFilterPanel";
-import MetricsModal from "@/components/MetricsModal";
-import FrameworkAccuracyCard from "@/components/FrameworkAccuracyCard";
+import ClimateImpactChart from "@/components/observations/BarChart";
+import SentimentDistributionChart from "@/components/observations/PieChart";
+import ClimateTrendsChart from "@/components/observations/AreaChart";
+import MetricsModal from "@/components/observations/MetricsModal";
+import FrameworkAccuracyCard from "@/components/observations/FrameworkAccuracyCard";
 
 export default function Observations() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedDays, setSelectedDays] = useState(365);
-  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const [benchmarks, setBenchmarks] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -80,17 +78,6 @@ export default function Observations() {
           <MdChevronRight className="text-3xl text-gray-400" />
           <p className="text-gray-600 text-2xl font-medium">Observations</p>
         </div>
-
-        {/* Global Filter Button - Top Right */}
-        <GlobalFilterPanel
-          location={selectedLocation}
-          onLocationChange={setSelectedLocation}
-          days={selectedDays}
-          onDaysChange={setSelectedDays}
-          isOpen={isFilterPanelOpen}
-          onToggle={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
-          onClose={() => setIsFilterPanelOpen(false)}
-        />
       </div>
 
       <div className="flex flex-col">
@@ -101,6 +88,8 @@ export default function Observations() {
             <ClimateImpactChart
               location={selectedLocation}
               days={selectedDays}
+              onLocationChange={setSelectedLocation}
+              onDaysChange={setSelectedDays}
             />
           </div>
           {/* RIGHT - Pie Chart */}

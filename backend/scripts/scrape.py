@@ -130,7 +130,7 @@ def scrape_tweets_philippines_efficient(query, limit=50, similarity_threshold=0.
     
     # Common inappropriate/sexual Filipino terms to exclude
     exclude_terms = [
-        "kantot", "kantutan", "burat", "titi", "puke", "bilat", "matambok", "tamod", "jakol", "chupa", "libog", "fubu", "binabayo", "totnak", "kantotero", "sex", "porn", "nude", "naked", "horny", "pussy", "dick"
+        "kantot", "kantutan", "burat", "titi", "puke", "bilat", "matambok", "tamod", "jakol", "chupa", "libog", "fubu", "binabayo", "totnak", "kantotero", "sex", "porn", "nude", "naked", "horny", "pussy", "dick", "nigga", "nigger"
     ]
     
     # Build exclusion string for Twitter query

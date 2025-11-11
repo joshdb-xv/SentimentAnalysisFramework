@@ -10,8 +10,8 @@
   --color-primary: #0a3d91;
   --color-primary-dark: #1e293b;
 
-  --color-white: #f8fafc;
-  --color-bluish-white: #fbfcfd;
+  --color-white: #fbfcfd;
+  --color-bluish-white: #f8fafc;
   --color-bluish-gray: #e2e8f0;
 
   --color-gray: #8a8b8c;
@@ -21,4 +21,14 @@
 
   --color-blue: #7dd3fc;
   --color-red: #f87171;
+}
+
+/* NProgress loading bar styles */
+#nprogress .bar {
+  background: linear-gradient(to right, #0a3d91, #3b82f6, #8b5cf6) !important;
+  height: 3px !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px #0a3d91, 0 0 5px #0a3d91 !important;
 }

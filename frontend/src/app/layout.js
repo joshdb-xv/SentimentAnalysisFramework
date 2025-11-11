@@ -1,5 +1,6 @@
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import ProgressBar from "@/components/ProgressBar";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -16,6 +17,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning={true}>
+      <ProgressBar />
       <body
         className={`${poppins.variable} antialiased`}
         suppressHydrationWarning={true}

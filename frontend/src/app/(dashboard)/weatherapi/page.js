@@ -460,7 +460,7 @@ export default function WeatherAPIClient() {
         {/* BOTTOM BENTO */}
         <div className="flex flex-row items-center justify-center mt-8 mx-8 gap-8 mb-8">
           {/* LEFT - TODAY'S FORECAST */}
-          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-4/6 h-full p-4 rounded-2xl">
+          <div className="bg-bluish-white shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] p-4 rounded-2xl w-4/6 h-full">
             <div className="flex flex-row items-center gap-4 mb-4">
               <div className="w-3 h-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full"></div>
               <p className="font-medium text-xl text-[#1E293B]">

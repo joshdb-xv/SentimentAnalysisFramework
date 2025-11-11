@@ -1,19 +1,13 @@
 "use client";
 
-import {
-  IoChevronDown,
-  IoChevronUp,
-  IoSend,
-  IoRefresh,
-  IoCopyOutline,
-} from "react-icons/io5";
+import { IoSend, IoRefresh, IoCopyOutline } from "react-icons/io5";
 import {
   MdMyLocation,
   MdUpload,
   MdDescription,
   MdChevronRight,
 } from "react-icons/md";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import LocationSearch from "@/components/LocationSearch";
 
 export default function HomePageClient() {
@@ -27,12 +21,6 @@ export default function HomePageClient() {
   const [showJson, setShowJson] = useState(false);
   const [parsedResult, setParsedResult] = useState(null);
   const fileInputRef = useRef(null);
-
-  const locationOptions = [
-    { value: "Indang", label: "INDANG" },
-    { value: "Trece Martires", label: "TRECE MARTIRES" },
-    { value: "Imus", label: "IMUS" },
-  ];
 
   const handleCopyOutput = () => {
     navigator.clipboard
@@ -210,34 +198,34 @@ export default function HomePageClient() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen bg-bluish-white">
       {/* HEADER */}
-      <div className="px-6 w-full h-20 flex items-center justify-between border-b-2 border-primary-dark/10">
+      <div className="bg-white px-6 w-full h-20 flex items-center justify-between border-b-2 border-primary-dark/5">
         <div className="flex items-center gap-4">
-          <div className="w-fit text-2xl font-bold bg-gradient-to-r from-[#222222] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent leading-snug">
+          <div className="w-fit text-2xl font-bold bg-gradient-to-r from-black via-primary-dark to-primary bg-clip-text text-transparent leading-snug">
             Sentiment Analysis Framework
           </div>
-          <MdChevronRight className="text-3xl text-gray-400" />
-          <p className="text-gray-600 text-2xl font-medium">Home</p>
+          <MdChevronRight className="text-3xl text-gray-light" />
+          <p className="text-gray-mid text-2xl font-medium">Home</p>
         </div>
         <button
           onClick={handleClear}
-          className="px-6 py-2 bg-[#E2E8F0] text-[#334155] text-sm font-semibold rounded-full transition-colors duration-200 ease-in-out hover:bg-[#0A3D91] hover:text-white active:bg-[#1E293B] active:text-white cursor-pointer"
+          className="px-6 py-2 bg-bluish-gray text-gray-dark text-sm font-semibold rounded-full transition-colors duration-200 ease-in-out hover:bg-primary hover:text-white active:bg-primary-dark active:text-white cursor-pointer"
         >
           Clear
         </button>
       </div>
 
       {/* OUTPUT SECTION */}
-      <div className="flex-1 overflow-auto bg-[#F8FAFC]">
+      <div className="flex-1 overflow-auto bg-white">
         {!output && !error ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center max-w-md px-6">
-              <div className="w-48 h-48 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full flex items-center justify-center mx-auto mb-6 opacity-100"></div>
-              <h3 className="text-2xl font-semibold mb-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent">
+              <div className="w-48 h-48 bg-gradient-to-r from-black via-primary-dark to-primary rounded-full flex items-center justify-center mx-auto mb-6 opacity-100"></div>
+              <h3 className="text-2xl font-semibold mb-3 bg-gradient-to-r from-black via-primary-dark to-primary bg-clip-text text-transparent">
                 Ready to analyze tweets
               </h3>
-              <p className="text-[#64748B] tracking-wide text-base">
+              <p className="text-gray-dark tracking-wide text-base">
                 Select a location, then type your tweet or upload a CSV file to
                 get started with sentiment analysis.
               </p>
@@ -246,11 +234,11 @@ export default function HomePageClient() {
         ) : error ? (
           <div className="flex items-center justify-center h-full">
             <div className="max-w-2xl mx-auto px-6">
-              <div className="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+              <div className="bg-red/10 border-l-4 border-red p-6 rounded-lg">
                 <div className="flex items-start">
                   <div className="flex-shrink-0">
                     <svg
-                      className="h-6 w-6 text-red-500"
+                      className="h-6 w-6 text-red"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -264,8 +252,8 @@ export default function HomePageClient() {
                     </svg>
                   </div>
                   <div className="ml-3">
-                    <h3 className="text-lg font-medium text-red-800">Error</h3>
-                    <p className="mt-2 text-sm text-red-700">{error}</p>
+                    <h3 className="text-lg font-medium text-red">Error</h3>
+                    <p className="mt-2 text-sm text-red">{error}</p>
                   </div>
                 </div>
               </div>
@@ -274,13 +262,13 @@ export default function HomePageClient() {
         ) : (
           <div className="max-w-6xl mx-auto my-8 px-6">
             <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full flex items-center justify-center flex-shrink-0"></div>
+              <div className="w-8 h-8 bg-gradient-to-r from-black via-primary-dark to-primary rounded-full flex items-center justify-center flex-shrink-0"></div>
               <div className="flex-1">
                 {/* Toggle Button */}
                 <div className="flex justify-end mb-3">
                   <button
                     onClick={() => setShowJson(!showJson)}
-                    className="px-4 py-2 bg-[#0A3D91] text-white text-sm font-semibold rounded-lg hover:bg-[#1E293B] transition-colors duration-200 flex items-center gap-2"
+                    className="px-4 py-2 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark transition-colors duration-200 flex items-center gap-2"
                   >
                     {showJson ? (
                       <>
@@ -326,20 +314,20 @@ export default function HomePageClient() {
                   </button>
                 </div>
 
-                <div className="border border-gray-300 rounded-2xl p-4 bg-white shadow-sm relative">
+                <div className="border border-gray-light rounded-2xl p-4 bg-white shadow-sm relative">
                   {/* Copy Button - only show in JSON view */}
                   {showJson && (
                     <>
                       <button
                         onClick={handleCopyOutput}
-                        className="absolute top-4 right-4 z-10 p-2 bg-gray-700 hover:bg-gray-600 rounded-md transition-colors duration-200"
+                        className="absolute top-4 right-4 z-10 p-2 bg-gray-mid hover:bg-gray-dark rounded-md transition-colors duration-200"
                         title="Copy JSON"
                       >
                         <IoCopyOutline className="text-white" size={16} />
                       </button>
 
                       {copied && (
-                        <div className="absolute top-12 right-4 bg-gray-800 text-white text-xs py-1 px-2 rounded-md shadow-lg">
+                        <div className="absolute top-12 right-4 bg-black text-white text-xs py-1 px-2 rounded-md shadow-lg">
                           Copied!
                         </div>
                       )}
@@ -347,22 +335,22 @@ export default function HomePageClient() {
                   )}
 
                   {showJson ? (
-                    <div className="bg-gray-900 rounded-xl p-4 overflow-auto">
-                      <pre className="text-sm text-blue-400 font-mono leading-relaxed whitespace-pre-wrap">
+                    <div className="bg-black rounded-xl p-4 overflow-auto">
+                      <pre className="text-sm text-blue font-mono leading-relaxed whitespace-pre-wrap">
                         {output}
                       </pre>
                     </div>
                   ) : parsedResult ? (
                     <div className="space-y-4">
                       {/* Tweet Info */}
-                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200">
-                        <h3 className="font-semibold text-lg text-gray-800 mb-2">
-                          📝 Tweet Analysis
+                      <div className="bg-gradient-to-r from-blue/20 to-blue/10 p-4 rounded-lg border border-blue">
+                        <h3 className="font-semibold text-lg text-black mb-2">
+                          Tweet Analysis
                         </h3>
-                        <p className="text-gray-700 text-base mb-2 italic">
+                        <p className="text-primary-dark text-base mb-2 italic">
                           &quot;{parsedResult.tweet}&quot;
                         </p>
-                        <div className="flex gap-4 text-sm text-gray-600">
+                        <div className="flex gap-4 text-sm text-gray-mid">
                           <span>📍 {parsedResult.location}</span>
                           <span>📏 {parsedResult.length} characters</span>
                         </div>
@@ -374,18 +362,18 @@ export default function HomePageClient() {
                           className={`p-4 rounded-lg border ${
                             parsedResult.climate_classification
                               .is_climate_related
-                              ? "bg-green-50 border-green-200"
-                              : "bg-gray-50 border-gray-200"
+                              ? "bg-primary/10 border-primary"
+                              : "bg-white/50 border-gray-light"
                           }`}
                         >
-                          <h3 className="font-semibold text-lg text-gray-800 mb-2">
-                            🌍 Climate Related:{" "}
+                          <h3 className="font-semibold text-lg text-black mb-2">
+                            Climate Related:{" "}
                             {parsedResult.climate_classification
                               .is_climate_related
                               ? "Yes"
                               : "No"}
                           </h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-gray-mid">
                             Confidence:{" "}
                             <span className="font-semibold">
                               {(
@@ -402,14 +390,14 @@ export default function HomePageClient() {
                       {parsedResult.category_classification &&
                         parsedResult.climate_classification
                           ?.is_climate_related && (
-                          <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                            <h3 className="font-semibold text-lg text-gray-800 mb-2">
-                              🏷️ Category
+                          <div className="bg-primary/10 p-4 rounded-lg border border-primary">
+                            <h3 className="font-semibold text-lg text-black mb-2">
+                              Category
                             </h3>
-                            <p className="text-base font-semibold text-purple-700 mb-2">
+                            <p className="text-base font-semibold text-primary mb-2">
                               {parsedResult.category_classification.prediction}
                             </p>
-                            <p className="text-sm text-gray-600 mb-3">
+                            <p className="text-sm text-gray-mid mb-3">
                               Confidence:{" "}
                               <span className="font-semibold">
                                 {(
@@ -422,7 +410,7 @@ export default function HomePageClient() {
 
                             {/* Top 3 probabilities */}
                             <div className="space-y-1">
-                              <p className="text-xs font-semibold text-gray-700 mb-1">
+                              <p className="text-xs font-semibold text-primary-dark mb-1">
                                 Top Predictions:
                               </p>
                               {Object.entries(
@@ -435,10 +423,10 @@ export default function HomePageClient() {
                                     key={idx}
                                     className="flex justify-between items-center text-xs"
                                   >
-                                    <span className="text-gray-700">
+                                    <span className="text-primary-dark">
                                       {idx + 1}. {cat}
                                     </span>
-                                    <span className="font-semibold text-purple-600">
+                                    <span className="font-semibold text-primary">
                                       {(prob * 100).toFixed(1)}%
                                     </span>
                                   </div>
@@ -449,17 +437,17 @@ export default function HomePageClient() {
 
                       {/* Weather Validation */}
                       {parsedResult.weather_validation?.weather_data && (
-                        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <div className="bg-blue/10 p-4 rounded-lg border border-blue">
                           <div className="flex justify-between items-start mb-3">
-                            <h3 className="font-semibold text-lg text-gray-800">
-                              🌤️ Weather Data
+                            <h3 className="font-semibold text-lg text-black">
+                              Weather Data
                             </h3>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-semibold ${
                                 parsedResult.weather_validation.validation
                                   ?.consistency === "consistent"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-yellow-100 text-yellow-700"
+                                  ? "bg-primary/20 text-primary"
+                                  : "bg-gray/20 text-gray-dark"
                               }`}
                             >
                               {parsedResult.weather_flag}
@@ -468,8 +456,8 @@ export default function HomePageClient() {
 
                           <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
-                              <p className="text-gray-600">Temperature</p>
-                              <p className="font-semibold text-gray-800">
+                              <p className="text-gray-mid">Temperature</p>
+                              <p className="font-semibold text-black">
                                 {
                                   parsedResult.weather_validation.weather_data
                                     .temperature_c
@@ -483,8 +471,8 @@ export default function HomePageClient() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Feels Like</p>
-                              <p className="font-semibold text-gray-800">
+                              <p className="text-gray-mid">Feels Like</p>
+                              <p className="font-semibold text-black">
                                 {
                                   parsedResult.weather_validation.weather_data
                                     .feels_like_c
@@ -493,8 +481,8 @@ export default function HomePageClient() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Condition</p>
-                              <p className="font-semibold text-gray-800">
+                              <p className="text-gray-mid">Condition</p>
+                              <p className="font-semibold text-black">
                                 {
                                   parsedResult.weather_validation.weather_data
                                     .condition
@@ -502,8 +490,8 @@ export default function HomePageClient() {
                               </p>
                             </div>
                             <div>
-                              <p className="text-gray-600">Humidity</p>
-                              <p className="font-semibold text-gray-800">
+                              <p className="text-gray-mid">Humidity</p>
+                              <p className="font-semibold text-black">
                                 {
                                   parsedResult.weather_validation.weather_data
                                     .humidity
@@ -517,9 +505,9 @@ export default function HomePageClient() {
 
                       {/* Sentiment Analysis */}
                       {parsedResult.sentiment_analysis?.sentiment && (
-                        <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
-                          <h3 className="font-semibold text-lg text-gray-800 mb-3">
-                            😊 Sentiment Analysis
+                        <div className="bg-gray/10 p-4 rounded-lg border border-gray">
+                          <h3 className="font-semibold text-lg text-black mb-3">
+                            Sentiment Analysis
                           </h3>
 
                           <div className="mb-3">
@@ -527,11 +515,11 @@ export default function HomePageClient() {
                               className={`inline-block px-4 py-2 rounded-full text-sm font-bold ${
                                 parsedResult.sentiment_analysis.sentiment
                                   .classification === "positive"
-                                  ? "bg-green-100 text-green-700"
+                                  ? "bg-primary/20 text-primary"
                                   : parsedResult.sentiment_analysis.sentiment
                                       .classification === "negative"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-gray-100 text-gray-700"
+                                  ? "bg-red/20 text-red"
+                                  : "bg-gray/20 text-gray-dark"
                               }`}
                             >
                               {parsedResult.sentiment_analysis.sentiment.classification.toUpperCase()}
@@ -540,7 +528,7 @@ export default function HomePageClient() {
 
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">
+                              <span className="text-gray-mid">
                                 Compound Score:
                               </span>
                               <span className="font-semibold">
@@ -551,13 +539,11 @@ export default function HomePageClient() {
                             </div>
                             <div className="space-y-1">
                               <div className="flex justify-between items-center">
-                                <span className="text-green-600">
-                                  Positive:
-                                </span>
+                                <span className="text-primary">Positive:</span>
                                 <div className="flex items-center gap-2">
-                                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                                  <div className="w-24 bg-bluish-gray rounded-full h-2">
                                     <div
-                                      className="bg-green-500 h-2 rounded-full"
+                                      className="bg-primary h-2 rounded-full"
                                       style={{
                                         width: `${
                                           parsedResult.sentiment_analysis
@@ -576,11 +562,11 @@ export default function HomePageClient() {
                                 </div>
                               </div>
                               <div className="flex justify-between items-center">
-                                <span className="text-gray-600">Neutral:</span>
+                                <span className="text-gray-mid">Neutral:</span>
                                 <div className="flex items-center gap-2">
-                                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                                  <div className="w-24 bg-bluish-gray rounded-full h-2">
                                     <div
-                                      className="bg-gray-500 h-2 rounded-full"
+                                      className="bg-gray h-2 rounded-full"
                                       style={{
                                         width: `${
                                           parsedResult.sentiment_analysis
@@ -599,11 +585,11 @@ export default function HomePageClient() {
                                 </div>
                               </div>
                               <div className="flex justify-between items-center">
-                                <span className="text-red-600">Negative:</span>
+                                <span className="text-red">Negative:</span>
                                 <div className="flex items-center gap-2">
-                                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                                  <div className="w-24 bg-bluish-gray rounded-full h-2">
                                     <div
-                                      className="bg-red-500 h-2 rounded-full"
+                                      className="bg-red h-2 rounded-full"
                                       style={{
                                         width: `${
                                           parsedResult.sentiment_analysis
@@ -628,7 +614,7 @@ export default function HomePageClient() {
 
                       {/* Database Info */}
                       {parsedResult.saved_to_db && (
-                        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm text-gray-600">
+                        <div className="bg-white/50 p-3 rounded-lg border border-gray-light text-sm text-gray-mid">
                           ✅ Saved to database (ID: {parsedResult.database_id})
                         </div>
                       )}
@@ -642,7 +628,7 @@ export default function HomePageClient() {
       </div>
 
       {/* INPUT SECTION */}
-      <div className="p-6 bg-white border-t border-gray-200">
+      <div className="p-6 bg-white border-t border-bluish-gray">
         <div className="max-w-6xl mx-auto">
           {/* LOCATION SEARCH BAR */}
           <div className="mb-3">
@@ -655,16 +641,16 @@ export default function HomePageClient() {
           </div>
 
           {/* INPUT FIELD */}
-          <div className="flex items-center bg-[#FBFCFD] shadow-[0px_2px_8px_0px_rgba(30,41,59,0.15)] rounded-2xl border border-gray-200">
+          <div className="flex items-center bg-bluish-white shadow-[0px_2px_8px_0px_rgba(30,41,59,0.15)] rounded-2xl border border-bluish-gray">
             {/* CSV Upload Button - Left */}
-            <div className="flex items-center border-r border-[#D6DADE]">
-              <label className="cursor-pointer flex flex-col items-center py-4 text-[#475569] font-semibold relative group w-24">
+            <div className="flex items-center border-r border-gray-light">
+              <label className="cursor-pointer flex flex-col items-center py-4 text-gray-dark font-semibold relative group w-24">
                 {csvFile ? (
                   <div className="relative">
-                    <MdDescription size={40} color="#10B981" />
+                    <MdDescription size={40} className="text-primary" />
                     <button
                       onClick={handleRemoveFile}
-                      className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-red hover:bg-red/80 rounded-full flex items-center justify-center transition-colors"
                       title="Remove file"
                     >
                       <svg
@@ -683,7 +669,7 @@ export default function HomePageClient() {
                     </button>
                   </div>
                 ) : (
-                  <MdUpload size={40} color="#8A8B8C" />
+                  <MdUpload size={40} className="text-gray" />
                 )}
 
                 <span className="text-xs mt-1">
@@ -691,9 +677,9 @@ export default function HomePageClient() {
                 </span>
 
                 {csvFile && (
-                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10">
                     {csvFile.name}
-                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
                   </div>
                 )}
 
@@ -718,7 +704,7 @@ export default function HomePageClient() {
                   : "Enter tweet here..."
               }
               rows="1"
-              className="flex-1 my-2 mx-6 resize-none text-[#1E293B] disabled:text-[#8A8B8C] outline-none text-lg bg-transparent"
+              className="flex-1 my-2 mx-6 resize-none text-primary-dark disabled:text-gray outline-none text-lg bg-transparent"
               disabled={csvFile}
               readOnly={csvFile}
             />
@@ -739,16 +725,16 @@ export default function HomePageClient() {
                 <IoRefresh
                   className={`w-8 h-8 animate-spin transition-colors ${
                     loading || !location || (!singleTweet.trim() && !csvFile)
-                      ? "text-[#8A8B8C]"
-                      : "text-[#475569] hover:text-[#334155]"
+                      ? "text-gray"
+                      : "text-gray-dark hover:text-primary-dark"
                   }`}
                 />
               ) : (
                 <IoSend
                   className={`w-8 h-8 transition-colors ${
                     loading || !location || (!singleTweet.trim() && !csvFile)
-                      ? "text-[#8A8B8C]"
-                      : "text-[#475569] hover:text-[#334155]"
+                      ? "text-gray"
+                      : "text-gray-dark hover:text-primary-dark"
                   }`}
                 />
               )}
@@ -756,7 +742,7 @@ export default function HomePageClient() {
           </div>
 
           {/* BOTTOM TEXT */}
-          <p className="mt-3 text-xs text-gray-500 text-center font-medium tracking-wide">
+          <p className="mt-3 text-xs text-gray-light text-center font-medium tracking-wide">
             POWERED BY VADER AND NAIVE BAYES
           </p>
         </div>

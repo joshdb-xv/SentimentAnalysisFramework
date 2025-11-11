@@ -11,7 +11,7 @@ import {
   IoBookOutline,
 } from "react-icons/io5";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import ProgressLink from "./ProgressLink";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -44,14 +44,14 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-1/5 h-screen bg-[#1E293B]">
+    <div className="fixed left-0 top-0 w-1/5 h-screen bg-[#1E293B] z-50">
       <div className="px-4 h-20 flex items-center">
-        <Link
+        <ProgressLink
           href="/"
           className="font-bold text-2xl text-[#FFFFFF] tracking-widest"
         >
           SAF
-        </Link>
+        </ProgressLink>
       </div>
 
       <div className="flex flex-col justify-center mx-6 mt-4 gap-4">
@@ -60,7 +60,7 @@ export default function Sidebar() {
           const Icon = isActive ? item.activeIcon : item.inactiveIcon;
 
           return (
-            <Link
+            <ProgressLink
               key={item.path}
               href={item.path}
               className={`flex gap-2 items-center transition-all duration-200 text-xl ${
@@ -71,7 +71,7 @@ export default function Sidebar() {
             >
               <Icon size={20} />
               {item.name}
-            </Link>
+            </ProgressLink>
           );
         })}
       </div>

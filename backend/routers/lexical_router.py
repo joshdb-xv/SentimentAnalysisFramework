@@ -9,8 +9,28 @@ from datetime import datetime
 import shutil
 import traceback
 
+import numpy as np
+
 router = APIRouter(prefix="/lexical", tags=["Lexical Dictionary"])
 
+
+def convert_numpy_types(obj):
+    """
+    Recursively convert numpy types to Python native types for JSON serialization
+    """
+    if isinstance(obj, dict):
+        return {key: convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    else:
+        return obj
+    
 # Directory setup
 UPLOAD_DIR = "uploads/lexical"
 OUTPUT_DIR = "outputs/lexical"
@@ -19,12 +39,18 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Store processing status
 processing_status = {
-    "status": "idle",  # idle, processing, completed, error
+    "status": "idle",
     "progress": 0,
     "message": "",
     "result_file": None,
     "stats": {}
 }
+
+# Cache for loaded lexicon (for fast searching)
+lexicon_cache = None
+
+# NEW: Store the processor instance to access breakdowns
+current_processor = None
 
 
 @router.post("/upload-dictionary")
@@ -36,28 +62,22 @@ async def upload_dictionary(file: UploadFile = File(...)):
         if not file.filename.endswith(('.xlsx', '.xls')):
             raise HTTPException(status_code=400, detail="Only Excel files (.xlsx, .xls) are allowed")
         
-        # Create unique filename
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         file_path = os.path.join(UPLOAD_DIR, f"dictionary_{timestamp}.xlsx")
         
         print(f"Saving to: {file_path}")
         
-        # Save file
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
         print(f"File saved successfully. Size: {os.path.getsize(file_path)} bytes")
         
-        # Quick validation - read Excel
-        print("Reading Excel file...")
         df = pd.read_excel(file_path)
-        
         row_count = len(df)
         columns = df.columns.tolist()
         
         print(f"Excel loaded: {row_count} rows, columns: {columns}")
         
-        # Check for expected columns
         expected_cols = ['letter', 'word', 'definition', 'dialect', 'sentiment']
         missing_cols = [col for col in expected_cols if col not in columns]
         
@@ -121,7 +141,7 @@ async def load_climate_keywords():
 
 @router.post("/upload-climate-keywords")
 async def upload_climate_keywords(file: UploadFile = File(...)):
-    """Upload the climate keywords CSV file (alternative to loading from fixed location)"""
+    """Upload the climate keywords CSV file"""
     try:
         if not file.filename.endswith('.csv'):
             raise HTTPException(status_code=400, detail="Only CSV files are allowed")
@@ -132,7 +152,6 @@ async def upload_climate_keywords(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
-        # Quick validation
         df = pd.read_csv(file_path)
         keyword_count = len(df)
         
@@ -148,25 +167,17 @@ async def upload_climate_keywords(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Error processing file: {str(e)}")
 
 
-from pydantic import BaseModel
-
 class ProcessRequest(BaseModel):
     dictionary_path: str
     climate_keywords_path: Optional[str] = None
+
 
 @router.post("/process")
 async def process_lexical_dictionary(
     background_tasks: BackgroundTasks,
     request: ProcessRequest
 ):
-    """
-    Start processing the lexical dictionary
-    Note: FastText is always used (models pre-loaded at startup)
-    
-    Parameters:
-    - dictionary_path: Path to uploaded Excel file
-    - climate_keywords_path: Path to climate keywords CSV (optional, uses default if not provided)
-    """
+    """Start processing the lexical dictionary"""
     global processing_status
     
     dictionary_path = request.dictionary_path
@@ -176,11 +187,9 @@ async def process_lexical_dictionary(
         if processing_status["status"] == "processing":
             raise HTTPException(status_code=400, detail="Processing already in progress")
         
-        # Verify dictionary file exists
         if not os.path.exists(dictionary_path):
             raise HTTPException(status_code=404, detail=f"Dictionary file not found: {dictionary_path}")
         
-        # Use default climate keywords path if not provided
         if not climate_keywords_path:
             climate_keywords_path = "data/weatherkeywords.csv"
             if not os.path.exists(climate_keywords_path):
@@ -189,11 +198,9 @@ async def process_lexical_dictionary(
                     detail="Default climate keywords file not found. Please ensure data/weatherkeywords.csv exists."
                 )
         
-        # Verify keywords file exists
         if not os.path.exists(climate_keywords_path):
             raise HTTPException(status_code=404, detail=f"Keywords file not found: {climate_keywords_path}")
         
-        # Reset status
         processing_status = {
             "status": "processing",
             "progress": 0,
@@ -202,7 +209,6 @@ async def process_lexical_dictionary(
             "stats": {}
         }
         
-        # Start background processing
         background_tasks.add_task(
             process_dictionary_task,
             dictionary_path,
@@ -221,7 +227,7 @@ async def process_lexical_dictionary(
 
 def process_dictionary_task(dictionary_path: str, climate_keywords_path: str):
     """Background task for processing the dictionary"""
-    global processing_status
+    global processing_status, lexicon_cache, current_processor
     
     try:
         print(f"\n{'='*60}")
@@ -237,7 +243,6 @@ def process_dictionary_task(dictionary_path: str, climate_keywords_path: str):
             climate_keywords_path=climate_keywords_path
         )
         
-        # Update progress callbacks
         def update_progress(progress, message):
             processing_status["progress"] = progress
             processing_status["message"] = message
@@ -245,7 +250,6 @@ def process_dictionary_task(dictionary_path: str, climate_keywords_path: str):
         
         processor.set_progress_callback(update_progress)
         
-        # Process
         print("Starting processing...")
         result = processor.process()
         
@@ -253,14 +257,20 @@ def process_dictionary_task(dictionary_path: str, climate_keywords_path: str):
         print(f"Result keys: {result.keys()}")
         print(f"Stats: {result.get('stats', {})}")
         
-        # Save result
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         output_file = os.path.join(OUTPUT_DIR, f"lexical_dictionary_{timestamp}.csv")
         result["dataframe"].to_csv(output_file, index=False)
         
         print(f"Saved to: {output_file}")
         
-        # Update status
+        # Load into cache for searching
+        lexicon_cache = result["dataframe"]
+        print(f"Loaded {len(lexicon_cache)} words into search cache")
+        
+        # Store processor for breakdown access
+        current_processor = result.get("processor")
+        print(f"Processor stored for breakdown access")
+        
         processing_status["status"] = "completed"
         processing_status["progress"] = 100
         processing_status["message"] = "Processing completed successfully"
@@ -336,10 +346,168 @@ async def download_result():
         raise HTTPException(status_code=500, detail=f"Error downloading file: {str(e)}")
 
 
+class SearchRequest(BaseModel):
+    word: str
+
+
+@router.post("/search")
+async def search_word(request: SearchRequest):
+    """
+    Search for a word in the processed lexical dictionary
+    Returns the word's sentiment score and detailed breakdown
+    """
+    global lexicon_cache, current_processor
+    
+    try:
+        word = request.word.strip().lower()
+        
+        if not word:
+            raise HTTPException(status_code=400, detail="Word cannot be empty")
+        
+        # Check if lexicon is loaded
+        if lexicon_cache is None:
+            if processing_status["status"] == "completed" and processing_status["result_file"]:
+                if os.path.exists(processing_status["result_file"]):
+                    lexicon_cache = pd.read_csv(processing_status["result_file"])
+                    print(f"Loaded lexicon cache from {processing_status['result_file']}")
+                else:
+                    raise HTTPException(
+                        status_code=404, 
+                        detail="No lexical dictionary available. Please process a dictionary first."
+                    )
+            else:
+                raise HTTPException(
+                    status_code=404, 
+                    detail="No lexical dictionary available. Please process a dictionary first."
+                )
+        
+        # Search for the word
+        result = lexicon_cache[lexicon_cache['word'] == word]
+        
+        if result.empty:
+            return {
+                "found": False,
+                "word": word,
+                "message": f"Word '{word}' not found in lexical dictionary",
+                "suggestions": get_similar_words(word, lexicon_cache)
+            }
+        
+        # Word found - get details
+        score = float(result.iloc[0]['sentiment_score'])
+        
+        # Determine polarity and intensity
+        if score > 0:
+            polarity = "positive"
+            intensity_label = get_intensity_label(score, positive=True)
+        elif score < 0:
+            polarity = "negative"
+            intensity_label = get_intensity_label(score, positive=False)
+        else:
+            polarity = "neutral"
+            intensity_label = "neutral"
+        
+        # Get detailed breakdown from processor
+        breakdown = None
+        if current_processor:
+            breakdown = current_processor.get_word_breakdown(word)
+            # Convert numpy types to Python types
+            if breakdown:
+                breakdown = convert_numpy_types(breakdown)
+        
+        response = {
+            "found": True,
+            "word": word,
+            "sentiment_score": round(score, 3),
+            "polarity": polarity,
+            "intensity": intensity_label,
+            "breakdown": {
+                "score": round(score, 3),
+                "polarity": polarity,
+                "strength": abs(score)
+            },
+            "interpretation": get_score_interpretation(score)
+        }
+        
+        # Add detailed calculation breakdown if available
+        if breakdown:
+            response["detailed_breakdown"] = breakdown
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error searching word: {str(e)}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Error searching: {str(e)}")
+
+
+def get_intensity_label(score: float, positive: bool) -> str:
+    """Get intensity label based on score"""
+    abs_score = abs(score)
+    
+    if abs_score >= 3.5:
+        return "very strong"
+    elif abs_score >= 2.5:
+        return "strong"
+    elif abs_score >= 1.5:
+        return "moderate"
+    elif abs_score >= 0.5:
+        return "weak"
+    else:
+        return "very weak"
+
+
+def get_score_interpretation(score: float) -> str:
+    """Get human-readable interpretation of the score"""
+    abs_score = abs(score)
+    
+    if score > 0:
+        if abs_score >= 3.5:
+            return "This word has a very strong positive sentiment, likely climate-related"
+        elif abs_score >= 2.5:
+            return "This word has a strong positive sentiment"
+        elif abs_score >= 1.5:
+            return "This word has a moderate positive sentiment"
+        elif abs_score >= 0.5:
+            return "This word has a weak positive sentiment"
+        else:
+            return "This word has a very weak positive sentiment"
+    elif score < 0:
+        if abs_score >= 3.5:
+            return "This word has a very strong negative sentiment, likely climate-related"
+        elif abs_score >= 2.5:
+            return "This word has a strong negative sentiment"
+        elif abs_score >= 1.5:
+            return "This word has a moderate negative sentiment"
+        elif abs_score >= 0.5:
+            return "This word has a weak negative sentiment"
+        else:
+            return "This word has a very weak negative sentiment"
+    else:
+        return "This word is neutral (no sentiment)"
+
+
+def get_similar_words(word: str, lexicon: pd.DataFrame, limit: int = 5) -> list:
+    """Get similar words using basic string matching"""
+    if lexicon is None or lexicon.empty:
+        return []
+    
+    # Find words that start with the same letters
+    similar = lexicon[lexicon['word'].str.startswith(word[:2])]
+    
+    if similar.empty:
+        # If no matches, just return first few words
+        return lexicon.head(limit)['word'].tolist()
+    
+    return similar.head(limit)['word'].tolist()
+
+
 @router.post("/reset")
 async def reset_processing():
     """Reset processing status"""
-    global processing_status
+    global processing_status, lexicon_cache, current_processor
+    
     processing_status = {
         "status": "idle",
         "progress": 0,
@@ -347,4 +515,8 @@ async def reset_processing():
         "result_file": None,
         "stats": {}
     }
+    
+    lexicon_cache = None
+    current_processor = None
+    
     return {"message": "Status reset successfully"}
