@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MdChevronRight } from "react-icons/md";
 import ClimateImpactChart from "@/components/observations/BarChart";
 import SentimentDistributionChart from "@/components/observations/PieChart";
 import ClimateTrendsChart from "@/components/observations/AreaChart";
@@ -54,11 +53,11 @@ export default function Observations() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-[#F8FAFC] relative">
-      {/* Metrics Modal - Positioned relative to parent container */}
+    <>
+      {/* Metrics Modal - Fixed positioning for content area only */}
       {isMetricsModalOpen && (
         <div
-          className="absolute inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center"
+          className="fixed top-0 right-0 bottom-0 left-[20%] bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center"
           onClick={() => setIsMetricsModalOpen(false)}
         >
           <MetricsModal
@@ -69,64 +68,60 @@ export default function Observations() {
         </div>
       )}
 
-      {/* HEADER */}
-      <div className="px-6 w-full h-20 flex items-center justify-between border-b-2 border-primary-dark/10">
-        <div className="flex items-center gap-4">
-          <div className="w-fit text-2xl font-bold bg-gradient-to-r from-[#222222] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent leading-snug">
-            Sentiment Analysis Framework
+      <div className="h-screen bg-[#F8FAFC] pt-20 overflow-y-hidden">
+        <div className="flex flex-col">
+          {/* TOP BENTO */}
+          <div className="flex flex-row items-stretch justify-center mt-8 mx-8 gap-8">
+            {/* LEFT - Bar Chart */}
+            <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-4/6 p-4 rounded-2xl">
+              <ClimateImpactChart
+                location={selectedLocation}
+                days={selectedDays}
+                onLocationChange={setSelectedLocation}
+                onDaysChange={setSelectedDays}
+              />
+            </div>
+            {/* RIGHT - Pie Chart */}
+            <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-2/6 p-4 rounded-2xl">
+              <SentimentDistributionChart
+                location={selectedLocation}
+                days={selectedDays}
+              />
+            </div>
           </div>
-          <MdChevronRight className="text-3xl text-gray-400" />
-          <p className="text-gray-600 text-2xl font-medium">Observations</p>
-        </div>
-      </div>
 
-      <div className="flex flex-col">
-        {/* TOP BENTO */}
-        <div className="flex flex-row items-start justify-center mt-8 mx-8 gap-8 h-auto">
-          {/* LEFT - Bar Chart */}
-          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-4/6 h-full p-4 rounded-2xl">
-            <ClimateImpactChart
-              location={selectedLocation}
-              days={selectedDays}
-              onLocationChange={setSelectedLocation}
-              onDaysChange={setSelectedDays}
-            />
+          {/* BOTTOM BENTO */}
+          <div className="flex flex-row items-stretch justify-center mt-8 mx-8 gap-8 mb-8">
+            {/* LEFT - Stats Cards */}
+            <div className="flex flex-col w-1/5 gap-8">
+              {/* FRAMEWORK ACCURACY */}
+              <div className="flex-1">
+                <FrameworkAccuracyCard
+                  benchmarks={benchmarks}
+                  loading={loading}
+                  error={error}
+                  onRetry={fetchBenchmarks}
+                  onViewDetails={() => setIsMetricsModalOpen(true)}
+                />
+              </div>
+            </div>
+            {/* RIGHT - Area Chart */}
+            <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-4/5 p-4 rounded-2xl">
+              <ClimateTrendsChart
+                location={selectedLocation}
+                days={selectedDays}
+              />
+            </div>
           </div>
-          {/* RIGHT - Pie Chart */}
-          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-2/6 h-full p-4 rounded-2xl">
-            <SentimentDistributionChart
-              location={selectedLocation}
-              days={selectedDays}
-            />
+
+          {/* Location Info */}
+          <div className="flex items-center justify-center pb-8">
+            <p className="text-sm text-[#6B7280] font-medium tracking-wide">
+              AS OF {getCurrentTimestamp().toUpperCase()}
+            </p>
           </div>
         </div>
       </div>
-
-      {/* BOTTOM BENTO */}
-      <div className="flex flex-row items-start justify-center mt-8 mx-8 gap-8 h-auto">
-        {/* LEFT - Stats Cards */}
-        <div className="flex flex-col w-1/5 h-full gap-8">
-          {/* FRAMEWORK ACCURACY */}
-          <FrameworkAccuracyCard
-            benchmarks={benchmarks}
-            loading={loading}
-            error={error}
-            onRetry={fetchBenchmarks}
-            onViewDetails={() => setIsMetricsModalOpen(true)}
-          />
-        </div>
-        {/* RIGHT - Area Chart */}
-        <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-4/5 h-full p-4 rounded-2xl">
-          <ClimateTrendsChart location={selectedLocation} days={selectedDays} />
-        </div>
-      </div>
-
-      {/* Location Info */}
-      <div className="flex items-center justify-center mt-6">
-        <p className="text-sm text-[#6B7280] font-medium tracking-wide">
-          AS OF {getCurrentTimestamp().toUpperCase()}
-        </p>
-      </div>
-    </div>
+    </>
   );
 }

@@ -1,16 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MdChevronRight, MdMyLocation, MdRefresh } from "react-icons/md";
+import { MdMyLocation } from "react-icons/md";
 import {
   WiDaySunny,
   WiNightClear,
   WiDayCloudy,
   WiCloudy,
   WiRain,
-  WiThunderstorm,
-  WiSnow,
-  WiFog,
   WiDayRain,
   WiNightRain,
   WiDayThunderstorm,
@@ -289,31 +286,13 @@ export default function WeatherAPIClient() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#F8FAFC]">
-      {/* HEADER */}
-      <div className="px-6 w-full h-20 flex items-center justify-between border-b-2 border-primary-dark/10">
-        <div className="flex items-center gap-4">
-          <div className="w-fit text-2xl font-bold bg-gradient-to-r from-[#222222] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent leading-snug">
-            Sentiment Analysis Framework
-          </div>
-          <MdChevronRight className="text-3xl text-gray-400" />
-          <p className="text-gray-600 text-2xl font-medium">WeatherAPI</p>
-        </div>
-        <button
-          onClick={handleRefresh}
-          className="p-2 text-[#6B7280] hover:text-[#0A3D91] transition-colors"
-          title="Refresh weather data"
-        >
-          <MdRefresh size={20} />
-        </button>
-      </div>
-
+    <div className="h-screen bg-[#F8FAFC] pt-20 overflow-y-hidden">
       {/* Content Area - Scrollable */}
       <div className="flex-1 overflow-auto">
         {/* TOP BENTO */}
-        <div className="flex flex-row items-center justify-center mt-8 mx-8 gap-8">
+        <div className="flex flex-row items-stretch justify-center mt-8 mx-8 gap-8">
           {/* LEFT */}
-          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-4/6 h-full p-4 rounded-2xl">
+          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-4/6 p-4 rounded-2xl">
             <div className="flex flex-row items-center gap-4">
               <div className="w-3 h-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full"></div>
               <p className="font-medium text-xl text-[#1E293B]">LOCATION</p>
@@ -360,7 +339,7 @@ export default function WeatherAPIClient() {
           </div>
 
           {/* RIGHT */}
-          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-2/6 h-full p-6 rounded-2xl flex flex-col gap-2">
+          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-2/6 p-6 rounded-2xl flex flex-col gap-2">
             {/* Weather Condition Card */}
             <div className="bg-gradient-to-r from-[#F8FAFC] to-[#E2E8F0] rounded-lg p-5 border-l-4 border-[#0A3D91]">
               <p className="font-medium text-[#6B7280] text-sm tracking-wide">
@@ -458,9 +437,9 @@ export default function WeatherAPIClient() {
         </div>
 
         {/* BOTTOM BENTO */}
-        <div className="flex flex-row items-center justify-center mt-8 mx-8 gap-8 mb-8">
+        <div className="flex flex-row items-stretch justify-center mt-8 mx-8 gap-8 mb-8">
           {/* LEFT - TODAY'S FORECAST */}
-          <div className="bg-bluish-white shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] p-4 rounded-2xl w-4/6 h-full">
+          <div className="bg-bluish-white shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] p-4 rounded-2xl w-4/6">
             <div className="flex flex-row items-center gap-4 mb-4">
               <div className="w-3 h-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full"></div>
               <p className="font-medium text-xl text-[#1E293B]">
@@ -503,7 +482,7 @@ export default function WeatherAPIClient() {
           </div>
 
           {/* RIGHT - WEEKLY FORECAST */}
-          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-2/6 h-full p-4 rounded-2xl">
+          <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-2/6 p-4 rounded-2xl">
             <div className="flex flex-row items-center gap-4 mb-4">
               <div className="w-3 h-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full"></div>
               <p className="font-medium text-xl text-[#1E293B]">

@@ -9,6 +9,8 @@ import {
   IoCloudyNightOutline,
   IoBook,
   IoBookOutline,
+  IoCog,
+  IoCogOutline,
 } from "react-icons/io5";
 import { usePathname } from "next/navigation";
 import ProgressLink from "./ProgressLink";
@@ -40,6 +42,18 @@ export default function Sidebar() {
       path: "/lexicaldictionary",
       activeIcon: IoBook,
       inactiveIcon: IoBookOutline,
+    },
+    {
+      name: "LEXICAL-DEBUG",
+      path: "/lexical-debug",
+      activeIcon: IoCog,
+      inactiveIcon: IoCogOutline,
+    },
+    {
+      name: "TWITTER-DEBUG",
+      path: "/twitter-debug",
+      activeIcon: IoCog,
+      inactiveIcon: IoCogOutline,
     },
   ];
 

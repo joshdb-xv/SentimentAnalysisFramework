@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from database.models import init_db
 from services.main_service import get_model_status
 from services.fasttext_service import get_fasttext_manager
+from services.lexical_dictionary_manager import get_dictionary_manager
 
 # Import all the routers
 from routers import (
@@ -13,7 +14,8 @@ from routers import (
     analysis_router,
     database_router,
     benchmarks_router,
-    lexical_router
+    lexical_router,
+    twitter_router
 )
 
 # -----------------------------
@@ -36,6 +38,30 @@ async def lifespan(app: FastAPI):
         print(f"⚠️ Warning: Could not load FastText models: {str(e)}")
         print("   Lexical dictionary processing will not be available.")
     
+    # Load cached lexical dictionary if exists
+    try:
+        dict_manager = get_dictionary_manager()
+        if dict_manager.exists():
+            print("\n📖 Loading cached lexical dictionary...")
+            success = dict_manager.load()
+            if success:
+                total_words = len(dict_manager.lexicon_df)
+                created_at = dict_manager.metadata.get('created_at', 'unknown')
+                print(f"✅ Loaded {total_words} words from cache")
+                print(f"   Created: {created_at}")
+                
+                # Check for manual updates
+                manual_updates = dict_manager.metadata.get('manual_updates', [])
+                if manual_updates:
+                    print(f"   📝 {len(manual_updates)} manual word updates recorded")
+            else:
+                print("⚠️ Failed to load cached dictionary")
+        else:
+            print("\n📖 No cached lexical dictionary found")
+            print("   Process a dictionary and save it to create the cache")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not load lexical dictionary cache: {str(e)}")
+    
     print(f"✅ API Version: {app.version}")
     print(f"✅ Models loaded: {get_model_status()}")
     print("🎉 Server ready!\n")
@@ -50,7 +76,7 @@ async def lifespan(app: FastAPI):
 # -----------------------------
 app = FastAPI(
     title="Climate Tweet Analysis API", 
-    version="3.0.0",
+    version="3.1.0",
     lifespan=lifespan
 )
 
@@ -69,7 +95,7 @@ app.add_middleware(
 async def root():
     return {
         "message": "Climate Tweet Analysis API is running!",
-        "version": "3.0.0",
+        "version": "3.1.0",
         "features": [
             "Climate relevance detection",
             "Climate category classification", 
@@ -78,7 +104,9 @@ async def root():
             "Batch CSV processing",
             "Complete distribution analysis",
             "Database storage and analytics",
-            "Lexical dictionary generation with FastText"
+            "Lexical dictionary generation with FastText",
+            "Cached lexical dictionary with on-the-fly updates"
+            "Twitter Scraper using Tweepy and Twitter API"
         ]
     }
 
@@ -92,6 +120,7 @@ app.include_router(analysis_router.router, tags=["Tweet Analysis"])
 app.include_router(database_router.router, prefix="/database", tags=["Database"])
 app.include_router(benchmarks_router.router, tags=["Benchmarks"])
 app.include_router(lexical_router.router, tags=["Lexical Dictionary"])
+app.include_router(twitter_router.router, tags=["Twitter Scraper"])
 
 # -----------------------------
 # Main Entry Point

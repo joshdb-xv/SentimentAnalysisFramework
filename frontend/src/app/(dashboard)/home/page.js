@@ -1,12 +1,7 @@
 "use client";
 
 import { IoSend, IoRefresh, IoCopyOutline } from "react-icons/io5";
-import {
-  MdMyLocation,
-  MdUpload,
-  MdDescription,
-  MdChevronRight,
-} from "react-icons/md";
+import { MdMyLocation, MdUpload, MdDescription } from "react-icons/md";
 import { useState, useRef } from "react";
 import LocationSearch from "@/components/LocationSearch";
 
@@ -199,23 +194,6 @@ export default function HomePageClient() {
 
   return (
     <div className="flex flex-col h-screen bg-bluish-white">
-      {/* HEADER */}
-      <div className="bg-white px-6 w-full h-20 flex items-center justify-between border-b-2 border-primary-dark/5">
-        <div className="flex items-center gap-4">
-          <div className="w-fit text-2xl font-bold bg-gradient-to-r from-black via-primary-dark to-primary bg-clip-text text-transparent leading-snug">
-            Sentiment Analysis Framework
-          </div>
-          <MdChevronRight className="text-3xl text-gray-light" />
-          <p className="text-gray-mid text-2xl font-medium">Home</p>
-        </div>
-        <button
-          onClick={handleClear}
-          className="px-6 py-2 bg-bluish-gray text-gray-dark text-sm font-semibold rounded-full transition-colors duration-200 ease-in-out hover:bg-primary hover:text-white active:bg-primary-dark active:text-white cursor-pointer"
-        >
-          Clear
-        </button>
-      </div>
-
       {/* OUTPUT SECTION */}
       <div className="flex-1 overflow-auto bg-white">
         {!output && !error ? (
@@ -628,16 +606,23 @@ export default function HomePageClient() {
       </div>
 
       {/* INPUT SECTION */}
-      <div className="p-6 bg-white border-t border-bluish-gray">
+      <div className="px-6 py-4 bg-white border-t border-bluish-gray">
         <div className="max-w-6xl mx-auto">
-          {/* LOCATION SEARCH BAR */}
-          <div className="mb-3">
+          <div className="flex justify-between items-center mb-3">
+            {/* LOCATION SEARCH BAR */}
             <LocationSearch
               value={location}
               onChange={setLocation}
               placeholder="Search location..."
               icon={MdMyLocation}
             />
+
+            <button
+              onClick={handleClear}
+              className="h-10 px-8 bg-bluish-gray text-sm font-semibold rounded-full transition-colors duration-200 ease-in-out hover:bg-gradient-to-r hover:from-black hover:via-primary-dark hover:to-primary text-primary-dark hover:text-white cursor-pointer"
+            >
+              Clear
+            </button>
           </div>
 
           {/* INPUT FIELD */}

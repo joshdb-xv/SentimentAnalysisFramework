@@ -6,8 +6,8 @@ export default function FrameworkAccuracyCard({
   onViewDetails,
 }) {
   return (
-    <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-full h-full p-4 rounded-2xl">
-      <div className="flex items-center gap-3">
+    <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-full h-full p-4 rounded-2xl flex flex-col">
+      <div className="flex items-center gap-3 flex-shrink-0">
         <div className="w-3 h-3 bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] rounded-full"></div>
         <p className="font-medium text-[#1E293B] tracking-wide text-lg">
           FRAMEWORK ACCURACY
@@ -15,13 +15,13 @@ export default function FrameworkAccuracyCard({
       </div>
 
       {/* ACCURACY SCORES */}
-      <div className="flex flex-col items-center justify-center gap-1 mt-4">
+      <div className="flex flex-col items-center justify-center gap-6 mt-6 flex-1">
         {/* VADER - Sentiment Identifier - STATIC */}
         <div className="flex flex-col justify-center items-center gap-2">
           <p className="text-3xl font-extrabold bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent py-1">
             81.58%
           </p>
-          <p className="text-base text-[#1E293B] text-center font-semibold">
+          <p className="text-sm text-[#1E293B] text-center font-semibold leading-tight">
             VADER - Tweet Sentiment Identifier
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function FrameworkAccuracyCard({
               {/* Show ± std if multiple runs available */}
               {benchmarks.climate_checker_multiple_runs && (
                 <div className="flex items-center gap-1">
-                  <p className="text-base text-[#6B7280] font-medium">
+                  <p className="text-sm text-[#6B7280] font-medium">
                     ±{" "}
                     {benchmarks.climate_checker_multiple_runs.statistics.accuracy.std.toFixed(
                       2
@@ -72,7 +72,7 @@ export default function FrameworkAccuracyCard({
           ) : (
             <p className="text-xl text-[#9CA3AF]">N/A</p>
           )}
-          <p className="text-base text-[#1E293B] text-center font-semibold">
+          <p className="text-sm text-[#1E293B] text-center font-semibold leading-tight">
             Naive Bayes - Climate Related Checker
           </p>
         </div>
@@ -105,7 +105,7 @@ export default function FrameworkAccuracyCard({
               {/* Show ± std if multiple runs available */}
               {benchmarks.multiple_runs && (
                 <div className="flex items-center gap-1">
-                  <p className="text-base text-[#6B7280] font-medium">
+                  <p className="text-sm text-[#6B7280] font-medium">
                     ±{" "}
                     {benchmarks.multiple_runs.statistics.accuracy.std.toFixed(
                       2
@@ -122,14 +122,14 @@ export default function FrameworkAccuracyCard({
             <p className="text-xl text-[#9CA3AF]">N/A</p>
           )}
 
-          <p className="text-base text-[#1E293B] text-center font-semibold">
+          <p className="text-sm text-[#1E293B] text-center font-semibold leading-tight">
             Naive Bayes - Climate Domain Identifier
           </p>
         </div>
       </div>
 
       {/* View Details Button */}
-      <div className="mt-4 flex justify-center">
+      <div className="mt-4 flex justify-center flex-shrink-0">
         <button
           onClick={onViewDetails}
           className="text-[#0A3D91] font-bold text-base hover:text-[#1E293B] underline transition-all cursor-pointer"

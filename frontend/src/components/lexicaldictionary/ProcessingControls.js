@@ -5,8 +5,8 @@ export default function ProcessingControls({
   keywordsInfo,
   processing,
   status,
-  onStartProcessing,
-  onReset,
+  startProcessing,
+  resetAll,
 }) {
   return (
     <div className="bg-bluish-white shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] p-8 rounded-2xl flex flex-col min-h-[280px]">
@@ -16,7 +16,6 @@ export default function ProcessingControls({
       </div>
 
       <div className="flex-1 flex flex-col justify-center py-6">
-        {/* Info about FastText */}
         <div className="mb-4 p-4 bg-primary/10 border border-primary rounded-xl">
           <p className="text-sm text-primary flex items-start gap-2">
             <span className="text-primary text-lg">⚡</span>
@@ -30,7 +29,7 @@ export default function ProcessingControls({
 
         <div className="flex gap-3">
           <button
-            onClick={onStartProcessing}
+            onClick={startProcessing}
             disabled={!dictionaryInfo || processing}
             className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl hover:from-primary-dark hover:to-black disabled:from-gray disabled:to-gray-light disabled:cursor-not-allowed transition shadow-sm hover:shadow-md"
           >
@@ -39,7 +38,7 @@ export default function ProcessingControls({
           </button>
 
           <button
-            onClick={onReset}
+            onClick={resetAll}
             className="flex items-center gap-2 px-6 py-3 bg-bluish-gray text-gray-dark rounded-xl hover:bg-gray-light hover:text-white transition"
           >
             <MdRefresh className="text-xl" />
@@ -59,7 +58,6 @@ export default function ProcessingControls({
           </p>
         )}
 
-        {/* Progress */}
         {status && (
           <div className="mt-4">
             <div className="flex justify-between text-sm text-primary-dark mb-2">

@@ -83,7 +83,7 @@ export default function Home() {
             >
               <div className="relative w-32 h-32">
                 <motion.div
-                  className="absolute inset-0 rounded-full border-[6px] border-t-transparent border-b-transparent border-l-primary border-r-blue blur-[1px]"
+                  className="absolute inset-0 rounded-full border-[6px] border-t-transparent border-b-transparent border-l-primary border-r-primary-dark blur-[1px]"
                   animate={{ rotate: 360 }}
                   transition={{
                     repeat: Infinity,
