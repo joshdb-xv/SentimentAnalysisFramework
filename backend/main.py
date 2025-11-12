@@ -15,7 +15,8 @@ from routers import (
     database_router,
     benchmarks_router,
     lexical_router,
-    twitter_router
+    twitter_router,
+    classifier_router  # NEW: Climate classifier router
 )
 
 # -----------------------------
@@ -62,6 +63,14 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️ Warning: Could not load lexical dictionary cache: {str(e)}")
     
+    # Initialize Climate Classifier Service
+    try:
+        from services.classifier_service import get_classifier_service
+        classifier_service = get_classifier_service()
+        print("✅ Climate Classifier Service initialized")
+    except Exception as e:
+        print(f"⚠️ Warning: Could not initialize classifier service: {str(e)}")
+    
     print(f"✅ API Version: {app.version}")
     print(f"✅ Models loaded: {get_model_status()}")
     print("🎉 Server ready!\n")
@@ -76,7 +85,7 @@ async def lifespan(app: FastAPI):
 # -----------------------------
 app = FastAPI(
     title="Climate Tweet Analysis API", 
-    version="3.1.0",
+    version="3.2.0",  # Updated version
     lifespan=lifespan
 )
 
@@ -95,7 +104,7 @@ app.add_middleware(
 async def root():
     return {
         "message": "Climate Tweet Analysis API is running!",
-        "version": "3.1.0",
+        "version": "3.2.0",
         "features": [
             "Climate relevance detection",
             "Climate category classification", 
@@ -105,8 +114,9 @@ async def root():
             "Complete distribution analysis",
             "Database storage and analytics",
             "Lexical dictionary generation with FastText",
-            "Cached lexical dictionary with on-the-fly updates"
-            "Twitter Scraper using Tweepy and Twitter API"
+            "Cached lexical dictionary with on-the-fly updates",
+            "Twitter Scraper using Tweepy and Twitter API",
+            "Climate Classifier Training & Pseudo-Labeling"  # NEW
         ]
     }
 
@@ -121,6 +131,7 @@ app.include_router(database_router.router, prefix="/database", tags=["Database"]
 app.include_router(benchmarks_router.router, tags=["Benchmarks"])
 app.include_router(lexical_router.router, tags=["Lexical Dictionary"])
 app.include_router(twitter_router.router, tags=["Twitter Scraper"])
+app.include_router(classifier_router.router, tags=["Climate Classifier"])  # NEW
 
 # -----------------------------
 # Main Entry Point

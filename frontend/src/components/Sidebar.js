@@ -37,12 +37,12 @@ export default function Sidebar() {
       activeIcon: IoCloudyNight,
       inactiveIcon: IoCloudyNightOutline,
     },
-    {
-      name: "Lexical Dictionary",
-      path: "/lexicaldictionary",
-      activeIcon: IoBook,
-      inactiveIcon: IoBookOutline,
-    },
+    // {
+    //   name: "Lexical Dictionary",
+    //   path: "/lexicaldictionary",
+    //   activeIcon: IoBook,
+    //   inactiveIcon: IoBookOutline,
+    // },
     {
       name: "LEXICAL-DEBUG",
       path: "/lexical-debug",
@@ -52,6 +52,12 @@ export default function Sidebar() {
     {
       name: "TWITTER-DEBUG",
       path: "/twitter-debug",
+      activeIcon: IoCog,
+      inactiveIcon: IoCogOutline,
+    },
+    {
+      name: "TRAINING-DEBUG",
+      path: "/training-debug",
       activeIcon: IoCog,
       inactiveIcon: IoCogOutline,
     },

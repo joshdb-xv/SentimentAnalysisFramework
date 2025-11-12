@@ -120,17 +120,13 @@ class ClimateClassifierTrainer:
         
         # Combine all dataframes
         combined_df = pd.concat(dataframes, ignore_index=True)
-        
-        # Remove duplicates based on text content
-        initial_count = len(combined_df)
-        combined_df = combined_df.drop_duplicates(subset=['text'], keep='first')
-        final_count = len(combined_df)
-        
-        logger.info(f"Combined dataset: {final_count} samples ({initial_count - final_count} duplicates removed)")
+
+        # Keep duplicates intentionally — some are useful for weighting polarity
+        logger.info(f"Combined dataset: {len(combined_df)} samples (duplicates retained)")
         logger.info(f"Class distribution:\n{combined_df['label'].value_counts()}")
-        
+
         return combined_df
-    
+
     def load_data(self, data_source: Union[str, Path, pd.DataFrame, List[Union[str, Path]]]) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
         """
         Load and preprocess training data from various sources
