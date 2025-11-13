@@ -1,184 +1,110 @@
 {
-  "timestamp": "2025-11-05T23:06:42.294672",
-  "naive_bayes_domain_identifier": 42.04892966360856,
+  "timestamp": "2025-11-13T10:15:35.330814",
+  "naive_bayes_domain_identifier": 37.52151462994836,
   "detailed_metrics": {
-    "accuracy": 0.42048929663608564,
-    "precision_weighted": 0.4310011887285482,
-    "recall_weighted": 0.42048929663608564,
-    "f1_weighted": 0.42253028507777335,
-    "precision_macro": 0.5153313023581058,
-    "recall_macro": 0.4474926368127498,
-    "f1_macro": 0.4661656678070295,
-    "cv_mean": null,
-    "cv_std": null
+    "accuracy": 0.37521514629948366,
+    "precision_weighted": 0.36277130857886886,
+    "recall_weighted": 0.37521514629948366,
+    "f1_weighted": 0.3633286899939102,
+    "precision_macro": 0.44139350289034274,
+    "recall_macro": 0.3502037648611039,
+    "f1_macro": 0.37040212184895327
   },
   "per_class_metrics": {
     "Air Pollution and Emissions": {
-      "precision": 0.5555555555555556,
-      "recall": 0.2777777777777778,
-      "f1_score": 0.37037037037037035,
-      "support": 18
+      "precision": 0.4444444444444444,
+      "recall": 0.23529411764705882,
+      "f1_score": 0.3076923076923077,
+      "support": 17
     },
     "Cold Weather / Temperature Drops": {
-      "precision": 0.7692307692307693,
-      "recall": 0.7317073170731707,
-      "f1_score": 0.75,
-      "support": 41
+      "precision": 0.6122448979591837,
+      "recall": 0.75,
+      "f1_score": 0.6741573033707865,
+      "support": 40
     },
     "Drought and Water Scarcity": {
-      "precision": 0.5,
-      "recall": 0.3333333333333333,
-      "f1_score": 0.4,
-      "support": 3
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "support": 2
     },
     "Environmental Degradation and Land Use": {
-      "precision": 0.09174311926605505,
-      "recall": 0.08771929824561403,
-      "f1_score": 0.08968609865470852,
-      "support": 114
+      "precision": 0.09302325581395349,
+      "recall": 0.07207207207207207,
+      "f1_score": 0.08121827411167512,
+      "support": 111
     },
     "Extreme Heat / Heatwaves": {
-      "precision": 0.24691358024691357,
-      "recall": 0.3053435114503817,
-      "f1_score": 0.27303754266211605,
-      "support": 131
+      "precision": 0.19166666666666668,
+      "recall": 0.1885245901639344,
+      "f1_score": 0.19008264462809918,
+      "support": 122
     },
     "Flooding and Extreme Precipitation": {
-      "precision": 0.52,
-      "recall": 0.47560975609756095,
-      "f1_score": 0.4968152866242038,
-      "support": 164
+      "precision": 0.42777777777777776,
+      "recall": 0.5422535211267606,
+      "f1_score": 0.4782608695652174,
+      "support": 142
     },
     "General Weather": {
-      "precision": 0.6666666666666666,
-      "recall": 0.2857142857142857,
-      "f1_score": 0.4,
+      "precision": 0.3333333333333333,
+      "recall": 0.14285714285714285,
+      "f1_score": 0.2,
       "support": 7
     },
     "Geological Events": {
-      "precision": 0.8461538461538461,
-      "recall": 0.8979591836734694,
-      "f1_score": 0.8712871287128713,
-      "support": 49
+      "precision": 0.926829268292683,
+      "recall": 0.8444444444444444,
+      "f1_score": 0.8837209302325582,
+      "support": 45
     },
     "Sea Level Rise / Coastal Hazards": {
-      "precision": 0.4444444444444444,
-      "recall": 0.5714285714285714,
+      "precision": 1.0,
+      "recall": 0.3333333333333333,
       "f1_score": 0.5,
-      "support": 7
+      "support": 6
     },
     "Storms, Typhoons, and Wind Events": {
-      "precision": 0.5126050420168067,
-      "recall": 0.5083333333333333,
-      "f1_score": 0.5104602510460251,
-      "support": 120
+      "precision": 0.38461538461538464,
+      "recall": 0.39325842696629215,
+      "f1_score": 0.3888888888888889,
+      "support": 89
     }
   },
   "confidence_stats": {
-    "mean_confidence": 0.7200784804834803,
-    "std_confidence": 0.20880706627106616,
-    "min_confidence": 0.25277300871610575,
-    "max_confidence": 0.999999905221931,
-    "median_confidence": 0.7322525972681173
+    "mean_confidence": 0.689941796921423,
+    "std_confidence": 0.2092990725047382,
+    "min_confidence": 0.22283300987097385,
+    "max_confidence": 0.9999997789502149,
+    "median_confidence": 0.7064262321224111
   },
   "training_info": {
-    "training_samples": 2614,
-    "test_samples": 654
-  },
-  "categories": [
-    "Sea Level Rise / Coastal Hazards",
-    "Extreme Heat / Heatwaves",
-    "Cold Weather / Temperature Drops",
-    "Flooding and Extreme Precipitation",
-    "Storms, Typhoons, and Wind Events",
-    "Drought and Water Scarcity",
-    "Air Pollution and Emissions",
-    "Environmental Degradation and Land Use",
-    "Geological Events",
-    "General Weather"
-  ],
-  "category_distribution": {
-    "Flooding and Extreme Precipitation": 821,
-    "Extreme Heat / Heatwaves": 655,
-    "Storms, Typhoons, and Wind Events": 598,
-    "Environmental Degradation and Land Use": 571,
-    "Geological Events": 245,
-    "Cold Weather / Temperature Drops": 206,
-    "Air Pollution and Emissions": 88,
-    "General Weather": 37,
-    "Sea Level Rise / Coastal Hazards": 34,
-    "Drought and Water Scarcity": 13
+    "training_samples": 2320,
+    "test_samples": 581
   },
   "multiple_runs": {
     "statistics": {
       "accuracy": {
-        "mean": 41.681957186544345,
-        "std": 0.2665993237639555,
-        "min": 41.284403669724774,
-        "max": 42.04892966360856
+        "mean": 35.90361445783133,
+        "std": 1.442500987246607,
+        "min": 33.56282271944922,
+        "max": 37.52151462994836
       },
       "precision": {
-        "mean": 0.42481119093803643,
-        "std": 0.004269238221148364,
-        "min": 0.41966592479725723,
-        "max": 0.4310011887285482
+        "mean": 0.3535477530770244,
+        "std": 0.009552854369387404
       },
       "recall": {
-        "mean": 0.41681957186544344,
-        "std": 0.0026659932376395554,
-        "min": 0.41284403669724773,
-        "max": 0.42048929663608564
+        "mean": 0.3590361445783133,
+        "std": 0.01442500987246607
       },
       "f1": {
-        "mean": 0.4168358175649301,
-        "std": 0.003606008623693897,
-        "min": 0.4126019592021051,
-        "max": 0.42253028507777335
+        "mean": 0.3507172250020439,
+        "std": 0.012366520866162519
       }
     },
-    "best_run_seed": 45,
-    "number_of_runs": 5,
-    "all_runs": [
-      {
-        "run": 1,
-        "seed": 42,
-        "accuracy": 0.41590214067278286,
-        "precision": 0.4248470948012233,
-        "recall": 0.41590214067278286,
-        "f1": 0.41641589782035004
-      },
-      {
-        "run": 2,
-        "seed": 43,
-        "accuracy": 0.41590214067278286,
-        "precision": 0.41966592479725723,
-        "recall": 0.41590214067278286,
-        "f1": 0.4136748172363958
-      },
-      {
-        "run": 3,
-        "seed": 44,
-        "accuracy": 0.41896024464831805,
-        "precision": 0.42785953330725723,
-        "recall": 0.41896024464831805,
-        "f1": 0.4189561284880263
-      },
-      {
-        "run": 4,
-        "seed": 45,
-        "accuracy": 0.42048929663608564,
-        "precision": 0.4310011887285482,
-        "recall": 0.42048929663608564,
-        "f1": 0.42253028507777335
-      },
-      {
-        "run": 5,
-        "seed": 46,
-        "accuracy": 0.41284403669724773,
-        "precision": 0.4206822130558963,
-        "recall": 0.41284403669724773,
-        "f1": 0.4126019592021051
-      }
-    ]
+    "best_run_seed": 43,
+    "number_of_runs": 5
   }
 }

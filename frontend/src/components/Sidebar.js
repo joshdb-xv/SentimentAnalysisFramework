@@ -61,6 +61,12 @@ export default function Sidebar() {
       activeIcon: IoCog,
       inactiveIcon: IoCogOutline,
     },
+    {
+      name: "DOMAIN-DEBUG",
+      path: "/domain-debug",
+      activeIcon: IoCog,
+      inactiveIcon: IoCogOutline,
+    },
   ];
 
   return (

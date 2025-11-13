@@ -236,9 +236,19 @@ class DomainClassifierService:
         
         try:
             df = pd.read_csv(filepath)
-            if 'text' not in df.columns or 'label' not in df.columns:
+            # Support both 'label' and 'category' column names
+            if 'text' not in df.columns:
                 filepath.unlink()
-                raise ValueError("CSV must contain 'text' and 'label' columns (0=not climate, 1=climate)")
+                raise ValueError("CSV must contain 'text' column")
+            
+            if 'category' not in df.columns and 'label' not in df.columns:
+                filepath.unlink()
+                raise ValueError("CSV must contain either 'category' or 'label' column (0=not climate, 1=climate)")
+            
+            # If the file has 'label' but the trainer expects 'category', rename it
+            if 'label' in df.columns and 'category' not in df.columns:
+                df = df.rename(columns={'label': 'category'})
+                df.to_csv(filepath, index=False)
             
             row_count = len(df)
             logger.info(f"Uploaded domain training data: {filename} ({row_count} rows)")
@@ -517,7 +527,7 @@ class DomainClassifierService:
             predictions = self.trainer.pipeline.predict(df['processed_text'].values)
             probabilities = self.trainer.pipeline.predict_proba(df['processed_text'].values)
             
-            df['label'] = predictions
+            df['category'] = predictions
             df['confidence'] = probabilities.max(axis=1)
             
             # Split by confidence
@@ -537,7 +547,7 @@ class DomainClassifierService:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             high_conf_filename = f"pseudo_labeled_domain_{timestamp}.csv"
             high_conf_path = self.staged_training_dir / high_conf_filename
-            high_conf_df[['text', 'label']].to_csv(high_conf_path, index=False)
+            high_conf_df[['text', 'category']].to_csv(high_conf_path, index=False)
             logger.info(f"Saved {len(high_conf_df)} high-confidence labels to {high_conf_filename}")
         
         # Save low confidence for manual labeling
@@ -546,7 +556,7 @@ class DomainClassifierService:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             low_conf_filename = f"low_confidence_domain_{timestamp}.csv"
             low_conf_path = self.low_confidence_dir / low_conf_filename
-            low_conf_df[['text', 'label', 'confidence']].to_csv(low_conf_path, index=False)
+            low_conf_df[['text', 'category', 'confidence']].to_csv(low_conf_path, index=False)
             logger.info(f"Saved {len(low_conf_df)} low-confidence samples to {low_conf_filename}")
         
         # Move processed unlabeled files to archive
@@ -558,7 +568,7 @@ class DomainClassifierService:
         # Class distribution
         class_dist = {}
         if len(high_conf_df) > 0:
-            class_counts = high_conf_df['label'].value_counts()
+            class_counts = high_conf_df['category'].value_counts()
             class_dist = {str(k): int(v) for k, v in class_counts.items()}
         
         return {

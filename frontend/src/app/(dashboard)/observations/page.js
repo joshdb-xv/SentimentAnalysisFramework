@@ -68,7 +68,7 @@ export default function Observations() {
         </div>
       )}
 
-      <div className="h-screen bg-[#F8FAFC] pt-20 overflow-y-hidden">
+      <div className="h-screen bg-[#F8FAFC] pt-20">
         <div className="flex flex-col">
           {/* TOP BENTO */}
           <div className="flex flex-row items-stretch justify-center mt-8 mx-8 gap-8">

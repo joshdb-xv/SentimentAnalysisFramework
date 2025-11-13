@@ -286,7 +286,7 @@ export default function WeatherAPIClient() {
   }
 
   return (
-    <div className="h-screen bg-[#F8FAFC] pt-20 overflow-y-hidden">
+    <div className="h-screen bg-[#F8FAFC] pt-20">
       {/* Content Area - Scrollable */}
       <div className="flex-1 overflow-auto">
         {/* TOP BENTO */}

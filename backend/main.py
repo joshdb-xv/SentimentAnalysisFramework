@@ -5,6 +5,7 @@ from database.models import init_db
 from services.main_service import get_model_status
 from services.fasttext_service import get_fasttext_manager
 from services.lexical_dictionary_manager import get_dictionary_manager
+from services.domain_classifier_service import get_domain_classifier_service
 
 # Import all the routers
 from routers import (
@@ -16,7 +17,8 @@ from routers import (
     benchmarks_router,
     lexical_router,
     twitter_router,
-    classifier_router  # NEW: Climate classifier router
+    classifier_router,
+    domain_classifier_router  
 )
 
 # -----------------------------
@@ -104,7 +106,7 @@ app.add_middleware(
 async def root():
     return {
         "message": "Climate Tweet Analysis API is running!",
-        "version": "3.2.0",
+        "version": "3.3.0",
         "features": [
             "Climate relevance detection",
             "Climate category classification", 
@@ -116,7 +118,8 @@ async def root():
             "Lexical dictionary generation with FastText",
             "Cached lexical dictionary with on-the-fly updates",
             "Twitter Scraper using Tweepy and Twitter API",
-            "Climate Classifier Training & Pseudo-Labeling"  # NEW
+            "Climate Classifier Training & Pseudo-Labeling",
+            "Climate Domain Classifier Training & Pseudo-Labeling"
         ]
     }
 
@@ -131,7 +134,8 @@ app.include_router(database_router.router, prefix="/database", tags=["Database"]
 app.include_router(benchmarks_router.router, tags=["Benchmarks"])
 app.include_router(lexical_router.router, tags=["Lexical Dictionary"])
 app.include_router(twitter_router.router, tags=["Twitter Scraper"])
-app.include_router(classifier_router.router, tags=["Climate Classifier"])  # NEW
+app.include_router(classifier_router.router, tags=["Climate Classifier"])
+app.include_router(domain_classifier_router.router, tags=["Domain Classifier"])
 
 # -----------------------------
 # Main Entry Point

@@ -18,7 +18,7 @@ import json
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class ClimateCategoryClassifier:
+class ClimateDomainClassifier:
     """
     Enhanced trainer class for climate category tweet classification with pseudo-labeling support
     Categories:
@@ -764,7 +764,7 @@ def show_climate_categories():
     """Display the available climate categories"""
     print("\nAvailable Climate Categories:")
     print("=" * 50)
-    categories = ClimateCategoryClassifier.CLIMATE_CATEGORIES
+    categories = ClimateDomainClassifier.CLIMATE_CATEGORIES
     for i, category in enumerate(categories, 1):
         print(f"{i:2d}. {category}")
     print("\nYour training data should have a 'category' column with these exact values")
@@ -844,7 +844,7 @@ def option_1_train_new_model():
     print("\nTraining a new climate category model")
     print("-" * 50)
     
-    trainer = ClimateCategoryClassifier()
+    trainer = ClimateDomainClassifier()
     
     # List available CSV files in input directory
     csv_files = list(trainer.input_dir.glob("*.csv"))
@@ -973,7 +973,7 @@ def option_1_train_new_model():
             # Export benchmarks
             metadata = trainer.load_model(model_name)
             if metadata:
-                export_benchmarks_to_json(metadata)
+                export_domain_benchmarks_to_json(metadata)
             
             print("\n" + "="*70)
             print("✅ TRAINING COMPLETED!")
@@ -1014,7 +1014,7 @@ def option_1_train_new_model():
             # Export benchmarks
             metadata = trainer.load_model(model_name)
             if metadata:
-                export_benchmarks_to_json(metadata)
+                export_domain_benchmarks_to_json(metadata)
             
             print("\n" + "="*70)
             print("✅ TRAINING COMPLETED!")
@@ -1034,7 +1034,7 @@ def option_2_auto_categorize():
     print("\nAuto-categorizing unlabeled tweets")
     print("-" * 50)
     
-    trainer = ClimateCategoryClassifier()
+    trainer = ClimateDomainClassifier()
     
     # Look for existing model files (exclude metadata files)
     model_files = [f for f in trainer.model_dir.glob("*.joblib") if "_metadata" not in f.name]
@@ -1149,7 +1149,7 @@ def option_3_retrain():
     print("\nRetraining with pseudo-labels")
     print("-" * 50)
     
-    trainer = ClimateCategoryClassifier()
+    trainer = ClimateDomainClassifier()
     
     # List available original labeled data files
     csv_files = list(trainer.input_dir.glob("*.csv"))
@@ -1297,7 +1297,7 @@ def option_3_retrain():
             
             metadata = trainer.load_model(model_name)
             if metadata:
-                export_benchmarks_to_json(metadata)
+                export_domain_benchmarks_to_json(metadata)
             
             print("\n" + "="*70)
             print("✅ RETRAINING COMPLETED!")
@@ -1327,7 +1327,7 @@ def option_3_retrain():
 
             metadata = trainer.load_model(model_name)
             if metadata:
-                export_benchmarks_to_json(metadata)
+                export_domain_benchmarks_to_json(metadata)
             
             print(f"\n✅ RETRAINING COMPLETED!")
             print(f"📊 Training samples: {results['training_samples']}")
@@ -1342,7 +1342,7 @@ def option_4_test_model():
     print("\nTesting existing model")
     print("-" * 50)
     
-    trainer = ClimateCategoryClassifier()
+    trainer = ClimateDomainClassifier()
     
     # List available models (exclude metadata files)
     model_files = [f for f in trainer.model_dir.glob("*.joblib") if "_metadata" not in f.name]
@@ -1489,7 +1489,7 @@ def option_5_list_files():
     print("\nAvailable Files")
     print("-" * 50)
     
-    trainer = ClimateCategoryClassifier()
+    trainer = ClimateDomainClassifier()
     
     print("Input files (for training and processing):")
     input_files = list(trainer.input_dir.glob("*.csv"))
@@ -1556,8 +1556,8 @@ def option_5_list_files():
     else:
         print("   (Models directory not found)")
 
-def export_benchmarks_to_json(metadata: Dict[str, Any]):
-    """Export model benchmarks to JSON for frontend consumption"""
+def export_domain_benchmarks_to_json(metadata: Dict[str, Any]):
+    """Export domain model benchmarks to JSON for frontend consumption"""
     backend_dir = Path(__file__).resolve().parent.parent
     frontend_dir = backend_dir.parent / "frontend"
     output_path = frontend_dir / "public" / "climatedomain_benchmarks.json"
@@ -1570,7 +1570,6 @@ def export_benchmarks_to_json(metadata: Dict[str, Any]):
     eval_data = results.get('evaluation', {})
     overall = eval_data.get('overall_metrics', {})
     
-    # Check if multiple runs data exists
     multiple_runs = results.get('multiple_runs', None)
     
     benchmarks = {
@@ -1583,63 +1582,47 @@ def export_benchmarks_to_json(metadata: Dict[str, Any]):
             "f1_weighted": overall.get('f1_weighted', 0),
             "precision_macro": overall.get('precision_macro', 0),
             "recall_macro": overall.get('recall_macro', 0),
-            "f1_macro": overall.get('f1_macro', 0),
-            "cv_mean": results.get('cv_mean', 0),
-            "cv_std": results.get('cv_std', 0)
+            "f1_macro": overall.get('f1_macro', 0)
         },
         "per_class_metrics": eval_data.get('per_class_metrics', {}),
         "confidence_stats": eval_data.get('confidence_stats', {}),
         "training_info": {
             "training_samples": results.get('training_samples', 0),
             "test_samples": results.get('test_samples', 0)
-        },
-        "categories": results.get('categories', []),
-        "category_distribution": results.get('category_distribution', {})
+        }
     }
     
-    # ADD MULTIPLE RUNS DATA IF IT EXISTS
     if multiple_runs:
         benchmarks["multiple_runs"] = {
             "statistics": {
                 "accuracy": {
-                    "mean": multiple_runs['statistics']['accuracy']['mean'] * 100,  # Convert to percentage
+                    "mean": multiple_runs['statistics']['accuracy']['mean'] * 100,
                     "std": multiple_runs['statistics']['accuracy']['std'] * 100,
                     "min": multiple_runs['statistics']['accuracy']['min'] * 100,
                     "max": multiple_runs['statistics']['accuracy']['max'] * 100
                 },
                 "precision": {
                     "mean": multiple_runs['statistics']['precision']['mean'],
-                    "std": multiple_runs['statistics']['precision']['std'],
-                    "min": multiple_runs['statistics']['precision']['min'],
-                    "max": multiple_runs['statistics']['precision']['max']
+                    "std": multiple_runs['statistics']['precision']['std']
                 },
                 "recall": {
                     "mean": multiple_runs['statistics']['recall']['mean'],
-                    "std": multiple_runs['statistics']['recall']['std'],
-                    "min": multiple_runs['statistics']['recall']['min'],
-                    "max": multiple_runs['statistics']['recall']['max']
+                    "std": multiple_runs['statistics']['recall']['std']
                 },
                 "f1": {
                     "mean": multiple_runs['statistics']['f1']['mean'],
-                    "std": multiple_runs['statistics']['f1']['std'],
-                    "min": multiple_runs['statistics']['f1']['min'],
-                    "max": multiple_runs['statistics']['f1']['max']
+                    "std": multiple_runs['statistics']['f1']['std']
                 }
             },
             "best_run_seed": results.get('best_run_seed'),
-            "number_of_runs": len(multiple_runs['runs']),
-            "all_runs": multiple_runs['runs']  # Include all individual run results
+            "number_of_runs": len(multiple_runs['runs'])
         }
-        logger.info("✅ Multiple runs statistics included in benchmarks")
-    else:
-        logger.warning("⚠️  No multiple runs data found in training results")
     
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(output_path, 'w') as f:
         json.dump(benchmarks, f, indent=2)
     
-    logger.info(f"✅ Benchmarks exported to {output_path}")
+    logger.info(f"✅ Domain benchmarks exported to {output_path}")
     return output_path
 
 def main():
