@@ -208,12 +208,18 @@ class ClassifierService:
         model_path = self.trainer.model_dir / self.current_model_name
         metadata_path = self.trainer.model_dir / f"{model_path.stem}_metadata.joblib"
         
+        # Add timestamp to archived filename to prevent overwrites
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        archived_model_name = f"climate_classifier_{timestamp}.joblib"
+        archived_metadata_name = f"climate_classifier_{timestamp}_metadata.joblib"
+        
         if model_path.exists():
-            shutil.move(str(model_path), str(archive_dir / self.current_model_name))
-            logger.info(f"Archived model: {self.current_model_name}")
+          shutil.move(str(model_path), str(archive_dir / archived_model_name))
+          logger.info(f"Archived model as: {archived_model_name}")
         
         if metadata_path.exists():
-            shutil.move(str(metadata_path), str(archive_dir / metadata_path.name))
+          shutil.move(str(metadata_path), str(archive_dir / archived_metadata_name))
+          logger.info(f"Archived metadata as: {archived_metadata_name}")
     
     def _get_all_staged_training_files(self) -> List[str]:
         """Get all CSV files from staged training directory"""
@@ -376,7 +382,7 @@ class ClassifierService:
         }
         
         # Save model
-        model_name = f"climate_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+        model_name = "climate_classifier.joblib"
         self.trainer.save_model(model_name, results)
         self.current_model_name = model_name
         
@@ -465,7 +471,7 @@ class ClassifierService:
         self._archive_current_model()
         
         # Save new model
-        model_name = f"climate_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+        model_name = "climate_classifier.joblib"
         self.trainer.save_model(model_name, results)
         self.current_model_name = model_name
         

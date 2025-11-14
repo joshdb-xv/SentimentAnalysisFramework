@@ -34,7 +34,7 @@ def analyze_single_tweet(tweet_text: str, location: Optional[str] = None) -> Dic
     1. Check if tweet is climate-related (binary classification)
     2. If climate-related, categorize into specific climate domain
     3. If location provided, validate against actual weather data
-    4. Analyze sentiment using custom VADER with lexical dictionary
+    4. Analyze sentiment using custom VADER with lexical dictionary + confidence scoring
     """
     # Step 1: Climate relevance check
     classification = classify_tweet(tweet_text)
@@ -96,6 +96,7 @@ def analyze_single_tweet(tweet_text: str, location: Optional[str] = None) -> Dic
         print(f"Categorization error: {categorization.get('error', 'unknown error')}")
 
     # Step 3: Weather validation (if location is provided)
+    weather_data = None
     if location:
         print(f"Location provided ({location}), proceeding to weather validation...")
         weather_analysis = weather_validator.analyze_tweet_weather_context(tweet_text, location)
@@ -104,6 +105,7 @@ def analyze_single_tweet(tweet_text: str, location: Optional[str] = None) -> Dic
         if weather_analysis.get("status") == "success":
             validation = weather_analysis.get("validation", {})
             consistency = validation.get("consistency", "unknown")
+            weather_data = weather_analysis.get("weather_data")  # Extract weather data for context
             print(f"Weather consistency: {consistency}")
             
             # Add a simple flag for easier frontend usage
@@ -124,17 +126,47 @@ def analyze_single_tweet(tweet_text: str, location: Optional[str] = None) -> Dic
         }
         base["weather_flag"] = "No Location"
 
-    # Step 4: Sentiment Analysis
-    print("Proceeding to sentiment analysis...")
-    sentiment_analysis = analyze_tweet_sentiment(tweet_text)
+    # Step 4: Sentiment Analysis WITH CONTEXT
+    print("Proceeding to sentiment analysis with context...")
+    
+    # 🔥 BUILD CONTEXT FROM PREVIOUS STEPS
+    context = {
+        'location': location,
+        'climate_category': categorization.get('prediction'),
+        'weather_data': weather_data,
+        'confidence': classification.get('confidence')
+    }
+    
+    print(f"📦 Context for sentiment analysis: {context}")
+    
+    # 🔥 PASS CONTEXT AND ENABLE DEBUG MODE
+    sentiment_analysis = analyze_tweet_sentiment(
+        tweet_text, 
+        debug=True,  # Enable detailed reasoning output
+        context=context  # Pass context for confidence scoring
+    )
+    
     base["sentiment_analysis"] = sentiment_analysis
     
     if sentiment_analysis.get("status") == "ok":
         sentiment = sentiment_analysis.get("sentiment", {})
-        classification = sentiment.get("classification", "neutral")
+        confidence_data = sentiment_analysis.get("confidence", {})
+        metadata = sentiment_analysis.get("metadata", {})
+        
+        classification_result = sentiment.get("classification", "neutral")
         compound = sentiment.get("compound", 0)
-        print(f"Sentiment: {classification} (compound: {compound})")
-        base["sentiment_flag"] = classification.title()
+        confidence_score = confidence_data.get("score", 0)
+        confidence_tier = confidence_data.get("tier", "UNKNOWN")
+        
+        print(f"Sentiment: {classification_result} (compound: {compound})")
+        print(f"Confidence: {confidence_score:.2f} ({confidence_tier})")
+        print(f"Include in stats: {metadata.get('include_in_statistics', False)}")
+        
+        # Enhanced sentiment flag with confidence tier
+        if classification_result == "inconclusive":
+            base["sentiment_flag"] = "INCONCLUSIVE"
+        else:
+            base["sentiment_flag"] = f"{classification_result.title()} ({confidence_tier})"
     else:
         print(f"Sentiment analysis error: {sentiment_analysis.get('error', 'unknown error')}")
         base["sentiment_flag"] = "Unavailable"

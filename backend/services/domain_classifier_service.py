@@ -364,9 +364,9 @@ class DomainClassifierService:
             'classes': evaluation_results['classes']
         }
         
-        # Save model
-        model_name = f"climate_domain_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-        self.trainer.save_model(model_name, results)
+        # Save model (uses default filename, backs up old one)
+        self.trainer.save_model(training_results=results)
+        model_name = "climate_domain_classifier.joblib"
         self.current_model_name = model_name
         
         # Export benchmarks
@@ -444,9 +444,9 @@ class DomainClassifierService:
         # Archive old model
         self._archive_current_model()
         
-        # Save new model
-        model_name = f"climate_domain_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-        self.trainer.save_model(model_name, results)
+        # Save model (uses default filename, backs up old one)
+        self.trainer.save_model(training_results=results)
+        model_name = "climate_domain_classifier.joblib"
         self.current_model_name = model_name
         
         # Export benchmarks

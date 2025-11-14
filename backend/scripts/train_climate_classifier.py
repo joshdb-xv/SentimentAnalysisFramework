@@ -812,7 +812,7 @@ def option_1_train_new_model():
             print("\n🔄 Training model (single run)...")
             results = trainer.train_model(selected_file.name)
             
-            model_name = f"climate_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            model_name = "climate_classifier.joblib"
             trainer.save_model(model_name, results)
             
             metadata = trainer.load_model(model_name)
@@ -1111,7 +1111,7 @@ def option_3_retrain():
             print("\n🔄 Retraining with combined data (single run)...")
             results = trainer.train_model(all_files, perform_grid_search=False)
             
-            model_name = f"climate_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
+            model_name = "climate_classifier.joblib"
             trainer.save_model(model_name, results)
 
             metadata = trainer.load_model(model_name)

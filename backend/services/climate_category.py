@@ -14,15 +14,13 @@ from sklearn.pipeline import Pipeline
 # Climate Categories
 # -----------------------------
 CLIMATE_CATEGORIES = [
-    "Sea Level Rise / Coastal Hazards",
-    "Extreme Heat / Heatwaves", 
-    "Cold Weather / Temperature Drops",
-    "Flooding and Extreme Precipitation",
     "Storms, Typhoons, and Wind Events",
-    "Drought and Water Scarcity",
-    "Air Pollution and Emissions",
-    "Environmental Degradation and Land Use",
-    "Geological Events"
+    "Coastal & Flooding Hazards",
+    "Extreme Heat / Heatwaves",
+    "Pollution",
+    "Cold Weather / Temperature Drops",
+    "Geological Events",
+    "General Weather"
 ]
 
 # -----------------------------

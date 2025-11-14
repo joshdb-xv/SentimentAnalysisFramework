@@ -22,28 +22,22 @@ class ClimateDomainClassifier:
     """
     Enhanced trainer class for climate category tweet classification with pseudo-labeling support
     Categories:
-    - Sea Level Rise / Coastal Hazards
-    - Extreme Heat / Heatwaves  
-    - Cold Weather / Temperature Drops
-    - Flooding and Extreme Precipitation
     - Storms, Typhoons, and Wind Events
-    - Drought and Water Scarcity
-    - Air Pollution and Emissions
-    - Environmental Degradation and Land Use
+    - Coastal & Flooding Hazards
+    - Extreme Heat / Heatwaves
+    - Pollution
+    - Cold Weather / Temperature Drops
     - Geological Events
     - General Weather
     """
     
     # Define the climate categories
     CLIMATE_CATEGORIES = [
-        "Sea Level Rise / Coastal Hazards",
-        "Extreme Heat / Heatwaves", 
-        "Cold Weather / Temperature Drops",
-        "Flooding and Extreme Precipitation",
         "Storms, Typhoons, and Wind Events",
-        "Drought and Water Scarcity",
-        "Air Pollution and Emissions",
-        "Environmental Degradation and Land Use",
+        "Coastal & Flooding Hazards",
+        "Extreme Heat / Heatwaves",
+        "Pollution",
+        "Cold Weather / Temperature Drops",
         "Geological Events",
         "General Weather"
     ]
@@ -195,13 +189,10 @@ class ClimateDomainClassifier:
       
       # Combine all dataframes
       combined_df = pd.concat(dataframes, ignore_index=True)
-      
-      # Remove duplicates based on text content AND category
-      initial_count = len(combined_df)
-      combined_df = combined_df.drop_duplicates(subset=['text', 'category'], keep='first')
+
+      # Keep all samples including duplicates for balanced distribution
       final_count = len(combined_df)
-      
-      logger.info(f"Combined dataset: {final_count} samples ({initial_count - final_count} duplicates removed)")
+      logger.info(f"Combined dataset: {final_count} samples (duplicates kept for balanced distribution)")
       logger.info(f"Category distribution:\n{combined_df['category'].value_counts()}")
       
       return combined_df
@@ -710,41 +701,64 @@ class ClimateDomainClassifier:
         
         return None
     
-    def save_model(self, filename: str = "climate_category_classifier.joblib", training_results: Dict[str, Any] = None):
-        """
-        Save the trained model to disk with enhanced metadata
-        """
-        if self.pipeline is None:
-            raise ValueError("No trained model to save. Train the model first.")
-        
-        model_path = self.model_dir / filename
-        joblib.dump(self.pipeline, model_path)
-        logger.info(f"Model saved to {model_path}")
-        
-        # Enhanced model metadata
-        try:
-            feature_names = self.pipeline.named_steps['tfidf'].get_feature_names_out()
-            top_features = feature_names[:200].tolist() if len(feature_names) >= 200 else feature_names.tolist()
-        except:
-            top_features = []
-        
-        metadata = {
-            'model_type': 'MultinomialNB_ClimateCategory',
-            'vectorizer_type': 'TfidfVectorizer',
-            'features': top_features,
-            'classes': self.pipeline.classes_.tolist(),
-            'climate_categories': self.CLIMATE_CATEGORIES,
-            'save_timestamp': datetime.now().isoformat(),
-            'n_features': len(feature_names) if 'feature_names' in locals() else 'unknown'
-        }
-        
-        # Add training results if provided
-        if training_results:
-            metadata['training_results'] = training_results
-        
-        metadata_path = self.model_dir / f"{filename.replace('.joblib', '_metadata.joblib')}"
-        joblib.dump(metadata, metadata_path)
-        logger.info(f"Model metadata saved to {metadata_path}")
+    def save_model(self, filename: str = "climate_domain_classifier.joblib", training_results: Dict[str, Any] = None):
+      """
+      Save the trained model to disk with enhanced metadata
+      Backs up existing model with timestamp before overwriting
+      """
+      if self.pipeline is None:
+          raise ValueError("No trained model to save. Train the model first.")
+      
+      model_path = self.model_dir / filename
+      
+      # Backup existing model if it exists
+      if model_path.exists():
+          backup_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+          backup_filename = filename.replace('.joblib', f'_backup_{backup_timestamp}.joblib')
+          backup_path = self.model_dir / backup_filename
+          
+          # Copy the model file
+          import shutil
+          shutil.copy2(model_path, backup_path)
+          logger.info(f"📦 Backed up existing model to: {backup_filename}")
+          
+          # Also backup the metadata if it exists
+          metadata_filename = filename.replace('.joblib', '_metadata.joblib')
+          metadata_path = self.model_dir / metadata_filename
+          if metadata_path.exists():
+              backup_metadata_filename = backup_filename.replace('.joblib', '_metadata.joblib')
+              backup_metadata_path = self.model_dir / backup_metadata_filename
+              shutil.copy2(metadata_path, backup_metadata_path)
+              logger.info(f"📦 Backed up existing metadata to: {backup_metadata_filename}")
+      
+      # Save the new model
+      joblib.dump(self.pipeline, model_path)
+      logger.info(f"💾 Model saved to: {filename}")
+      
+      # Enhanced model metadata
+      try:
+          feature_names = self.pipeline.named_steps['tfidf'].get_feature_names_out()
+          top_features = feature_names[:200].tolist() if len(feature_names) >= 200 else feature_names.tolist()
+      except:
+          top_features = []
+      
+      metadata = {
+          'model_type': 'MultinomialNB_ClimateCategory',
+          'vectorizer_type': 'TfidfVectorizer',
+          'features': top_features,
+          'classes': self.pipeline.classes_.tolist(),
+          'climate_categories': self.CLIMATE_CATEGORIES,
+          'save_timestamp': datetime.now().isoformat(),
+          'n_features': len(feature_names) if 'feature_names' in locals() else 'unknown'
+      }
+      
+      # Add training results if provided
+      if training_results:
+          metadata['training_results'] = training_results
+      
+      metadata_path = self.model_dir / f"{filename.replace('.joblib', '_metadata.joblib')}"
+      joblib.dump(metadata, metadata_path)
+      logger.info(f"💾 Model metadata saved to: {metadata_path.name}")
 
 def show_menu():
     """Display the main menu"""
@@ -967,8 +981,8 @@ def option_1_train_new_model():
             }
             
             # Save the model with training results
-            model_name = f"climate_category_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-            trainer.save_model(model_name, results)
+            trainer.save_model(training_results=results)
+            model_name = "climate_domain_classifier.joblib"
             
             # Export benchmarks
             metadata = trainer.load_model(model_name)
@@ -1007,9 +1021,9 @@ def option_1_train_new_model():
             print("\n🔄 Training model (single run)...")
             results = trainer.train_model(selected_file)
             
-            # Save the model with training results
-            model_name = f"climate_category_classifier_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-            trainer.save_model(model_name, results)
+            # Save the model with training results (uses default filename)
+            trainer.save_model(training_results=results)
+            model_name = "climate_domain_classifier.joblib"
             
             # Export benchmarks
             metadata = trainer.load_model(model_name)
@@ -1292,8 +1306,8 @@ def option_3_retrain():
                 'classes': evaluation_results['classes']
             }
             
-            model_name = f"climate_category_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-            trainer.save_model(model_name, results)
+            trainer.save_model(training_results=results) 
+            model_name = "climate_domain_classifier.joblib"
             
             metadata = trainer.load_model(model_name)
             if metadata:
@@ -1322,8 +1336,8 @@ def option_3_retrain():
             print("\n🔄 Retraining with combined data (single run)...")
             results = trainer.train_model(all_files, perform_grid_search=False)
             
-            model_name = f"climate_category_classifier_retrained_{datetime.now().strftime('%Y%m%d_%H%M%S')}.joblib"
-            trainer.save_model(model_name, results)
+            trainer.save_model(training_results=results)
+            model_name = "climate_domain_classifier.joblib"
 
             metadata = trainer.load_model(model_name)
             if metadata:
