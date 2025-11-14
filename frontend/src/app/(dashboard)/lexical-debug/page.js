@@ -273,7 +273,7 @@ export default function LexicalDebug() {
 
           {/* Loading Overlay */}
           {Object.values(loading).some((l) => l) && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
               <div className="bg-white p-6 rounded-lg shadow-xl">
                 <div className="animate-spin h-12 w-12 border-4 border-gray-300 border-t-gray-800 rounded-full mx-auto mb-4"></div>
                 <p className="text-lg font-semibold text-gray-800">
@@ -414,12 +414,12 @@ export default function LexicalDebug() {
                       Upload dictionary → Process → Save to cache
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-semibold">3.</span> If cache
-                      exists: Load dictionary
+                      <span className="font-semibold">3.</span> If cache exists:
+                      Load dictionary
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-semibold">4.</span> Search for
-                      words and update labels as needed
+                      <span className="font-semibold">4.</span> Search for words
+                      and update labels as needed
                     </li>
                   </ol>
                 </div>

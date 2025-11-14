@@ -1,12 +1,12 @@
-# services/sentiment_analysis.py
+# services/sentiment_analysis.py - FIXED FOR JOBLIB
 
-import csv
 import os
 import re
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 import pandas as pd
+import joblib
 
 @dataclass
 class SentimentScore:
@@ -23,12 +23,28 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
     Supports English, Tagalog, and Cebuano words
     """
     
-    def __init__(self, lexicon_path: str = "data/lexical_dictionary/lexical_dictionary.joblib"):
+    def __init__(self, lexicon_path: str = None):
         # Initialize the base VADER analyzer
         super().__init__()
         
+        # Auto-detect lexicon path if not provided
+        if lexicon_path is None:
+            possible_paths = [
+                "data/lexical_dictionary/lexical_dictionary.joblib",
+                "../data/lexical_dictionary/lexical_dictionary.joblib",
+                "../../data/lexical_dictionary/lexical_dictionary.joblib",
+            ]
+            for path in possible_paths:
+                if os.path.exists(path):
+                    lexicon_path = path
+                    break
+            
+            if lexicon_path is None:
+                lexicon_path = "data/lexical_dictionary/lexical_dictionary.joblib"  # fallback
+        
         self.custom_lexicon_path = lexicon_path
         self.custom_lexicon = {}
+        self.load_errors = []
         
         # Load and merge custom lexicon
         self._load_custom_lexicon()
@@ -38,41 +54,121 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
         self._add_filipino_negations()
     
     def _load_custom_lexicon(self) -> None:
-        """Load the custom lexical dictionary from CSV"""
+        """Load the custom lexical dictionary from joblib file"""
         try:
             if not os.path.exists(self.custom_lexicon_path):
                 raise FileNotFoundError(f"Lexical dictionary not found at: {self.custom_lexicon_path}")
             
-            df = pd.read_csv(self.custom_lexicon_path)
+            print(f"📖 Loading lexicon from: {self.custom_lexicon_path}")
+            
+            # Load the joblib file - it contains a dictionary with 'lexicon_df' and 'metadata'
+            loaded_data = joblib.load(self.custom_lexicon_path)
+            
+            # Check what type of data we loaded
+            if isinstance(loaded_data, dict):
+                # The lexical dictionary manager saves as {'lexicon': df, 'word_data': dict, 'metadata': dict}
+                if 'lexicon' in loaded_data:
+                    df = loaded_data['lexicon']
+                    metadata = loaded_data.get('metadata', {})
+                    print(f"✅ Loaded DataFrame with {len(df)} rows from cached dictionary")
+                    if metadata:
+                        created = metadata.get('created_at', 'unknown')
+                        print(f"   Created: {created}")
+                elif 'lexicon_df' in loaded_data:
+                    # Backwards compatibility
+                    df = loaded_data['lexicon_df']
+                    metadata = loaded_data.get('metadata', {})
+                    print(f"✅ Loaded DataFrame with {len(df)} rows from cached dictionary")
+                    if metadata:
+                        created = metadata.get('created_at', 'unknown')
+                        print(f"   Created: {created}")
+                else:
+                    # Try to convert dict directly to DataFrame
+                    df = pd.DataFrame(loaded_data)
+                    print(f"✅ Converted dict to DataFrame with {len(df)} rows")
+            elif isinstance(loaded_data, pd.DataFrame):
+                df = loaded_data
+                print(f"✅ Loaded DataFrame with {len(df)} rows")
+            else:
+                raise ValueError(f"Unexpected data type in joblib file: {type(loaded_data)}")
+            
+            # Print column names for debugging
+            print(f"📋 Columns found: {list(df.columns)}")
             
             # Ensure required columns exist
+            # The lexical dictionary uses 'word' and 'sentiment_score', not 'sentivalue'
+            if 'sentiment_score' in df.columns and 'word' in df.columns:
+                # This is the format from lexical_dictionary_manager - rename for processing
+                df = df.rename(columns={'sentiment_score': 'sentivalue'})
+                print(f"📋 Detected lexical dictionary format, renamed 'sentiment_score' to 'sentivalue'")
+            
             required_cols = ['word', 'sentivalue']
             if not all(col in df.columns for col in required_cols):
-                raise ValueError(f"CSV must contain columns: {required_cols}")
+                raise ValueError(f"Dictionary must contain columns: {required_cols}. Found: {list(df.columns)}")
             
-            for _, row in df.iterrows():
-                word = str(row['word']).strip().lower()
-                
-                # Use sentivalue as the primary sentiment score
+            # Load words into custom lexicon
+            loaded_count = 0
+            skipped_count = 0
+            
+            for idx, row in df.iterrows():
                 try:
+                    word = str(row['word']).strip().lower()
+                    if not word or word == 'nan':  # Skip empty or invalid words
+                        skipped_count += 1
+                        continue
+                    
+                    # Use sentivalue as the primary sentiment score
                     sentiment_value = float(row['sentivalue'])
-                    weight = float(row.get('weight', 1.0))
+                    
+                    # Skip if sentiment is NaN
+                    if pd.isna(sentiment_value):
+                        skipped_count += 1
+                        continue
+                    
+                    # Get weight if available, default to 1.0
+                    weight = float(row.get('weight', 1.0)) if 'weight' in row and not pd.isna(row.get('weight')) else 1.0
                     
                     # VADER expects sentiment values typically between -4 and 4
                     # Adjust the sentiment value based on weight
                     adjusted_sentiment = sentiment_value * weight
                     
+                    # Clamp to VADER's range
+                    adjusted_sentiment = max(-4.0, min(4.0, adjusted_sentiment))
+                    
                     # Store in custom lexicon
                     self.custom_lexicon[word] = adjusted_sentiment
+                    loaded_count += 1
                     
-                except (ValueError, TypeError):
-                    # Skip invalid entries
+                except (ValueError, TypeError, KeyError) as e:
+                    self.load_errors.append(f"Row {idx}, word '{row.get('word', 'N/A')}': {e}")
+                    skipped_count += 1
                     continue
             
-            print(f"✅ Loaded {len(self.custom_lexicon)} words from custom lexical dictionary")
+            print(f"✅ Successfully loaded {loaded_count} words into custom lexicon")
+            if skipped_count > 0:
+                print(f"⚠️  Skipped {skipped_count} invalid entries")
             
+            if self.load_errors and len(self.load_errors) <= 10:
+                print(f"⚠️  Load errors (showing first 5):")
+                for error in self.load_errors[:5]:
+                    print(f"     {error}")
+            
+            # Show sample of loaded words
+            if loaded_count > 0:
+                sample_words = list(self.custom_lexicon.items())[:5]
+                print(f"📝 Sample words:")
+                for word, sentiment in sample_words:
+                    print(f"     '{word}': {sentiment:+.3f}")
+            
+        except FileNotFoundError as e:
+            print(f"❌ Error: {e}")
+            print(f"   Make sure the lexicon file exists at: {self.custom_lexicon_path}")
+            self.custom_lexicon = {}
         except Exception as e:
-            print(f"⚠️ Error loading lexical dictionary: {e}")
+            print(f"❌ Error loading lexical dictionary: {e}")
+            print(f"   File path: {self.custom_lexicon_path}")
+            import traceback
+            traceback.print_exc()
             self.custom_lexicon = {}
     
     def _merge_lexicons(self) -> None:
@@ -81,49 +177,59 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
         Custom words will override VADER's default values
         """
         if not self.custom_lexicon:
-            print("⚠️ No custom lexicon to merge")
+            print("⚠️ No custom lexicon to merge - using base VADER only")
+            print("   This means Tagalog/Cebuano words will not be recognized!")
             return
         
         # VADER stores its lexicon in self.lexicon
         original_count = len(self.lexicon)
         
         # Add/override with custom lexicon entries
+        overridden_count = 0
         for word, sentiment in self.custom_lexicon.items():
+            if word in self.lexicon:
+                overridden_count += 1
             self.lexicon[word] = sentiment
         
         new_count = len(self.lexicon)
         added = new_count - original_count
         
-        print(f"✅ Merged lexicons: {original_count} base words + {len(self.custom_lexicon)} custom words")
-        print(f"   Net new words added: {added}")
+        print(f"✅ Merged lexicons:")
+        print(f"   Base VADER words: {original_count}")
+        print(f"   Custom words: {len(self.custom_lexicon)}")
+        print(f"   New words added: {added}")
+        print(f"   Words overridden: {overridden_count}")
+        print(f"   Total words: {new_count}")
     
     def _add_filipino_negations(self) -> None:
         """Add Tagalog and Cebuano negation words to VADER's negation set"""
         filipino_negations = {
             # Tagalog negations
             "hindi", "walang", "wala", "di", "huwag", "ayaw",
-            "hinde", "ayoko", "ayaw ko", "dili",
+            "hinde", "ayoko", "ayaw ko",
             
             # Cebuano negations
-            "dili", "walay", "wala", "ayaw",
+            "dili", "walay",
             
             # Common variations
             "hndi", "wla", "d", "hwag"
         }
         
-        # VADER stores negations in self.lexicon with NEGATE constant
-        for negation in filipino_negations:
-            # Mark as negation in the lexicon (VADER uses a special marker)
-            if negation not in self.lexicon:
-                self.lexicon[negation] = 0.0  # Neutral polarity but will trigger negation logic
+        # Add to VADER's negation words (stored in self.lexicon with special handling)
+        for neg in filipino_negations:
+            if neg not in self.lexicon:
+                # Add as neutral word but it will be recognized as negation
+                self.lexicon[neg] = 0.0
     
-    def preprocess_text(self, text: str) -> str:
+    def preprocess_text(self, text: str, debug: bool = False) -> str:
         """
         Preprocess text before sentiment analysis
         Handles Twitter-specific elements and Filipino text patterns
         """
         if not text:
             return ""
+        
+        original = text
         
         # Convert to lowercase for consistency
         text = text.lower()
@@ -137,28 +243,63 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
         
         # Handle common Filipino text patterns
         # Repeated characters for emphasis (e.g., "sobrangggg" -> "sobrang")
-        text = re.sub(r'(.)\1{2,}', r'\1\1', text)
+        # BUT keep at least 2 repetitions as they might be intentional
+        text = re.sub(r'(.)\1{3,}', r'\1\1', text)
         
         # Remove extra whitespace
         text = re.sub(r'\s+', ' ', text).strip()
         
+        if debug:
+            print(f"🔍 Preprocessing:")
+            print(f"   Original: '{original}'")
+            print(f"   Processed: '{text}'")
+        
         return text
     
-    def analyze_sentiment(self, text: str) -> SentimentScore:
+    def analyze_sentiment(self, text: str, debug: bool = False) -> SentimentScore:
         """
         Analyze sentiment using enhanced VADER with custom lexicon
         """
         if not text or not text.strip():
+            if debug:
+                print("⚠️ Empty text provided")
             return SentimentScore(0.0, 0.0, 1.0, 0.0, 'neutral')
         
         # Preprocess the text
-        processed_text = self.preprocess_text(text)
+        processed_text = self.preprocess_text(text, debug=debug)
         
         if not processed_text:
+            if debug:
+                print("⚠️ Processed text is empty after preprocessing")
             return SentimentScore(0.0, 0.0, 1.0, 0.0, 'neutral')
+        
+        # Debug: Check which words are in lexicon
+        if debug:
+            words = processed_text.split()
+            print(f"\n🔍 Word-by-word lexicon lookup:")
+            for word in words:
+                if word in self.lexicon:
+                    sentiment = self.lexicon[word]
+                    source = "CUSTOM" if word in self.custom_lexicon else "VADER"
+                    print(f"   ✅ '{word}': {sentiment:+.4f} ({source})")
+                else:
+                    print(f"   ❌ '{word}': NOT IN LEXICON")
+            
+            # Check if any words were found
+            found_words = [w for w in words if w in self.lexicon]
+            if not found_words:
+                print(f"\n   ⚠️  WARNING: No words found in lexicon!")
+                print(f"   This will result in neutral sentiment (0.0)")
         
         # Use VADER's polarity_scores method
         scores = self.polarity_scores(processed_text)
+        
+        if debug:
+            print(f"\n📊 Raw VADER scores:")
+            print(f"   Positive: {scores['pos']:.3f}")
+            print(f"   Negative: {scores['neg']:.3f}")
+            print(f"   Neutral:  {scores['neu']:.3f}")
+            print(f"   Compound: {scores['compound']:+.3f}")
         
         # Determine classification based on compound score
         compound = scores['compound']
@@ -169,13 +310,18 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
         else:
             classification = 'neutral'
         
-        return SentimentScore(
+        result = SentimentScore(
             positive=round(scores['pos'], 3),
             negative=round(scores['neg'], 3),
             neutral=round(scores['neu'], 3),
             compound=round(compound, 3),
             classification=classification
         )
+        
+        if debug:
+            print(f"\n🎯 Final classification: {classification.upper()}")
+        
+        return result
     
     def analyze_batch(self, texts: List[str]) -> List[SentimentScore]:
         """Analyze sentiment for a batch of texts"""
@@ -210,8 +356,10 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
                              if self.lexicon.get(word, 0) > 0)
         custom_negative = sum(1 for word in custom_words 
                              if self.lexicon.get(word, 0) < 0)
+        custom_neutral = sum(1 for word in custom_words 
+                            if self.lexicon.get(word, 0) == 0)
         
-        avg_sentiment = sum(self.lexicon.values()) / len(self.lexicon)
+        avg_sentiment = sum(self.lexicon.values()) / len(self.lexicon) if self.lexicon else 0
         
         # Find most positive and negative words from custom lexicon
         custom_scored = [(w, self.lexicon.get(w, 0)) for w in custom_words]
@@ -231,6 +379,7 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
             "neutral_words": neutral_words,
             "custom_positive": custom_positive,
             "custom_negative": custom_negative,
+            "custom_neutral": custom_neutral,
             "average_sentiment": round(avg_sentiment, 4),
             "most_positive_custom_word": {
                 "word": most_positive[0],
@@ -239,7 +388,8 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
             "most_negative_custom_word": {
                 "word": most_negative[0],
                 "sentiment": round(most_negative[1], 4)
-            }
+            },
+            "load_errors_count": len(self.load_errors) if hasattr(self, 'load_errors') else 0
         }
     
     def test_word(self, word: str) -> Dict:
@@ -258,10 +408,13 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
                 "interpretation": _interpret_sentiment_value(sentiment)
             }
         else:
+            # Check if similar words exist
+            similar = [w for w in self.lexicon.keys() if word_lower in w or w in word_lower][:5]
             return {
                 "word": word,
                 "found": False,
-                "message": "Word not found in lexicon"
+                "message": "Word not found in lexicon",
+                "similar_words": similar if similar else None
             }
 
 
@@ -295,13 +448,13 @@ def sentiment_model_status() -> Dict:
         }
 
 
-def analyze_tweet_sentiment(tweet_text: str) -> Dict:
+def analyze_tweet_sentiment(tweet_text: str, debug: bool = False) -> Dict:
     """Analyze sentiment of a single tweet"""
     try:
         if not tweet_text or not tweet_text.strip():
             return {"error": "Tweet text is empty"}
         
-        sentiment_score = sentiment_analyzer.analyze_sentiment(tweet_text)
+        sentiment_score = sentiment_analyzer.analyze_sentiment(tweet_text, debug=debug)
         
         return {
             "status": "ok",
@@ -318,7 +471,11 @@ def analyze_tweet_sentiment(tweet_text: str) -> Dict:
         }
     
     except Exception as e:
-        return {"error": f"Sentiment analysis failed: {str(e)}"}
+        import traceback
+        return {
+            "error": f"Sentiment analysis failed: {str(e)}",
+            "traceback": traceback.format_exc()
+        }
 
 
 def analyze_batch_sentiment(tweets: List[str]) -> List[Dict]:

@@ -251,7 +251,6 @@ export default function ClassifierTestPage() {
     }
   };
 
-  // Helper function to safely extract accuracy from benchmark
   const getAccuracy = (benchmarks) => {
     if (benchmarks?.overall_metrics?.accuracy !== undefined) {
       return benchmarks.overall_metrics.accuracy;
@@ -262,7 +261,6 @@ export default function ClassifierTestPage() {
     return 0;
   };
 
-  // Helper function to safely extract precision
   const getPrecision = (benchmarks) => {
     if (benchmarks?.overall_metrics?.precision_weighted !== undefined) {
       return benchmarks.overall_metrics.precision_weighted;
@@ -273,7 +271,6 @@ export default function ClassifierTestPage() {
     return 0;
   };
 
-  // Helper function to safely extract F1
   const getF1 = (benchmarks) => {
     if (benchmarks?.overall_metrics?.f1_weighted !== undefined) {
       return benchmarks.overall_metrics.f1_weighted;
@@ -285,48 +282,48 @@ export default function ClassifierTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-8 mt-20">
+    <div className="min-h-screen bg-gray-50 p-8 mt-20">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white/95 backdrop-blur rounded-2xl shadow-2xl overflow-hidden">
+        <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8">
-            <h1 className="text-4xl font-bold text-white mb-3">
-              🌍 Climate Classifier Training System
+          <div className="bg-gray-800 p-6">
+            <h1 className="text-3xl font-bold text-white mb-2">
+              Climate Classifier Training System
             </h1>
-            <p className="text-blue-100 text-lg">
+            <p className="text-gray-300">
               Iterative Model Improvement with Pseudo-Labeling
             </p>
 
             {/* Status Bar */}
             {status && (
-              <div className="mt-6 grid grid-cols-4 gap-4">
-                <div className="bg-white/20 backdrop-blur rounded-lg p-3">
-                  <div className="text-white/80 text-xs mb-1">Model Status</div>
-                  <div className="text-white font-bold">
-                    {status.has_model ? "✅ Active" : "❌ None"}
+              <div className="mt-4 grid grid-cols-4 gap-3">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-300 text-xs mb-1">Model Status</div>
+                  <div className="text-white font-semibold text-sm">
+                    {status.has_model ? "Active" : "None"}
                   </div>
                 </div>
-                <div className="bg-white/20 backdrop-blur rounded-lg p-3">
-                  <div className="text-white/80 text-xs mb-1">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-300 text-xs mb-1">
                     Training Samples
                   </div>
-                  <div className="text-white font-bold text-xl">
+                  <div className="text-white font-semibold text-lg">
                     {status.staged_training_samples}
                   </div>
                 </div>
-                <div className="bg-white/20 backdrop-blur rounded-lg p-3">
-                  <div className="text-white/80 text-xs mb-1">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-300 text-xs mb-1">
                     Unlabeled Files
                   </div>
-                  <div className="text-white font-bold text-xl">
+                  <div className="text-white font-semibold text-lg">
                     {status.staged_unlabeled_files}
                   </div>
                 </div>
-                <div className="bg-white/20 backdrop-blur rounded-lg p-3">
-                  <div className="text-white/80 text-xs mb-1">
+                <div className="bg-gray-700 rounded p-3">
+                  <div className="text-gray-300 text-xs mb-1">
                     Training Batches
                   </div>
-                  <div className="text-white font-bold text-xl">
+                  <div className="text-white font-semibold text-lg">
                     {status.training_batches}
                   </div>
                 </div>
@@ -339,26 +336,23 @@ export default function ClassifierTestPage() {
             <div
               className={`p-4 ${
                 message.type === "error"
-                  ? "bg-red-100 text-red-800 border-l-4 border-red-500"
-                  : "bg-green-100 text-green-800 border-l-4 border-green-500"
+                  ? "bg-red-50 text-red-800 border-l-4 border-red-500"
+                  : "bg-green-50 text-green-800 border-l-4 border-green-500"
               }`}
             >
-              <div className="flex items-center gap-2">
-                <span className="text-xl">
-                  {message.type === "error" ? "❌" : "✅"}
-                </span>
-                <span>{message.text}</span>
-              </div>
+              {message.text}
             </div>
           )}
 
           {/* Loading Overlay */}
           {loading && (
-            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-              <div className="bg-white p-8 rounded-2xl shadow-2xl">
-                <div className="animate-spin h-16 w-16 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p className="text-xl font-bold text-gray-800">Processing...</p>
-                <p className="text-sm text-gray-600 mt-2">
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white p-6 rounded-lg shadow-xl">
+                <div className="animate-spin h-12 w-12 border-4 border-gray-300 border-t-gray-800 rounded-full mx-auto mb-4"></div>
+                <p className="text-lg font-semibold text-gray-800">
+                  Processing...
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
                   This may take a few minutes
                 </p>
               </div>
@@ -373,17 +367,13 @@ export default function ClassifierTestPage() {
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
-                    className={`px-8 py-4 font-semibold capitalize whitespace-nowrap transition-all ${
+                    className={`px-6 py-3 font-medium capitalize whitespace-nowrap transition-colors ${
                       activeTab === tab
-                        ? "bg-white border-b-4 border-blue-600 text-blue-600 shadow-sm"
+                        ? "bg-white border-b-2 border-gray-800 text-gray-900"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                     }`}
                   >
-                    {tab === "status" && "📊"}
-                    {tab === "train" && "🎓"}
-                    {tab === "pseudo-label" && "🏷️"}
-                    {tab === "history" && "📈"}
-                    {tab === "predict" && "🔮"} {tab.replace("-", " ")}
+                    {tab.replace("-", " ")}
                   </button>
                 )
               )}
@@ -391,17 +381,17 @@ export default function ClassifierTestPage() {
           </div>
 
           {/* Content */}
-          <div className="p-8">
+          <div className="p-6">
             {/* Status Tab */}
             {activeTab === "status" && status && (
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
                   System Status
                 </h2>
 
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
-                    <h3 className="font-bold text-lg mb-4 text-blue-900">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-semibold text-lg mb-3 text-gray-900">
                       Current Model
                     </h3>
                     {status.has_model ? (
@@ -409,30 +399,30 @@ export default function ClassifierTestPage() {
                         <div className="text-sm text-gray-600 mb-1">
                           Model Name
                         </div>
-                        <div className="font-mono text-xs bg-white p-2 rounded border">
+                        <div className="font-mono text-xs bg-gray-50 p-2 rounded border">
                           {status.current_model}
                         </div>
-                        <div className="mt-3 text-green-600 font-semibold">
-                          ✅ Model Ready
+                        <div className="mt-2 text-green-700 font-medium text-sm">
+                          Model Ready
                         </div>
                       </div>
                     ) : (
-                      <div className="text-red-600 font-semibold">
-                        ❌ No model trained yet
+                      <div className="text-red-700 font-medium">
+                        No model trained yet
                       </div>
                     )}
                   </div>
 
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
-                    <h3 className="font-bold text-lg mb-4 text-green-900">
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-semibold text-lg mb-3 text-gray-900">
                       Training Data
                     </h3>
-                    <div className="space-y-3">
+                    <div className="space-y-2">
                       <div>
                         <div className="text-sm text-gray-600">
                           Staged Training Samples
                         </div>
-                        <div className="text-3xl font-bold text-green-600">
+                        <div className="text-2xl font-bold text-gray-900">
                           {status.staged_training_samples}
                         </div>
                       </div>
@@ -440,74 +430,71 @@ export default function ClassifierTestPage() {
                         <div className="text-sm text-gray-600">
                           Total Training Batches
                         </div>
-                        <div className="text-2xl font-bold text-green-700">
+                        <div className="text-xl font-bold text-gray-900">
                           {status.training_batches}
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
-                    <h3 className="font-bold text-lg mb-4 text-purple-900">
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-semibold text-lg mb-3 text-gray-900">
                       Unlabeled Data
                     </h3>
-                    <div className="space-y-2">
-                      <div>
-                        <div className="text-sm text-gray-600">
-                          Files Ready for Pseudo-Labeling
-                        </div>
-                        <div className="text-3xl font-bold text-purple-600">
-                          {status.staged_unlabeled_files}
-                        </div>
+                    <div>
+                      <div className="text-sm text-gray-600">
+                        Files Ready for Pseudo-Labeling
+                      </div>
+                      <div className="text-2xl font-bold text-gray-900">
+                        {status.staged_unlabeled_files}
                       </div>
                     </div>
                   </div>
 
-                  <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border-2 border-orange-200">
-                    <h3 className="font-bold text-lg mb-4 text-orange-900">
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-semibold text-lg mb-3 text-gray-900">
                       Low Confidence
                     </h3>
                     <div>
                       <div className="text-sm text-gray-600">
                         Files for Manual Labeling
                       </div>
-                      <div className="text-3xl font-bold text-orange-600">
+                      <div className="text-2xl font-bold text-gray-900">
                         {status.low_confidence_files}
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
-                  <h3 className="font-bold text-lg mb-3 text-blue-900">
-                    💡 Workflow Guide
+                <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                  <h3 className="font-semibold text-lg mb-3 text-gray-900">
+                    Workflow Guide
                   </h3>
-                  <ol className="space-y-2 text-gray-700">
+                  <ol className="space-y-2 text-gray-700 text-sm">
                     <li className="flex gap-2">
-                      <span className="font-bold text-blue-600">1.</span> Go to
-                      Train tab and upload labeled training CSV (text, label
-                      columns)
+                      <span className="font-semibold">1.</span> Go to Train tab
+                      and upload labeled training CSV (text, label columns)
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-bold text-blue-600">2.</span> Train
-                      initial model or retrain with new data
+                      <span className="font-semibold">2.</span> Train initial
+                      model or retrain with new data
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-bold text-blue-600">3.</span> Go to
+                      <span className="font-semibold">3.</span> Go to
                       Pseudo-Label tab and upload unlabeled CSV files (text
                       column)
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-bold text-blue-600">4.</span> Run
+                      <span className="font-semibold">4.</span> Run
                       pseudo-labeling to auto-label high-confidence tweets
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-bold text-blue-600">5.</span> Return
-                      to Train tab and retrain model with expanded dataset
+                      <span className="font-semibold">5.</span> Return to Train
+                      tab and retrain model with expanded dataset
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-bold text-blue-600">6.</span> Check
-                      history tab for improvement metrics
+                      <span className="font-semibold">6.</span> Check history
+                      tab for improvement metrics
                     </li>
                   </ol>
                 </div>
@@ -516,58 +503,58 @@ export default function ClassifierTestPage() {
 
             {/* Train Tab */}
             {activeTab === "train" && (
-              <div className="space-y-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
                   Train / Retrain Model
                 </h2>
 
-                {/* Training Data Upload Section */}
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-300">
-                  <h3 className="text-xl font-bold mb-4 text-green-900">
-                    📊 Step 1: Upload Training Data
+                {/* Training Data Upload */}
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    Step 1: Upload Training Data
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-sm text-gray-600 mb-3">
                     CSV must contain:{" "}
-                    <code className="bg-white px-2 py-1 rounded">text</code>,{" "}
-                    <code className="bg-white px-2 py-1 rounded">label</code>{" "}
+                    <code className="bg-gray-100 px-2 py-1 rounded">text</code>,{" "}
+                    <code className="bg-gray-100 px-2 py-1 rounded">label</code>{" "}
                     columns
                   </p>
 
-                  <div className="flex gap-4 items-end">
+                  <div className="flex gap-3 items-end">
                     <div className="flex-1">
-                      <label className="block text-sm font-semibold mb-2 text-gray-700">
+                      <label className="block text-sm font-medium mb-2 text-gray-700">
                         Select CSV File
                       </label>
                       <input
                         type="file"
                         accept=".csv"
                         onChange={(e) => setTrainingFile(e.target.files[0])}
-                        className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                        className="w-full p-2 border border-gray-300 rounded focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
                       />
                     </div>
                     <button
                       onClick={handleUploadTraining}
                       disabled={!trainingFile || loading}
-                      className="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 disabled:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                      className="px-6 py-2 bg-gray-800 text-white rounded font-medium hover:bg-gray-700 disabled:bg-gray-300 transition-colors"
                     >
                       Upload Training Data
                     </button>
                   </div>
                   {trainingFile && (
-                    <div className="mt-3 text-sm text-gray-600">
+                    <div className="mt-2 text-sm text-gray-600">
                       Selected:{" "}
-                      <span className="font-semibold">{trainingFile.name}</span>
+                      <span className="font-medium">{trainingFile.name}</span>
                     </div>
                   )}
 
                   {status && (
-                    <div className="mt-4 bg-white border border-green-200 rounded-lg p-4">
-                      <div className="font-semibold text-green-900">
+                    <div className="mt-3 bg-gray-50 border border-gray-200 rounded p-3">
+                      <div className="font-medium text-gray-900 text-sm">
                         Current Status:
                       </div>
-                      <div className="text-gray-700 mt-2">
-                        • Staged training samples:{" "}
-                        <span className="font-bold">
+                      <div className="text-gray-700 text-sm mt-1">
+                        Staged training samples:{" "}
+                        <span className="font-semibold">
                           {status.staged_training_samples}
                         </span>
                       </div>
@@ -576,24 +563,24 @@ export default function ClassifierTestPage() {
                 </div>
 
                 {/* Initial Training */}
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-300">
-                  <h3 className="text-xl font-bold mb-4 text-blue-900">
-                    🎓 Step 2: Initial Training
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    Step 2: Initial Training
                   </h3>
-                  <p className="text-gray-700 mb-4">
+                  <p className="text-gray-700 text-sm mb-3">
                     Train a new model with all staged training data. Always
                     performs 5 runs with different seeds.
                   </p>
 
                   {status?.has_model && (
-                    <label className="flex items-center gap-3 mb-4 p-3 bg-yellow-50 rounded-lg border border-yellow-300">
+                    <label className="flex items-center gap-2 mb-3 p-2 bg-yellow-50 rounded border border-yellow-200">
                       <input
                         type="checkbox"
                         checked={replaceExisting}
                         onChange={(e) => setReplaceExisting(e.target.checked)}
-                        className="w-5 h-5"
+                        className="w-4 h-4"
                       />
-                      <span className="font-medium text-gray-800">
+                      <span className="font-medium text-gray-800 text-sm">
                         Replace existing model (current model will be archived)
                       </span>
                     </label>
@@ -602,30 +589,30 @@ export default function ClassifierTestPage() {
                   <button
                     onClick={handleTrainInitial}
                     disabled={!status?.staged_training_samples || loading}
-                    className="w-full px-8 py-4 bg-blue-600 text-white rounded-lg font-bold text-lg hover:bg-blue-700 disabled:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                    className="w-full px-6 py-3 bg-gray-800 text-white rounded font-semibold hover:bg-gray-700 disabled:bg-gray-300 transition-colors"
                   >
                     Train Initial Model (5 runs)
                   </button>
 
                   {!status?.staged_training_samples && (
-                    <p className="text-red-600 mt-3 text-sm">
-                      ⚠️ Upload training data first
+                    <p className="text-red-700 mt-2 text-sm">
+                      Upload training data first
                     </p>
                   )}
                 </div>
 
                 {/* Retrain */}
-                <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-6 border-2 border-orange-300">
-                  <h3 className="text-xl font-bold mb-4 text-orange-900">
-                    🔄 Step 3: Retrain with New Data
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    Step 3: Retrain with New Data
                   </h3>
-                  <p className="text-gray-700 mb-4">
+                  <p className="text-gray-700 text-sm mb-3">
                     Retrain model after adding new labeled data or
                     pseudo-labeled tweets. Old model is automatically archived.
                   </p>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-semibold mb-2 text-gray-700">
+                  <div className="mb-3">
+                    <label className="block text-sm font-medium mb-2 text-gray-700">
                       Batch Name
                     </label>
                     <input
@@ -633,7 +620,7 @@ export default function ClassifierTestPage() {
                       value={batchName}
                       onChange={(e) => setBatchName(e.target.value)}
                       placeholder="e.g., batch_2_with_pseudolabels"
-                      className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                      className="w-full p-2 border border-gray-300 rounded focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
                     />
                   </div>
 
@@ -642,14 +629,14 @@ export default function ClassifierTestPage() {
                     disabled={
                       !status?.has_model || !batchName.trim() || loading
                     }
-                    className="w-full px-8 py-4 bg-orange-600 text-white rounded-lg font-bold text-lg hover:bg-orange-700 disabled:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                    className="w-full px-6 py-3 bg-gray-800 text-white rounded font-semibold hover:bg-gray-700 disabled:bg-gray-300 transition-colors"
                   >
                     Retrain Model (5 runs)
                   </button>
 
                   {!status?.has_model && (
-                    <p className="text-red-600 mt-3 text-sm">
-                      ⚠️ Train an initial model first
+                    <p className="text-red-700 mt-2 text-sm">
+                      Train an initial model first
                     </p>
                   )}
                 </div>
@@ -659,58 +646,56 @@ export default function ClassifierTestPage() {
             {/* Pseudo-Label Tab */}
             {activeTab === "pseudo-label" && (
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                  🏷️ Pseudo-Labeling
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Pseudo-Labeling
                 </h2>
 
-                {/* Unlabeled Data Upload Section */}
-                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-300">
-                  <h3 className="text-xl font-bold mb-4 text-purple-900">
-                    📤 Step 1: Upload Unlabeled Data
+                {/* Unlabeled Data Upload */}
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    Step 1: Upload Unlabeled Data
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4">
+                  <p className="text-sm text-gray-600 mb-3">
                     CSV must contain:{" "}
-                    <code className="bg-white px-2 py-1 rounded">text</code>{" "}
+                    <code className="bg-gray-100 px-2 py-1 rounded">text</code>{" "}
                     column
                   </p>
 
-                  <div className="flex gap-4 items-end">
+                  <div className="flex gap-3 items-end">
                     <div className="flex-1">
-                      <label className="block text-sm font-semibold mb-2 text-gray-700">
+                      <label className="block text-sm font-medium mb-2 text-gray-700">
                         Select CSV File
                       </label>
                       <input
                         type="file"
                         accept=".csv"
                         onChange={(e) => setUnlabeledFile(e.target.files[0])}
-                        className="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                        className="w-full p-2 border border-gray-300 rounded focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
                       />
                     </div>
                     <button
                       onClick={handleUploadUnlabeled}
                       disabled={!unlabeledFile || loading}
-                      className="px-8 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                      className="px-6 py-2 bg-gray-800 text-white rounded font-medium hover:bg-gray-700 disabled:bg-gray-300 transition-colors"
                     >
                       Upload Unlabeled Data
                     </button>
                   </div>
                   {unlabeledFile && (
-                    <div className="mt-3 text-sm text-gray-600">
+                    <div className="mt-2 text-sm text-gray-600">
                       Selected:{" "}
-                      <span className="font-semibold">
-                        {unlabeledFile.name}
-                      </span>
+                      <span className="font-medium">{unlabeledFile.name}</span>
                     </div>
                   )}
 
                   {status && (
-                    <div className="mt-4 bg-white border border-purple-200 rounded-lg p-4">
-                      <div className="font-semibold text-purple-900">
+                    <div className="mt-3 bg-gray-50 border border-gray-200 rounded p-3">
+                      <div className="font-medium text-gray-900 text-sm">
                         Current Status:
                       </div>
-                      <div className="text-gray-700 mt-2">
-                        • Unlabeled files ready:{" "}
-                        <span className="font-bold">
+                      <div className="text-gray-700 text-sm mt-1">
+                        Unlabeled files ready:{" "}
+                        <span className="font-semibold">
                           {status.staged_unlabeled_files}
                         </span>
                       </div>
@@ -718,11 +703,11 @@ export default function ClassifierTestPage() {
                   )}
                 </div>
 
-                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 rounded-xl p-6 border-2 border-indigo-300">
-                  <h3 className="text-xl font-bold mb-4 text-indigo-900">
-                    ⚙️ Step 2: Configure & Run Pseudo-Labeling
+                <div className="border rounded-lg p-4">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900">
+                    Step 2: Configure & Run Pseudo-Labeling
                   </h3>
-                  <p className="text-gray-700 mb-6">
+                  <p className="text-gray-700 text-sm mb-4">
                     Automatically label unlabeled tweets using the current
                     model. High-confidence predictions are added to training
                     data, low-confidence ones are saved for manual review.
@@ -730,7 +715,7 @@ export default function ClassifierTestPage() {
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm font-semibold mb-2 text-gray-700">
+                      <label className="block text-sm font-medium mb-2 text-gray-700">
                         Confidence Threshold: {confidenceThreshold.toFixed(2)}
                       </label>
                       <input
@@ -742,22 +727,22 @@ export default function ClassifierTestPage() {
                         onChange={(e) =>
                           setConfidenceThreshold(parseFloat(e.target.value))
                         }
-                        className="w-full h-3 bg-gradient-to-r from-red-300 via-yellow-300 to-green-300 rounded-lg appearance-none cursor-pointer"
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                       />
                       <div className="flex justify-between text-xs text-gray-600 mt-1">
-                        <span>0.5 (More labels, less accurate)</span>
-                        <span>1.0 (Fewer labels, very accurate)</span>
+                        <span>0.5 (More labels)</span>
+                        <span>1.0 (Fewer, more accurate)</span>
                       </div>
                     </div>
 
-                    <label className="flex items-center gap-3 p-3 bg-white rounded-lg border-2 border-gray-200">
+                    <label className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200">
                       <input
                         type="checkbox"
                         checked={saveLowConfidence}
                         onChange={(e) => setSaveLowConfidence(e.target.checked)}
-                        className="w-5 h-5"
+                        className="w-4 h-4"
                       />
-                      <span className="font-medium text-gray-800">
+                      <span className="font-medium text-gray-800 text-sm">
                         Save low-confidence predictions for manual labeling
                       </span>
                     </label>
@@ -770,32 +755,32 @@ export default function ClassifierTestPage() {
                       !status?.staged_unlabeled_files ||
                       loading
                     }
-                    className="w-full mt-6 px-8 py-4 bg-indigo-600 text-white rounded-lg font-bold text-lg hover:bg-indigo-700 disabled:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                    className="w-full mt-4 px-6 py-3 bg-gray-800 text-white rounded font-semibold hover:bg-gray-700 disabled:bg-gray-300 transition-colors"
                   >
                     Run Pseudo-Labeling
                   </button>
 
                   {!status?.has_model && (
-                    <p className="text-red-600 mt-3 text-sm">
-                      ⚠️ Train a model first
+                    <p className="text-red-700 mt-2 text-sm">
+                      Train a model first
                     </p>
                   )}
                   {status?.has_model && !status?.staged_unlabeled_files && (
-                    <p className="text-red-600 mt-3 text-sm">
-                      ⚠️ Upload unlabeled data first
+                    <p className="text-red-700 mt-2 text-sm">
+                      Upload unlabeled data first
                     </p>
                   )}
                 </div>
 
-                <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
-                  <h3 className="font-bold text-lg mb-3 text-blue-900">
-                    💡 After Pseudo-Labeling
+                <div className="bg-gray-50 border border-gray-200 p-4 rounded-lg">
+                  <h3 className="font-semibold mb-2 text-gray-900">
+                    After Pseudo-Labeling
                   </h3>
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 text-sm">
                     High-confidence labeled tweets are automatically added to
                     your training data. Go back to the <strong>Train</strong>{" "}
                     tab and use the <strong>Retrain</strong> function to improve
-                    your model with the newly labeled data!
+                    your model with the newly labeled data.
                   </p>
                 </div>
               </div>
@@ -804,18 +789,17 @@ export default function ClassifierTestPage() {
             {/* History Tab */}
             {activeTab === "history" && (
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                  📈 Training History
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Training History
                 </h2>
 
                 {!history ? (
                   <div className="text-center py-12">
-                    <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <div className="animate-spin h-10 w-10 border-4 border-gray-300 border-t-gray-800 rounded-full mx-auto mb-4"></div>
                     <div className="text-gray-600">Loading history...</div>
                   </div>
                 ) : history.history.length === 0 ? (
                   <div className="text-center py-12 text-gray-500">
-                    <div className="text-6xl mb-4">📊</div>
                     <div className="text-xl">No training history yet</div>
                     <div className="text-sm mt-2">
                       Train a model to see history
@@ -827,18 +811,18 @@ export default function ClassifierTestPage() {
                     {history.improvement_stats &&
                       history.improvement_stats.improvements &&
                       history.improvement_stats.improvements.length > 0 && (
-                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-300">
-                          <h3 className="font-bold text-xl mb-4 text-green-900">
-                            📊 Overall Improvement
+                        <div className="border rounded-lg p-4 bg-gray-50">
+                          <h3 className="font-semibold text-lg mb-3 text-gray-900">
+                            Overall Improvement
                           </h3>
-                          <div className="text-5xl font-bold text-green-600 mb-2">
+                          <div className="text-4xl font-bold text-gray-900 mb-1">
                             +
                             {history.improvement_stats.overall_improvement.toFixed(
                               2
                             )}
                             %
                           </div>
-                          <div className="text-gray-700">
+                          <div className="text-gray-700 text-sm">
                             From first batch to current (
                             {history.improvement_stats.total_batches} batches)
                           </div>
@@ -847,91 +831,86 @@ export default function ClassifierTestPage() {
 
                     {/* Batch by Batch */}
                     <div className="space-y-4">
-                      <h3 className="font-bold text-xl text-gray-900">
+                      <h3 className="font-semibold text-lg text-gray-900">
                         Training Batches
                       </h3>
                       {history.history.map((batch, idx) => (
                         <div
                           key={idx}
-                          className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                          className="border rounded-lg p-4 hover:shadow-md transition-shadow"
                         >
-                          <div className="flex justify-between items-start mb-4">
+                          <div className="flex justify-between items-start mb-3">
                             <div>
-                              <h4 className="font-bold text-lg text-gray-900">
+                              <h4 className="font-semibold text-base text-gray-900">
                                 Batch #{batch.batch_number}: {batch.batch_name}
                               </h4>
-                              <div className="text-sm text-gray-600">
+                              <div className="text-xs text-gray-600">
                                 {new Date(batch.timestamp).toLocaleString()}
                               </div>
                             </div>
                             {batch.improvement_from_previous !== undefined && (
                               <div
-                                className={`px-4 py-2 rounded-lg font-bold ${
+                                className={`px-3 py-1 rounded font-semibold text-sm ${
                                   batch.improvement_from_previous > 0
-                                    ? "bg-green-100 text-green-700"
+                                    ? "bg-green-100 text-green-800"
                                     : batch.improvement_from_previous < 0
-                                    ? "bg-red-100 text-red-700"
-                                    : "bg-gray-100 text-gray-700"
+                                    ? "bg-red-100 text-red-800"
+                                    : "bg-gray-100 text-gray-800"
                                 }`}
                               >
-                                {batch.improvement_from_previous > 0
-                                  ? "↗️"
-                                  : batch.improvement_from_previous < 0
-                                  ? "↘️"
-                                  : "➡️"}
                                 {batch.improvement_from_previous > 0 ? "+" : ""}
                                 {batch.improvement_from_previous.toFixed(2)}%
                               </div>
                             )}
                           </div>
 
-                          <div className="grid grid-cols-4 gap-4">
-                            <div className="bg-blue-50 rounded-lg p-3">
+                          <div className="grid grid-cols-4 gap-3">
+                            <div className="bg-gray-50 rounded p-2">
                               <div className="text-xs text-gray-600 mb-1">
                                 Training Samples
                               </div>
-                              <div className="text-2xl font-bold text-blue-600">
+                              <div className="text-xl font-bold text-gray-900">
                                 {batch.training_samples}
                               </div>
                             </div>
-                            <div className="bg-green-50 rounded-lg p-3">
+                            <div className="bg-gray-50 rounded p-2">
                               <div className="text-xs text-gray-600 mb-1">
                                 Accuracy
                               </div>
-                              <div className="text-2xl font-bold text-green-600">
+                              <div className="text-xl font-bold text-gray-900">
                                 {(getAccuracy(batch.benchmarks) * 100).toFixed(
                                   2
                                 )}
                                 %
                               </div>
                             </div>
-                            <div className="bg-purple-50 rounded-lg p-3">
+                            <div className="bg-gray-50 rounded p-2">
                               <div className="text-xs text-gray-600 mb-1">
                                 Precision
                               </div>
-                              <div className="text-2xl font-bold text-purple-600">
+                              <div className="text-xl font-bold text-gray-900">
                                 {(getPrecision(batch.benchmarks) * 100).toFixed(
                                   2
                                 )}
                                 %
                               </div>
                             </div>
-                            <div className="bg-orange-50 rounded-lg p-3">
+                            <div className="bg-gray-50 rounded p-2">
                               <div className="text-xs text-gray-600 mb-1">
                                 F1-Score
                               </div>
-                              <div className="text-2xl font-bold text-orange-600">
+                              <div className="text-xl font-bold text-gray-900">
                                 {(getF1(batch.benchmarks) * 100).toFixed(2)}%
                               </div>
                             </div>
                           </div>
 
                           {batch.multiple_runs_stats && (
-                            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                              <div className="text-sm font-semibold text-gray-700 mb-2">
-                                📊 5 Runs Statistics (for thesis)
+                            <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
+                              <div className="text-xs font-medium text-gray-700 mb-2">
+                                5 Runs Statistics (for thesis)
                               </div>
-                              <div className="grid grid-cols-2 gap-3 text-sm">
+                              <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>
                                   <span className="text-gray-600">
                                     Accuracy:
@@ -974,24 +953,24 @@ export default function ClassifierTestPage() {
                     {/* Batch Improvements */}
                     {history.improvement_stats.improvements &&
                       history.improvement_stats.improvements.length > 0 && (
-                        <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-                          <h3 className="font-bold text-xl mb-4 text-gray-900">
-                            🔄 Batch-to-Batch Improvements
+                        <div className="border rounded-lg p-4">
+                          <h3 className="font-semibold text-lg mb-3 text-gray-900">
+                            Batch-to-Batch Improvements
                           </h3>
-                          <div className="space-y-3">
+                          <div className="space-y-2">
                             {history.improvement_stats.improvements.map(
                               (imp, idx) => (
                                 <div
                                   key={idx}
-                                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                                  className="flex items-center justify-between p-3 bg-gray-50 rounded"
                                 >
-                                  <div className="flex items-center gap-4">
-                                    <div className="text-4xl">→</div>
+                                  <div className="flex items-center gap-3">
+                                    <div className="text-2xl">→</div>
                                     <div>
-                                      <div className="font-semibold text-gray-800">
+                                      <div className="font-medium text-gray-800 text-sm">
                                         {imp.from_batch} → {imp.to_batch}
                                       </div>
-                                      <div className="text-sm text-gray-600">
+                                      <div className="text-xs text-gray-600">
                                         Added {imp.added_samples} samples (
                                         {imp.prev_samples} → {imp.curr_samples})
                                       </div>
@@ -999,10 +978,10 @@ export default function ClassifierTestPage() {
                                   </div>
                                   <div className="text-right">
                                     <div
-                                      className={`text-2xl font-bold ${
+                                      className={`text-xl font-bold ${
                                         imp.improvement_percent > 0
-                                          ? "text-green-600"
-                                          : "text-red-600"
+                                          ? "text-green-700"
+                                          : "text-red-700"
                                       }`}
                                     >
                                       {imp.improvement_percent > 0 ? "+" : ""}
@@ -1027,19 +1006,19 @@ export default function ClassifierTestPage() {
             {/* Predict Tab */}
             {activeTab === "predict" && (
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                  🔮 Test Predictions
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  Test Predictions
                 </h2>
 
-                <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-6 border-2 border-indigo-300">
-                  <label className="block text-sm font-semibold mb-2 text-gray-700">
+                <div className="border rounded-lg p-4">
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
                     Enter Tweet or Text to Classify
                   </label>
                   <textarea
                     value={predictionText}
                     onChange={(e) => setPredictionText(e.target.value)}
                     placeholder="Enter a tweet or text to classify..."
-                    className="w-full p-4 border-2 border-gray-300 rounded-lg h-32 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+                    className="w-full p-3 border border-gray-300 rounded h-32 focus:border-gray-500 focus:ring-1 focus:ring-gray-500"
                   />
 
                   <button
@@ -1047,62 +1026,62 @@ export default function ClassifierTestPage() {
                     disabled={
                       !predictionText.trim() || !status?.has_model || loading
                     }
-                    className="w-full mt-4 px-8 py-4 bg-indigo-600 text-white rounded-lg font-bold text-lg hover:bg-indigo-700 disabled:bg-gray-300 transition-all shadow-lg hover:shadow-xl"
+                    className="w-full mt-3 px-6 py-3 bg-gray-800 text-white rounded font-semibold hover:bg-gray-700 disabled:bg-gray-300 transition-colors"
                   >
                     Predict
                   </button>
 
                   {!status?.has_model && (
-                    <p className="text-red-600 mt-3 text-sm">
-                      ⚠️ Train a model first
+                    <p className="text-red-700 mt-2 text-sm">
+                      Train a model first
                     </p>
                   )}
                 </div>
 
                 {predictionResult && (
-                  <div className="bg-white rounded-xl p-6 border-2 border-gray-200 shadow-lg">
-                    <h3 className="font-bold text-2xl mb-6 text-gray-900">
+                  <div className="border rounded-lg p-4">
+                    <h3 className="font-semibold text-xl mb-4 text-gray-900">
                       Prediction Results
                     </h3>
 
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 border-2 border-indigo-300">
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="border rounded-lg p-4 bg-gray-50">
                         <div className="text-sm text-gray-600 mb-2">
                           Predicted Class
                         </div>
-                        <div className="text-5xl font-bold text-indigo-600">
+                        <div className="text-3xl font-bold text-gray-900">
                           {predictionResult.prediction}
                         </div>
                       </div>
-                      <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-2 border-green-300">
+                      <div className="border rounded-lg p-4 bg-gray-50">
                         <div className="text-sm text-gray-600 mb-2">
                           Confidence
                         </div>
-                        <div className="text-5xl font-bold text-green-600">
+                        <div className="text-3xl font-bold text-gray-900">
                           {(predictionResult.confidence * 100).toFixed(1)}%
                         </div>
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 rounded-lg p-6 mb-6">
-                      <div className="font-semibold mb-4 text-gray-900">
+                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                      <div className="font-medium mb-3 text-gray-900 text-sm">
                         Class Probabilities
                       </div>
-                      <div className="space-y-3">
+                      <div className="space-y-2">
                         {Object.entries(predictionResult.probabilities).map(
                           ([cls, prob]) => (
                             <div key={cls}>
-                              <div className="flex justify-between text-sm mb-1">
-                                <span className="font-semibold text-gray-700">
+                              <div className="flex justify-between text-xs mb-1">
+                                <span className="font-medium text-gray-700">
                                   Class {cls}
                                 </span>
                                 <span className="text-gray-600">
                                   {(prob * 100).toFixed(2)}%
                                 </span>
                               </div>
-                              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                                 <div
-                                  className="bg-gradient-to-r from-indigo-500 to-purple-500 h-3 rounded-full transition-all duration-500"
+                                  className="bg-gray-800 h-2 rounded-full transition-all duration-500"
                                   style={{ width: `${prob * 100}%` }}
                                 />
                               </div>
@@ -1112,11 +1091,11 @@ export default function ClassifierTestPage() {
                       </div>
                     </div>
 
-                    <div className="bg-blue-50 rounded-lg p-4 border-l-4 border-blue-500">
-                      <div className="text-sm text-gray-600 mb-1">
+                    <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                      <div className="text-xs text-gray-600 mb-1">
                         Processed Text
                       </div>
-                      <div className="text-gray-800 italic">
+                      <div className="text-gray-800 text-sm">
                         {predictionResult.processed_text}
                       </div>
                     </div>
