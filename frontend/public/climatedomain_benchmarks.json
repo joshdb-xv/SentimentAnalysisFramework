@@ -1,92 +1,92 @@
 {
-  "timestamp": "2025-11-15T01:40:10.078429",
-  "naive_bayes_domain_identifier": 71.24542124542124,
+  "timestamp": "2025-11-15T16:24:00.162397",
+  "naive_bayes_domain_identifier": 56.575963718820866,
   "detailed_metrics": {
-    "accuracy": 0.7124542124542125,
-    "precision_weighted": 0.721764469376689,
-    "recall_weighted": 0.7124542124542125,
-    "f1_weighted": 0.7095843499976158,
-    "precision_macro": 0.6474017108168161,
-    "recall_macro": 0.5722957912297085,
-    "f1_macro": 0.5861243917296125
+    "accuracy": 0.5657596371882087,
+    "precision_weighted": 0.5704747023846695,
+    "recall_weighted": 0.5657596371882087,
+    "f1_weighted": 0.5671128705596249,
+    "precision_macro": 0.5810940201091633,
+    "recall_macro": 0.5702316088477387,
+    "f1_macro": 0.574270349689842
   },
   "per_class_metrics": {
     "Coastal & Flooding Hazards": {
-      "precision": 0.4583333333333333,
-      "recall": 0.4074074074074074,
-      "f1_score": 0.43137254901960786,
-      "support": 27
+      "precision": 0.6666666666666666,
+      "recall": 0.691358024691358,
+      "f1_score": 0.6787878787878788,
+      "support": 81
     },
     "Cold Weather / Temperature Drops": {
-      "precision": 0.7555555555555555,
-      "recall": 0.8292682926829268,
-      "f1_score": 0.7906976744186046,
-      "support": 41
+      "precision": 0.6666666666666666,
+      "recall": 0.625,
+      "f1_score": 0.6451612903225806,
+      "support": 80
     },
     "Extreme Heat / Heatwaves": {
-      "precision": 0.5748502994011976,
-      "recall": 0.7164179104477612,
-      "f1_score": 0.6378737541528239,
+      "precision": 0.1925925925925926,
+      "recall": 0.19402985074626866,
+      "f1_score": 0.19330855018587362,
       "support": 134
     },
     "General Weather": {
-      "precision": 0.25,
-      "recall": 0.14285714285714285,
-      "f1_score": 0.18181818181818182,
-      "support": 7
+      "precision": 0.7333333333333333,
+      "recall": 0.8105263157894737,
+      "f1_score": 0.77,
+      "support": 95
     },
     "Geological Events": {
-      "precision": 0.8653846153846154,
-      "recall": 0.9,
-      "f1_score": 0.8823529411764706,
-      "support": 50
+      "precision": 0.9066666666666666,
+      "recall": 0.7555555555555555,
+      "f1_score": 0.8242424242424242,
+      "support": 90
     },
     "Pollution": {
-      "precision": 0.8333333333333334,
-      "recall": 0.2777777777777778,
-      "f1_score": 0.4166666666666667,
-      "support": 18
+      "precision": 0.1791044776119403,
+      "recall": 0.18181818181818182,
+      "f1_score": 0.18045112781954886,
+      "support": 132
     },
     "Storms, Typhoons, and Wind Events": {
-      "precision": 0.7943548387096774,
-      "recall": 0.7323420074349443,
-      "f1_score": 0.7620889748549323,
-      "support": 269
+      "precision": 0.7226277372262774,
+      "recall": 0.7333333333333333,
+      "f1_score": 0.7279411764705882,
+      "support": 270
     }
   },
   "confidence_stats": {
-    "mean_confidence": 0.8300478200768271,
-    "std_confidence": 0.18141062041029893,
-    "min_confidence": 0.3245304367516843,
-    "max_confidence": 0.9999999988540935,
-    "median_confidence": 0.8927036125476914
+    "mean_confidence": 0.6982138930456044,
+    "std_confidence": 0.22971343823349047,
+    "min_confidence": 0.21344932668649486,
+    "max_confidence": 0.9999999978854248,
+    "median_confidence": 0.7189201048444083
   },
   "training_info": {
-    "training_samples": 2184,
-    "test_samples": 546
+    "training_samples": 3525,
+    "test_samples": 882
   },
   "multiple_runs": {
     "statistics": {
       "accuracy": {
-        "mean": 69.3040293040293,
-        "std": 1.20712505884865,
-        "min": 67.76556776556777,
-        "max": 71.24542124542124
+        "mean": 56.00907029478458,
+        "std": 0.4478099242206694,
+        "min": 55.21541950113379,
+        "max": 56.575963718820866
       },
       "precision": {
-        "mean": 0.702441929771813,
-        "std": 0.012933149968891122
+        "mean": 0.555406856565593,
+        "std": 0.009165558218766698
       },
       "recall": {
-        "mean": 0.693040293040293,
-        "std": 0.0120712505884865
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694
       },
       "f1": {
-        "mean": 0.6885049270685129,
-        "std": 0.01307926915586954
+        "mean": 0.556060921641329,
+        "std": 0.006342902887501601
       }
     },
-    "best_run_seed": 43,
+    "best_run_seed": 42,
     "number_of_runs": 5
   }
 }

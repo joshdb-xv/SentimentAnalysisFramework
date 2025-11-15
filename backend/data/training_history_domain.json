@@ -493,5 +493,680 @@
         "max": 0.7095843499976158
       }
     }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T12:49:50.270453",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 2640,
+    "test_samples": 660,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.543939393939394,
+        "precision_weighted": 0.5343947016349198,
+        "recall_weighted": 0.543939393939394,
+        "f1_weighted": 0.5379716779051771,
+        "precision_macro": 0.5257019874451956,
+        "recall_macro": 0.4885163731020525,
+        "f1_macro": 0.5000871768425067
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5206060606060607,
+        "std": 0.013706888336846836,
+        "min": 0.5060606060606061,
+        "max": 0.543939393939394
+      },
+      "precision": {
+        "mean": 0.5178570639424417,
+        "std": 0.013068999281356346,
+        "min": 0.5017129163472783,
+        "max": 0.5343947016349198
+      },
+      "recall": {
+        "mean": 0.5206060606060607,
+        "std": 0.013706888336846836,
+        "min": 0.5060606060606061,
+        "max": 0.543939393939394
+      },
+      "f1": {
+        "mean": 0.5175060502844139,
+        "std": 0.013795651558657647,
+        "min": 0.5005663419798202,
+        "max": 0.5379716779051771
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T12:51:57.509418",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 2640,
+    "test_samples": 661,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5476550680786687,
+        "precision_weighted": 0.5388667204217453,
+        "recall_weighted": 0.5476550680786687,
+        "f1_weighted": 0.5420636364903048,
+        "precision_macro": 0.5290779191531328,
+        "recall_macro": 0.49560499612140363,
+        "f1_macro": 0.5051153573102601
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5228441754916793,
+        "std": 0.013551706914710266,
+        "min": 0.5083207261724659,
+        "max": 0.5476550680786687
+      },
+      "precision": {
+        "mean": 0.5204270907300061,
+        "std": 0.012014020046027352,
+        "min": 0.5039812137944798,
+        "max": 0.5388667204217453
+      },
+      "recall": {
+        "mean": 0.5228441754916793,
+        "std": 0.013551706914710266,
+        "min": 0.5083207261724659,
+        "max": 0.5476550680786687
+      },
+      "f1": {
+        "mean": 0.519893894439099,
+        "std": 0.013002543311335771,
+        "min": 0.5053647821332389,
+        "max": 0.5420636364903048
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T14:06:35.939980",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3006,
+    "test_samples": 752,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5731382978723404,
+        "precision_weighted": 0.5682828909772012,
+        "recall_weighted": 0.5731382978723404,
+        "f1_weighted": 0.5679293818755005,
+        "precision_macro": 0.6201490630975044,
+        "recall_macro": 0.5639250443840884,
+        "f1_macro": 0.587984078891946
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5566489361702127,
+        "std": 0.011049243658426055,
+        "min": 0.5425531914893617,
+        "max": 0.5731382978723404
+      },
+      "precision": {
+        "mean": 0.5571603751593495,
+        "std": 0.005753059250326837,
+        "min": 0.5519549130182053,
+        "max": 0.5682828909772012
+      },
+      "recall": {
+        "mean": 0.5566489361702127,
+        "std": 0.011049243658426055,
+        "min": 0.5425531914893617,
+        "max": 0.5731382978723404
+      },
+      "f1": {
+        "mean": 0.55483271887456,
+        "std": 0.0078785768169412,
+        "min": 0.5456920119878844,
+        "max": 0.5679293818755005
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T14:08:17.632420",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 2890,
+    "test_samples": 723,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5809128630705395,
+        "precision_weighted": 0.5620478721048524,
+        "recall_weighted": 0.5809128630705395,
+        "f1_weighted": 0.5683664744252069,
+        "precision_macro": 0.5996958781369097,
+        "recall_macro": 0.5646290911962553,
+        "f1_macro": 0.5794830190833238
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5493775933609958,
+        "std": 0.017721291704616306,
+        "min": 0.5297372060857538,
+        "max": 0.5809128630705395
+      },
+      "precision": {
+        "mean": 0.5457874414446409,
+        "std": 0.012108062858548143,
+        "min": 0.5286232526654477,
+        "max": 0.5620478721048524
+      },
+      "recall": {
+        "mean": 0.5493775933609958,
+        "std": 0.017721291704616306,
+        "min": 0.5297372060857538,
+        "max": 0.5809128630705395
+      },
+      "f1": {
+        "mean": 0.54566413046327,
+        "std": 0.013360378157750012,
+        "min": 0.5275591381845327,
+        "max": 0.5683664744252069
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T14:11:24.089903",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 2924,
+    "test_samples": 731,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5485636114911081,
+        "precision_weighted": 0.5571465616682955,
+        "recall_weighted": 0.5485636114911081,
+        "f1_weighted": 0.5490967617088365,
+        "precision_macro": 0.6135448707956023,
+        "recall_macro": 0.5513389435608301,
+        "f1_macro": 0.5754778413636622
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5466484268125855,
+        "std": 0.0013950805782743673,
+        "min": 0.5444596443228454,
+        "max": 0.5485636114911081
+      },
+      "precision": {
+        "mean": 0.5522463901145759,
+        "std": 0.003821641247041211,
+        "min": 0.5474858475928709,
+        "max": 0.5571465616682955
+      },
+      "recall": {
+        "mean": 0.5466484268125855,
+        "std": 0.0013950805782743673,
+        "min": 0.5444596443228454,
+        "max": 0.5485636114911081
+      },
+      "f1": {
+        "mean": 0.5476027012844555,
+        "std": 0.0020432286038532662,
+        "min": 0.5444850125158448,
+        "max": 0.5501559962039605
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T14:14:41.122159",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3006,
+    "test_samples": 752,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5731382978723404,
+        "precision_weighted": 0.5682828909772012,
+        "recall_weighted": 0.5731382978723404,
+        "f1_weighted": 0.5679293818755005,
+        "precision_macro": 0.6201490630975044,
+        "recall_macro": 0.5639250443840884,
+        "f1_macro": 0.587984078891946
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5566489361702127,
+        "std": 0.011049243658426055,
+        "min": 0.5425531914893617,
+        "max": 0.5731382978723404
+      },
+      "precision": {
+        "mean": 0.5571603751593495,
+        "std": 0.005753059250326837,
+        "min": 0.5519549130182053,
+        "max": 0.5682828909772012
+      },
+      "recall": {
+        "mean": 0.5566489361702127,
+        "std": 0.011049243658426055,
+        "min": 0.5425531914893617,
+        "max": 0.5731382978723404
+      },
+      "f1": {
+        "mean": 0.55483271887456,
+        "std": 0.0078785768169412,
+        "min": 0.5456920119878844,
+        "max": 0.5679293818755005
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T14:16:08.990442",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 2890,
+    "test_samples": 723,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5809128630705395,
+        "precision_weighted": 0.5620478721048524,
+        "recall_weighted": 0.5809128630705395,
+        "f1_weighted": 0.5683664744252069,
+        "precision_macro": 0.5996958781369097,
+        "recall_macro": 0.5646290911962553,
+        "f1_macro": 0.5794830190833238
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5493775933609958,
+        "std": 0.017721291704616306,
+        "min": 0.5297372060857538,
+        "max": 0.5809128630705395
+      },
+      "precision": {
+        "mean": 0.5457874414446409,
+        "std": 0.012108062858548143,
+        "min": 0.5286232526654477,
+        "max": 0.5620478721048524
+      },
+      "recall": {
+        "mean": 0.5493775933609958,
+        "std": 0.017721291704616306,
+        "min": 0.5297372060857538,
+        "max": 0.5809128630705395
+      },
+      "f1": {
+        "mean": 0.54566413046327,
+        "std": 0.013360378157750012,
+        "min": 0.5275591381845327,
+        "max": 0.5683664744252069
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T15:51:07.559146",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 2890,
+    "test_samples": 723,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5809128630705395,
+        "precision_weighted": 0.5620478721048524,
+        "recall_weighted": 0.5809128630705395,
+        "f1_weighted": 0.5683664744252069,
+        "precision_macro": 0.5996958781369097,
+        "recall_macro": 0.5646290911962553,
+        "f1_macro": 0.5794830190833238
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5493775933609958,
+        "std": 0.017721291704616306,
+        "min": 0.5297372060857538,
+        "max": 0.5809128630705395
+      },
+      "precision": {
+        "mean": 0.5457874414446409,
+        "std": 0.012108062858548143,
+        "min": 0.5286232526654477,
+        "max": 0.5620478721048524
+      },
+      "recall": {
+        "mean": 0.5493775933609958,
+        "std": 0.017721291704616306,
+        "min": 0.5297372060857538,
+        "max": 0.5809128630705395
+      },
+      "f1": {
+        "mean": 0.54566413046327,
+        "std": 0.013360378157750012,
+        "min": 0.5275591381845327,
+        "max": 0.5683664744252069
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T15:59:14.086332",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3522,
+    "test_samples": 881,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5675368898978433,
+        "precision_weighted": 0.5723031204341243,
+        "recall_weighted": 0.5675368898978433,
+        "f1_weighted": 0.5690674848495935,
+        "precision_macro": 0.5835568234123027,
+        "recall_macro": 0.5731701260267622,
+        "f1_macro": 0.5771861713824772
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5627695800227015,
+        "std": 0.0039581375196737,
+        "min": 0.5584562996594779,
+        "max": 0.5675368898978433
+      },
+      "precision": {
+        "mean": 0.5579610686890224,
+        "std": 0.0089506976833921,
+        "min": 0.5456257943306522,
+        "max": 0.5723031204341243
+      },
+      "recall": {
+        "mean": 0.5627695800227015,
+        "std": 0.0039581375196737,
+        "min": 0.5584562996594779,
+        "max": 0.5675368898978433
+      },
+      "f1": {
+        "mean": 0.5586265481254589,
+        "std": 0.005944672429820861,
+        "min": 0.5522734323580546,
+        "max": 0.5690674848495935
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T16:02:38.082559",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3525,
+    "test_samples": 882,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5657596371882087,
+        "precision_weighted": 0.5704747023846695,
+        "recall_weighted": 0.5657596371882087,
+        "f1_weighted": 0.5671128705596249,
+        "precision_macro": 0.5810940201091633,
+        "recall_macro": 0.5702316088477387,
+        "f1_macro": 0.574270349689842
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694,
+        "min": 0.5521541950113379,
+        "max": 0.5657596371882087
+      },
+      "precision": {
+        "mean": 0.555406856565593,
+        "std": 0.009165558218766698,
+        "min": 0.5449439611471385,
+        "max": 0.5704747023846695
+      },
+      "recall": {
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694,
+        "min": 0.5521541950113379,
+        "max": 0.5657596371882087
+      },
+      "f1": {
+        "mean": 0.556060921641329,
+        "std": 0.006342902887501601,
+        "min": 0.5487914665388738,
+        "max": 0.5671128705596249
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T16:09:26.323779",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 2967,
+    "test_samples": 742,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.555256064690027,
+        "precision_weighted": 0.5439986709154301,
+        "recall_weighted": 0.555256064690027,
+        "f1_weighted": 0.5476185746926419,
+        "precision_macro": 0.5822833149891974,
+        "recall_macro": 0.6001900236254779,
+        "f1_macro": 0.5888823676509788
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5350404312668464,
+        "std": 0.014339014639644628,
+        "min": 0.5161725067385444,
+        "max": 0.555256064690027
+      },
+      "precision": {
+        "mean": 0.5233829570431816,
+        "std": 0.014633119868366988,
+        "min": 0.5026697699858526,
+        "max": 0.5439986709154301
+      },
+      "recall": {
+        "mean": 0.5350404312668464,
+        "std": 0.014339014639644628,
+        "min": 0.5161725067385444,
+        "max": 0.555256064690027
+      },
+      "f1": {
+        "mean": 0.5266410701647475,
+        "std": 0.01443976221384064,
+        "min": 0.5087766096738607,
+        "max": 0.5476185746926419
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T16:14:05.258413",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3144,
+    "test_samples": 786,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5572519083969466,
+        "precision_weighted": 0.5533528564121696,
+        "recall_weighted": 0.5572519083969466,
+        "f1_weighted": 0.5527654157078032,
+        "precision_macro": 0.5471011617557723,
+        "recall_macro": 0.5746427143723883,
+        "f1_macro": 0.5573585037760889
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5511450381679388,
+        "std": 0.005177351132156725,
+        "min": 0.5458015267175572,
+        "max": 0.5572519083969466
+      },
+      "precision": {
+        "mean": 0.5472769083191299,
+        "std": 0.0031371320302084685,
+        "min": 0.5444834015054275,
+        "max": 0.5533528564121696
+      },
+      "recall": {
+        "mean": 0.5511450381679388,
+        "std": 0.005177351132156725,
+        "min": 0.5458015267175572,
+        "max": 0.5572519083969466
+      },
+      "f1": {
+        "mean": 0.5468531312021714,
+        "std": 0.003911515400752355,
+        "min": 0.5422129228515591,
+        "max": 0.5527654157078032
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T16:16:57.017730",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3144,
+    "test_samples": 786,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5572519083969466,
+        "precision_weighted": 0.5533528564121696,
+        "recall_weighted": 0.5572519083969466,
+        "f1_weighted": 0.5527654157078032,
+        "precision_macro": 0.5471011617557723,
+        "recall_macro": 0.5746427143723883,
+        "f1_macro": 0.5573585037760889
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5511450381679388,
+        "std": 0.005177351132156725,
+        "min": 0.5458015267175572,
+        "max": 0.5572519083969466
+      },
+      "precision": {
+        "mean": 0.5472769083191299,
+        "std": 0.0031371320302084685,
+        "min": 0.5444834015054275,
+        "max": 0.5533528564121696
+      },
+      "recall": {
+        "mean": 0.5511450381679388,
+        "std": 0.005177351132156725,
+        "min": 0.5458015267175572,
+        "max": 0.5572519083969466
+      },
+      "f1": {
+        "mean": 0.5468531312021714,
+        "std": 0.003911515400752355,
+        "min": 0.5422129228515591,
+        "max": 0.5527654157078032
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T16:20:25.360884",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 2585,
+    "test_samples": 647,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5131375579598145,
+        "precision_weighted": 0.5054476146195873,
+        "recall_weighted": 0.5131375579598145,
+        "f1_weighted": 0.5073038660470581,
+        "precision_macro": 0.5424911760722305,
+        "recall_macro": 0.5629030986825349,
+        "f1_macro": 0.5502397419890271
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5001545595054095,
+        "std": 0.009997503325376337,
+        "min": 0.48377125193199383,
+        "max": 0.5131375579598145
+      },
+      "precision": {
+        "mean": 0.49570629321107396,
+        "std": 0.016824092292877808,
+        "min": 0.4782739324213816,
+        "max": 0.5226957416739191
+      },
+      "recall": {
+        "mean": 0.5001545595054095,
+        "std": 0.009997503325376337,
+        "min": 0.48377125193199383,
+        "max": 0.5131375579598145
+      },
+      "f1": {
+        "mean": 0.49461904298482146,
+        "std": 0.013159741315472552,
+        "min": 0.47658636608781335,
+        "max": 0.5118334821832561
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T16:24:00.435481",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3525,
+    "test_samples": 882,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5657596371882087,
+        "precision_weighted": 0.5704747023846695,
+        "recall_weighted": 0.5657596371882087,
+        "f1_weighted": 0.5671128705596249,
+        "precision_macro": 0.5810940201091633,
+        "recall_macro": 0.5702316088477387,
+        "f1_macro": 0.574270349689842
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694,
+        "min": 0.5521541950113379,
+        "max": 0.5657596371882087
+      },
+      "precision": {
+        "mean": 0.555406856565593,
+        "std": 0.009165558218766698,
+        "min": 0.5449439611471385,
+        "max": 0.5704747023846695
+      },
+      "recall": {
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694,
+        "min": 0.5521541950113379,
+        "max": 0.5657596371882087
+      },
+      "f1": {
+        "mean": 0.556060921641329,
+        "std": 0.006342902887501601,
+        "min": 0.5487914665388738,
+        "max": 0.5671128705596249
+      }
+    }
   }
 ]

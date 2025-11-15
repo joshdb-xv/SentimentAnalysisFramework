@@ -582,5 +582,54 @@
         "max": 0.8462547841747158
       }
     }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-15T12:49:18.689990",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5748,
+    "test_samples": 1437,
+    "benchmarks": {
+      "accuracy": 0.8545581071677105,
+      "precision_weighted": 0.8660370084919433,
+      "recall_weighted": 0.8545581071677105,
+      "f1_weighted": 0.8462547841747158,
+      "overall_metrics": {
+        "accuracy": 0.8545581071677105,
+        "precision_weighted": 0.8660370084919433,
+        "recall_weighted": 0.8545581071677105,
+        "f1_weighted": 0.8462547841747158,
+        "precision_macro": 0.8813539473755054,
+        "recall_macro": 0.8020849326987052,
+        "f1_macro": 0.8240956093161099
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8478775226165624,
+        "std": 0.0059798332801505325,
+        "min": 0.83785664578984,
+        "max": 0.8545581071677105
+      },
+      "precision": {
+        "mean": 0.8602134048312919,
+        "std": 0.006166959681169618,
+        "min": 0.8488824614315447,
+        "max": 0.8660370084919433
+      },
+      "recall": {
+        "mean": 0.8478775226165624,
+        "std": 0.0059798332801505325,
+        "min": 0.83785664578984,
+        "max": 0.8545581071677105
+      },
+      "f1": {
+        "mean": 0.838594561010561,
+        "std": 0.00674931071952848,
+        "min": 0.8277965760270295,
+        "max": 0.8462547841747158
+      }
+    }
   }
 ]
