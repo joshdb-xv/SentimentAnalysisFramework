@@ -1,4 +1,4 @@
-# services/sentiment_analysis.py - WITHOUT AMBIGUOUS TERM CHECKER
+# services/sentiment_analysis.py
 
 import os
 import re
@@ -382,14 +382,14 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
         - Validated against weather data (if applicable)
         """
         if not text or not text.strip():
-            if debug:
-                print("⚠️ Empty text provided")
-            return SentimentScore(
-                positive=0.0, negative=0.0, neutral=1.0, compound=0.0,
-                classification='neutral', confidence=0.0, confidence_tier='LOW',
-                reasoning=["Empty text"], include_in_stats=False,
-                qualitative_category="Invalid Input"
-            )
+          if debug:
+              print("⚠️ Empty text provided")
+          return SentimentScore(
+              positive=0.0, negative=0.0, neutral=1.0, compound=0.0,
+              classification='neutral', confidence=0.0, confidence_tier='LOW',
+              reasoning=["Empty text"], include_in_stats=False,
+              qualitative_category="Invalid Input"
+          )
         
         processed_text = self.preprocess_text(text, debug=debug)
         
@@ -415,13 +415,20 @@ class MultilingualVADER(SentimentIntensityAnalyzer):
         # Get VADER scores
         scores = self.polarity_scores(processed_text)
         compound = scores['compound']
-        
+
         if debug:
             print(f"\n📊 Raw VADER scores:")
             print(f"   Positive: {scores['pos']:.3f}")
             print(f"   Negative: {scores['neg']:.3f}")
             print(f"   Neutral:  {scores['neu']:.3f}")
             print(f"   Compound: {compound:+.3f}")
+            
+            # 🔥 ADD TOKENIZATION DEBUG HERE
+            words = processed_text.split()
+            print(f"\n🔤 Tokenization:")
+            for word in words:
+                score = self.lexicon.get(word.lower(), 0.0)
+                print(f"   '{word}' → {score:+.3f}")
         
         # Apply context adjustments (minimal now - no ambiguous term penalties)
         adjustments = []

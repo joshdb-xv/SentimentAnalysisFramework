@@ -27,7 +27,7 @@ CLIMATE_CATEGORIES = [
 # Model loading
 # -----------------------------
 # Allow override via env var; fallback to default name
-CATEGORY_MODEL_FILENAME = os.getenv("CLIMATE_CATEGORY_MODEL_FILENAME", "climate_category_classifier.joblib")
+CATEGORY_MODEL_FILENAME = os.getenv("CLIMATE_CATEGORY_MODEL_FILENAME", "climate_domain_classifier.joblib")
 CATEGORY_MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / CATEGORY_MODEL_FILENAME
 
 _category_classifier: Optional[Pipeline] = None

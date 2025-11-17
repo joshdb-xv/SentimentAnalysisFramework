@@ -5,6 +5,14 @@ export default function FrameworkAccuracyCard({
   onRetry,
   onViewDetails,
 }) {
+  // Helper function to format accuracy (handles both decimal and percentage formats)
+  const formatAccuracy = (value) => {
+    if (value === null || value === undefined) return "N/A";
+    // If value is less than 2, it's probably a decimal (e.g., 0.75 or 1.0)
+    // If value is 2 or greater, it's definitely a percentage (e.g., 75.0)
+    return value < 2 ? (value * 100).toFixed(2) : value.toFixed(2);
+  };
+
   return (
     <div className="bg-[#FBFCFD] shadow-[0px_2px_16px_0px_rgba(30,41,59,0.25)] w-full h-full p-4 rounded-2xl flex flex-col">
       <div className="flex items-center gap-3 flex-shrink-0">
@@ -16,17 +24,58 @@ export default function FrameworkAccuracyCard({
 
       {/* ACCURACY SCORES */}
       <div className="flex flex-col items-center justify-center gap-6 mt-6 flex-1">
-        {/* VADER - Sentiment Identifier - STATIC */}
+        {/* VADER - Sentiment Identifier */}
         <div className="flex flex-col justify-center items-center gap-2">
-          <p className="text-3xl font-extrabold bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent py-1">
-            81.58%
-          </p>
+          {loading ? (
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0A3D91]"></div>
+          ) : error ? (
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-xl text-red-500">Error</p>
+              <button
+                onClick={onRetry}
+                className="text-xs text-[#0A3D91] hover:underline"
+              >
+                Retry
+              </button>
+            </div>
+          ) : benchmarks?.vader_multiple_runs ||
+            benchmarks?.vader_sentiment_identifier ? (
+            <div className="flex flex-col items-center">
+              {/* Main Accuracy */}
+              <p className="text-3xl font-extrabold bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent py-1">
+                {benchmarks.vader_multiple_runs
+                  ? formatAccuracy(
+                      benchmarks.vader_multiple_runs.statistics.accuracy.mean
+                    )
+                  : formatAccuracy(benchmarks.vader_sentiment_identifier)}
+                %
+              </p>
+
+              {/* Show ± std if multiple runs available */}
+              {benchmarks.vader_multiple_runs && (
+                <div className="flex items-center gap-1">
+                  <p className="text-sm text-[#6B7280] font-medium">
+                    ±{" "}
+                    {formatAccuracy(
+                      benchmarks.vader_multiple_runs.statistics.accuracy.std
+                    )}
+                    %
+                  </p>
+                  <span className="text-xs text-[#9CA3AF]">
+                    ({benchmarks.vader_multiple_runs.number_of_runs} runs)
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-xl text-[#9CA3AF]">Run Benchmarks</p>
+          )}
           <p className="text-sm text-[#1E293B] text-center font-semibold leading-tight">
             VADER - Tweet Sentiment Identifier
           </p>
         </div>
 
-        {/* Naive Bayes - Climate Related Checker - DYNAMIC */}
+        {/* Naive Bayes - Climate Related Checker */}
         <div className="flex flex-col justify-center items-center gap-2">
           {loading ? (
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0A3D91]"></div>
@@ -45,10 +94,11 @@ export default function FrameworkAccuracyCard({
               {/* Main Accuracy */}
               <p className="text-3xl font-extrabold bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent py-1">
                 {benchmarks.climate_checker_multiple_runs
-                  ? benchmarks.climate_checker_multiple_runs.statistics.accuracy.mean.toFixed(
-                      2
+                  ? formatAccuracy(
+                      benchmarks.climate_checker_multiple_runs.statistics
+                        .accuracy.mean
                     )
-                  : benchmarks.naive_bayes_climate_checker.toFixed(2)}
+                  : formatAccuracy(benchmarks.naive_bayes_climate_checker)}
                 %
               </p>
 
@@ -57,8 +107,9 @@ export default function FrameworkAccuracyCard({
                 <div className="flex items-center gap-1">
                   <p className="text-sm text-[#6B7280] font-medium">
                     ±{" "}
-                    {benchmarks.climate_checker_multiple_runs.statistics.accuracy.std.toFixed(
-                      2
+                    {formatAccuracy(
+                      benchmarks.climate_checker_multiple_runs.statistics
+                        .accuracy.std
                     )}
                     %
                   </p>
@@ -97,8 +148,10 @@ export default function FrameworkAccuracyCard({
               {/* Main Accuracy */}
               <p className="text-3xl font-extrabold bg-gradient-to-r from-[#111111] via-[#1E293B] to-[#0A3D91] bg-clip-text text-transparent py-1">
                 {benchmarks.multiple_runs
-                  ? benchmarks.multiple_runs.statistics.accuracy.mean.toFixed(2)
-                  : benchmarks.naive_bayes_domain_identifier.toFixed(2)}
+                  ? formatAccuracy(
+                      benchmarks.multiple_runs.statistics.accuracy.mean
+                    )
+                  : formatAccuracy(benchmarks.naive_bayes_domain_identifier)}
                 %
               </p>
 
@@ -107,8 +160,8 @@ export default function FrameworkAccuracyCard({
                 <div className="flex items-center gap-1">
                   <p className="text-sm text-[#6B7280] font-medium">
                     ±{" "}
-                    {benchmarks.multiple_runs.statistics.accuracy.std.toFixed(
-                      2
+                    {formatAccuracy(
+                      benchmarks.multiple_runs.statistics.accuracy.std
                     )}
                     %
                   </p>

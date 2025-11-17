@@ -5,7 +5,6 @@ from database.models import init_db
 from services.main_service import get_model_status
 from services.fasttext_service import get_fasttext_manager
 from services.lexical_dictionary_manager import get_dictionary_manager
-from services.domain_classifier_service import get_domain_classifier_service
 
 # Import all the routers
 from routers import (

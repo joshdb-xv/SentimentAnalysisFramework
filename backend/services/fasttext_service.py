@@ -1,3 +1,5 @@
+# services/fasttext_service.py
+
 """
 FastText Service - Manages loading and caching of FastText models
 Load once at startup, reuse for all requests

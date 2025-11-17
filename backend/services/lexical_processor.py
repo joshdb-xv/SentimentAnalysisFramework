@@ -1,8 +1,9 @@
+# services/lexical_processor.py
+
 import pandas as pd
 import numpy as np
 from typing import Optional, Callable, Dict, Any
 import re, os
-
 
 class LexicalProcessor:
     """
@@ -306,101 +307,176 @@ class LexicalProcessor:
         dialect_col = 'dialect' if 'dialect' in self.df.columns else None
         
         def score_word(row):
-            sentiment = str(row[sentiment_col]).lower()
-            is_climate = row['is_climate']
-            word = row['word_clean']
-            
-            # Get dialect/language
-            dialect = 'filipino'  # default
-            if dialect_col:
-                dialect = str(row[dialect_col]).lower()
-            
-            # Create detailed breakdown
-            breakdown = {
-                "word": word,
-                "original_sentiment_label": sentiment,
-                "dialect": dialect,
-                "is_climate_related": is_climate,
-                "stages": {}
-            }
-            
-            # ========================================
-            # STAGE 1: BASE POLARITY (Manual Labels)
-            # ========================================
-            if 'positive' in sentiment:
-                polarity = +1
-                base_magnitude = 2.5
-                polarity_label = "positive"
-            elif 'negative' in sentiment:
-                polarity = -1
-                base_magnitude = 2.5
-                polarity_label = "negative"
-            else:
-                # Neutral - store breakdown but return 0
-                breakdown["stages"]["stage_1_base"] = {
-                    "polarity": 0,
-                    "base_magnitude": 0,
-                    "explanation": "Word labeled as neutral - no sentiment score"
-                }
-                self.word_breakdowns[word] = breakdown
-                return 0.0
-            
-            breakdown["stages"]["stage_1_base"] = {
-                "polarity": polarity,
-                "polarity_label": polarity_label,
-                "base_magnitude": base_magnitude,
-                "explanation": f"Base VADER magnitude for {polarity_label} words"
-            }
-            
-            # ========================================
-            # STAGE 2: SEMANTIC INTENSITY (Embeddings)
-            # ========================================
-            intensity = 1.0  # default
-            intensity_breakdown = None
-            
-            model = self.fasttext_manager.get_model(dialect)
-            if model and word in model:
-                intensity, intensity_breakdown = self.calculate_semantic_intensity(
-                    word=word,
-                    model=model,
-                    dialect=dialect,
-                    expected_polarity=polarity
-                )
-            
-            breakdown["stages"]["stage_2_intensity"] = {
-                "intensity_multiplier": round(intensity, 4),
-                "explanation": "Semantic intensity from word embeddings (range: 0.6-1.4)",
-                "details": intensity_breakdown or {"note": "Word not in embedding model"}
-            }
-            
-            # ========================================
-            # STAGE 3: DOMAIN WEIGHTING (Climate-specific)
-            # ========================================
-            domain_weight = 1.3 if is_climate else 1.0
-            
-            breakdown["stages"]["stage_3_domain"] = {
-                "domain_weight": domain_weight,
-                "explanation": "Climate-related words get 1.3x boost, general words stay at 1.0",
-                "reason": "Climate words more impactful in climate context" if is_climate else "General word"
-            }
-            
-            # ========================================
-            # FINAL SCORE CALCULATION
-            # ========================================
-            final_score = polarity * base_magnitude * intensity * domain_weight
-            
-            breakdown["calculation"] = {
-                "formula": "polarity × base_magnitude × intensity × domain_weight",
-                "substituted": f"{polarity} × {base_magnitude} × {round(intensity, 4)} × {domain_weight}",
-                "result": round(final_score, 4)
-            }
-            
-            breakdown["final_score"] = round(final_score, 4)
-            
-            # Store the breakdown
-            self.word_breakdowns[word] = breakdown
-            
-            return final_score
+          sentiment = str(row[sentiment_col]).lower()
+          is_climate = row['is_climate']
+          word = row['word_clean']
+          
+          # Get dialect/language
+          dialect = 'filipino'  # default
+          if dialect_col:
+              dialect = str(row[dialect_col]).lower()
+          
+          # Create detailed breakdown
+          breakdown = {
+              "word": word,
+              "original_sentiment_label": sentiment,
+              "dialect": dialect,
+              "is_climate_related": is_climate,
+              "stages": {}
+          }
+          
+          # ========================================
+          # STAGE 1: BASE POLARITY (Manual Labels)
+          # ========================================
+          if 'positive' in sentiment:
+              polarity = +1
+              base_magnitude = 2.5
+              polarity_label = "positive"
+              is_neutral = False
+          elif 'negative' in sentiment:
+              polarity = -1
+              base_magnitude = 2.5
+              polarity_label = "negative"
+              is_neutral = False
+          else:
+              # NEUTRAL WORDS - Don't just return 0!
+              # Let semantic analysis determine slight positive/negative leaning
+              polarity = 0  # Will be determined by semantic similarity
+              base_magnitude = 0.3  # Much smaller than pos/neg (2.5)
+              polarity_label = "neutral"
+              is_neutral = True
+          
+          breakdown["stages"]["stage_1_base"] = {
+              "polarity": polarity,
+              "polarity_label": polarity_label,
+              "base_magnitude": base_magnitude,
+              "explanation": f"Base magnitude for {polarity_label} words" + 
+                            (" (semantic analysis will determine final polarity)" if is_neutral else "")
+          }
+          
+          # ========================================
+          # STAGE 2: SEMANTIC INTENSITY (Embeddings)
+          # ========================================
+          intensity = 1.0  # default
+          intensity_breakdown = None
+          semantic_polarity = polarity  # Will be updated for neutral words
+          
+          model = self.fasttext_manager.get_model(dialect)
+          
+          if is_neutral and model and word in model:
+              # For neutral words, use semantic similarity to determine slight leaning
+              word_vector = model[word]
+              
+              # Get sentiment prototypes
+              pos_prototype = self.get_sentiment_prototype(model, dialect, 'positive')
+              neg_prototype = self.get_sentiment_prototype(model, dialect, 'negative')
+              
+              if pos_prototype is not None and neg_prototype is not None:
+                  # Calculate similarities
+                  sim_positive = self.cosine_similarity(word_vector, pos_prototype)
+                  sim_negative = self.cosine_similarity(word_vector, neg_prototype)
+                  
+                  # Determine semantic polarity based on which is stronger
+                  if abs(sim_positive - sim_negative) < 0.05:
+                      # Very balanced - truly neutral
+                      semantic_polarity = 0
+                      intensity = 0.0  # No score
+                      intensity_breakdown = {
+                          "method": "neutral_semantic_analysis",
+                          "similarity_to_positive": round(sim_positive, 4),
+                          "similarity_to_negative": round(sim_negative, 4),
+                          "difference": round(abs(sim_positive - sim_negative), 4),
+                          "conclusion": "Truly neutral - balanced similarity to both poles",
+                          "intensity": 0.0
+                      }
+                  else:
+                      # Has slight leaning
+                      if sim_positive > sim_negative:
+                          semantic_polarity = +1
+                          strength = sim_positive
+                      else:
+                          semantic_polarity = -1
+                          strength = sim_negative
+                      
+                      # Map similarity difference to intensity (0.0 to 1.0)
+                      # Smaller differences = weaker intensity
+                      raw_intensity = abs(sim_positive - sim_negative)
+                      intensity = min(raw_intensity * 2, 1.0)  # Scale up the difference
+                      
+                      intensity_breakdown = {
+                          "method": "neutral_semantic_analysis",
+                          "similarity_to_positive": round(sim_positive, 4),
+                          "similarity_to_negative": round(sim_negative, 4),
+                          "difference": round(abs(sim_positive - sim_negative), 4),
+                          "determined_polarity": "positive" if semantic_polarity > 0 else "negative",
+                          "intensity": round(intensity, 4),
+                          "conclusion": f"Slight {'positive' if semantic_polarity > 0 else 'negative'} leaning"
+                      }
+              else:
+                  # Can't determine semantics - return 0
+                  intensity = 0.0
+                  intensity_breakdown = {
+                      "note": "Sentiment prototypes unavailable - defaulting to 0"
+                  }
+          
+          elif not is_neutral and model and word in model:
+              # Original intensity calculation for positive/negative words
+              intensity, intensity_breakdown = self.calculate_semantic_intensity(
+                  word=word,
+                  model=model,
+                  dialect=dialect,
+                  expected_polarity=polarity
+              )
+          else:
+              # Word not in model or no model available
+              if is_neutral:
+                  intensity = 0.0
+                  intensity_breakdown = {"note": "Word not in embedding model - defaulting to 0"}
+              else:
+                  intensity_breakdown = {"note": "Word not in embedding model - using default intensity"}
+          
+          breakdown["stages"]["stage_2_intensity"] = {
+              "intensity_multiplier": round(intensity, 4),
+              "semantic_polarity": semantic_polarity if is_neutral else polarity,
+              "explanation": "Semantic similarity determines polarity for neutral words" if is_neutral 
+                            else "Semantic intensity from word embeddings (range: 0.6-1.4)",
+              "details": intensity_breakdown or {"note": "Default intensity used"}
+          }
+          
+          # ========================================
+          # STAGE 3: DOMAIN WEIGHTING (Climate-specific)
+          # ========================================
+          domain_weight = 1.3 if is_climate else 1.0
+          
+          breakdown["stages"]["stage_3_domain"] = {
+              "domain_weight": domain_weight,
+              "explanation": "Climate-related words get 1.3x boost, general words stay at 1.0",
+              "reason": "Climate words more impactful in climate context" if is_climate else "General word"
+          }
+          
+          # ========================================
+          # FINAL SCORE CALCULATION
+          # ========================================
+          if is_neutral:
+              # Use semantic polarity determined from embeddings
+              final_score = semantic_polarity * base_magnitude * intensity * domain_weight
+          else:
+              # Original calculation for positive/negative words
+              final_score = polarity * base_magnitude * intensity * domain_weight
+          
+          breakdown["calculation"] = {
+              "formula": "polarity × base_magnitude × intensity × domain_weight",
+              "substituted": f"{semantic_polarity if is_neutral else polarity} × {base_magnitude} × {round(intensity, 4)} × {domain_weight}",
+              "result": round(final_score, 4),
+              "note": "Polarity determined semantically for neutral words" if is_neutral else None
+          }
+          
+          breakdown["final_score"] = round(final_score, 4)
+          
+          # Store the breakdown
+          self.word_breakdowns[word] = breakdown
+          
+          return final_score
         
         self.df['sentiment_score'] = self.df.apply(score_word, axis=1)
         

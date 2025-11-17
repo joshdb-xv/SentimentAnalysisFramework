@@ -1,19 +1,49 @@
 import { MdClose } from "react-icons/md";
 
+// Helper function to format values (handles both decimal and percentage formats)
+const formatValue = (value) => {
+  if (value === null || value === undefined) return 0;
+  // If value is less than 2, it's probably a decimal (e.g., 0.75)
+  // If value is 2 or greater, it's definitely a percentage (e.g., 75.0)
+  return value < 2 ? value * 100 : value;
+};
+
 // Helper function to extract metrics from benchmark data
 const getMetrics = (benchmarks, model) => {
   if (!benchmarks) return null;
 
   if (model === "vader") {
-    return {
-      name: "VADER - Tweet Sentiment Identifier",
-      accuracy: 81.58,
-      precision: 80.5,
-      recall: 82.3,
-      f1: 81.4,
-      baseline: 72,
-      runs: null,
-    };
+    // Use dynamic data from vader_multiple_runs if available
+    if (benchmarks?.vader_multiple_runs) {
+      const stats = benchmarks.vader_multiple_runs.statistics;
+
+      return {
+        name: "VADER - Tweet Sentiment Identifier",
+        accuracy: formatValue(stats.accuracy.mean),
+        std: formatValue(stats.accuracy.std),
+        precision: formatValue(stats.precision.mean),
+        recall: formatValue(stats.recall.mean),
+        f1: formatValue(stats.f1.mean),
+        runs: benchmarks.vader_multiple_runs.number_of_runs,
+        baseline: 72,
+      };
+    }
+
+    // Fallback to single identifier value
+    if (benchmarks?.vader_sentiment_identifier) {
+      return {
+        name: "VADER - Tweet Sentiment Identifier",
+        accuracy: formatValue(benchmarks.vader_sentiment_identifier),
+        precision: null,
+        recall: null,
+        f1: null,
+        runs: null,
+        baseline: 72,
+      };
+    }
+
+    // No data available
+    return null;
   }
 
   if (model === "climateChecker" && benchmarks?.climate_checker_multiple_runs) {
@@ -21,11 +51,11 @@ const getMetrics = (benchmarks, model) => {
 
     return {
       name: "Naive Bayes - Climate Related Checker",
-      accuracy: stats.accuracy.mean,
-      std: stats.accuracy.std,
-      precision: stats.precision.mean * 100,
-      recall: stats.recall.mean * 100,
-      f1: stats.f1.mean * 100,
+      accuracy: formatValue(stats.accuracy.mean),
+      std: formatValue(stats.accuracy.std),
+      precision: formatValue(stats.precision.mean),
+      recall: formatValue(stats.recall.mean),
+      f1: formatValue(stats.f1.mean),
       runs: benchmarks.climate_checker_multiple_runs.number_of_runs,
       baseline: 81,
     };
@@ -36,11 +66,11 @@ const getMetrics = (benchmarks, model) => {
 
     return {
       name: "Naive Bayes - Climate Domain Identifier",
-      accuracy: stats.accuracy.mean,
-      std: stats.accuracy.std,
-      precision: stats.precision.mean * 100,
-      recall: stats.recall.mean * 100,
-      f1: stats.f1.mean * 100,
+      accuracy: formatValue(stats.accuracy.mean),
+      std: formatValue(stats.accuracy.std),
+      precision: formatValue(stats.precision.mean),
+      recall: formatValue(stats.recall.mean),
+      f1: formatValue(stats.f1.mean),
       runs: benchmarks.multiple_runs.number_of_runs,
       baseline: 81,
     };
@@ -83,28 +113,36 @@ const MetricCard = ({ metrics }) => {
         </div>
 
         {/* Precision */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600 font-medium">Precision:</span>
-          <span className="text-base font-bold text-[#1E293B]">
-            {metrics.precision.toFixed(2)}%
-          </span>
-        </div>
+        {metrics.precision !== null && (
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600 font-medium">
+              Precision:
+            </span>
+            <span className="text-base font-bold text-[#1E293B]">
+              {metrics.precision.toFixed(2)}%
+            </span>
+          </div>
+        )}
 
         {/* Recall */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600 font-medium">Recall:</span>
-          <span className="text-base font-bold text-[#1E293B]">
-            {metrics.recall.toFixed(2)}%
-          </span>
-        </div>
+        {metrics.recall !== null && (
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600 font-medium">Recall:</span>
+            <span className="text-base font-bold text-[#1E293B]">
+              {metrics.recall.toFixed(2)}%
+            </span>
+          </div>
+        )}
 
         {/* F1-Score */}
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600 font-medium">F1-Score:</span>
-          <span className="text-base font-bold text-[#1E293B]">
-            {metrics.f1.toFixed(2)}%
-          </span>
-        </div>
+        {metrics.f1 !== null && (
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-gray-600 font-medium">F1-Score:</span>
+            <span className="text-base font-bold text-[#1E293B]">
+              {metrics.f1.toFixed(2)}%
+            </span>
+          </div>
+        )}
 
         {/* Baseline Comparison */}
         <div className="border-t-2 border-gray-100 pt-3 mt-3">

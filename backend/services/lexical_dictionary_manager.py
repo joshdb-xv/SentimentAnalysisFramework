@@ -1,3 +1,5 @@
+# services/lexical_dictionary_manager.py
+
 import joblib
 import pandas as pd
 import json
@@ -252,34 +254,92 @@ class LexicalDictionaryManager:
     def _recalculate_score(self, row: Dict, processor) -> float:
         """
         Recalculate score for a word using the 3-stage pipeline
-        This mirrors the logic in LexicalProcessor.calculate_sentiment_scores
-        Works even without a full LexicalProcessor instance
+        NOW PROPERLY HANDLES NEUTRAL WORDS with semantic analysis
         """
         sentiment = row['sentiment'].lower()
         is_climate = row['is_climate']
         word = row['word_clean']
         dialect = row['dialect'].lower()
         
+        # Normalize dialect
+        if 'cebuano' in dialect or 'bisaya' in dialect:
+            dialect = 'cebuano'
+        elif 'tagalog' in dialect:
+            dialect = 'tagalog'
+        else:
+            dialect = 'filipino'
+        
         # STAGE 1: Base Polarity
         if 'positive' in sentiment:
             polarity = +1
             base_magnitude = 2.5
+            is_neutral = False
         elif 'negative' in sentiment:
             polarity = -1
             base_magnitude = 2.5
+            is_neutral = False
         else:
-            # Neutral
-            return 0.0
+            # NEUTRAL - needs semantic analysis
+            polarity = 0
+            base_magnitude = 0.3  # Much smaller than pos/neg
+            is_neutral = True
         
         # STAGE 2: Semantic Intensity
         intensity = 1.0
+        semantic_polarity = polarity
         
         # Get FastText model
+        model = None
         if hasattr(processor, 'fasttext_manager'):
             model = processor.fasttext_manager.get_model(dialect)
-            
-            if model and word in model:
-                # If we have a full processor, use its method
+        
+        if model and word in model:
+            if is_neutral:
+                # For neutral words, determine polarity from embeddings
+                try:
+                    import numpy as np
+                    
+                    word_vector = model[word]
+                    
+                    # Get prototypes
+                    pos_prototype = self._get_sentiment_prototype(model, dialect, 'positive', processor)
+                    neg_prototype = self._get_sentiment_prototype(model, dialect, 'negative', processor)
+                    
+                    if pos_prototype is not None and neg_prototype is not None:
+                        # Calculate similarities
+                        sim_positive = self._cosine_similarity(word_vector, pos_prototype)
+                        sim_negative = self._cosine_similarity(word_vector, neg_prototype)
+                        
+                        print(f"  Neutral word '{word}' similarities: pos={sim_positive:.4f}, neg={sim_negative:.4f}")
+                        
+                        # Check if truly neutral (difference < 0.05)
+                        diff = abs(sim_positive - sim_negative)
+                        if diff < 0.05:
+                            # Truly neutral - return 0
+                            print(f"  → Truly neutral (diff={diff:.4f} < 0.05), returning 0.0")
+                            return 0.0
+                        else:
+                            # Has slight leaning
+                            if sim_positive > sim_negative:
+                                semantic_polarity = +1
+                                print(f"  → Slight positive leaning (diff={diff:.4f})")
+                            else:
+                                semantic_polarity = -1
+                                print(f"  → Slight negative leaning (diff={diff:.4f})")
+                            
+                            # Calculate intensity from difference
+                            raw_intensity = diff
+                            intensity = min(raw_intensity * 2, 1.0)
+                            print(f"  → Intensity: {intensity:.4f}")
+                    else:
+                        # Can't determine - return 0
+                        print(f"  → Prototypes unavailable, returning 0.0")
+                        return 0.0
+                except Exception as e:
+                    print(f"  → Error in semantic analysis: {e}, returning 0.0")
+                    return 0.0
+            else:
+                # For positive/negative words, use original intensity calculation
                 if hasattr(processor, 'calculate_semantic_intensity'):
                     intensity, _ = processor.calculate_semantic_intensity(
                         word=word,
@@ -288,14 +348,22 @@ class LexicalDictionaryManager:
                         expected_polarity=polarity
                     )
                 else:
-                    # Minimal intensity calculation without full processor
+                    # Fallback to simple calculation
                     intensity = self._simple_intensity_calculation(word, model, polarity)
+        elif is_neutral:
+            # No model available for neutral word - return 0
+            print(f"  → Word '{word}' not in model, returning 0.0")
+            return 0.0
         
         # STAGE 3: Domain Weighting
         domain_weight = 1.3 if is_climate else 1.0
         
         # Final calculation
-        final_score = polarity * base_magnitude * intensity * domain_weight
+        if is_neutral:
+            final_score = semantic_polarity * base_magnitude * intensity * domain_weight
+            print(f"  → Final: {semantic_polarity} × {base_magnitude} × {intensity:.4f} × {domain_weight} = {final_score:.4f}")
+        else:
+            final_score = polarity * base_magnitude * intensity * domain_weight
         
         return final_score
     
@@ -329,6 +397,65 @@ class LexicalDictionaryManager:
             print(f"Error in intensity calculation: {e}")
             return 1.0
     
+    def _get_sentiment_prototype(self, model, dialect: str, polarity: str, processor):
+        """Get sentiment prototype vector"""
+        # Try to use processor's method if available
+        if hasattr(processor, 'get_sentiment_prototype'):
+            return processor.get_sentiment_prototype(model, dialect, polarity)
+        
+        # Fallback: create prototype from anchor words
+        sentiment_anchors = {
+            'cebuano': {
+                'positive': ['maayo', 'nindot', 'matahum', 'dako', 'kusog',
+                          'maayong', 'hayahay', 'malipayon'],
+                'negative': ['dili', 'dautan', 'grabe', 'lisud', 'makuyaw',
+                          'sakit', 'maskin', 'katalagman']
+            },
+            'tagalog': {
+                'positive': ['mabuti', 'maganda', 'masaya', 'mahusay', 'malaki',
+                          'malakas', 'perpekto', 'napakaganda'],
+                'negative': ['masama', 'pangit', 'malungkot', 'mahirap',
+                          'mapanganib', 'sakit', 'delikado', 'malala']
+            },
+            'filipino': {
+                'positive': ['mabuti', 'maganda', 'masaya', 'mahusay', 'malaki',
+                          'malakas', 'perpekto', 'napakaganda'],
+                'negative': ['masama', 'pangit', 'malungkot', 'mahirap',
+                          'mapanganib', 'sakit', 'delikado', 'malala']
+            }
+        }
+        
+        import numpy as np
+        
+        dialect_key = dialect if dialect in sentiment_anchors else 'filipino'
+        anchors = sentiment_anchors[dialect_key].get(polarity, [])
+        
+        vectors = []
+        for anchor in anchors:
+            if anchor in model:
+                vectors.append(model[anchor])
+        
+        if not vectors:
+            return None
+        
+        return np.mean(vectors, axis=0)
+
+    def _cosine_similarity(self, vec1, vec2):
+        """Calculate cosine similarity"""
+        if vec1 is None or vec2 is None:
+            return 0.0
+        
+        import numpy as np
+        
+        dot_product = np.dot(vec1, vec2)
+        norm1 = np.linalg.norm(vec1)
+        norm2 = np.linalg.norm(vec2)
+        
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+        
+        return dot_product / (norm1 * norm2)
+
     def save_changes(self) -> bool:
         """
         Persist in-memory changes to disk
