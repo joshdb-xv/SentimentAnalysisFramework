@@ -72,7 +72,7 @@ const getMetrics = (benchmarks, model) => {
       recall: formatValue(stats.recall.mean),
       f1: formatValue(stats.f1.mean),
       runs: benchmarks.multiple_runs.number_of_runs,
-      baseline: 81,
+      baseline: null, // No baseline for this model
     };
   }
 
@@ -83,7 +83,8 @@ const getMetrics = (benchmarks, model) => {
 const MetricCard = ({ metrics }) => {
   if (!metrics) return null;
 
-  const difference = metrics.accuracy - metrics.baseline;
+  const hasBaseline = metrics.baseline !== null && metrics.baseline !== undefined;
+  const difference = hasBaseline ? metrics.accuracy - metrics.baseline : 0;
   const differenceText =
     difference >= 0
       ? `+${difference.toFixed(2)}%`
@@ -144,17 +145,19 @@ const MetricCard = ({ metrics }) => {
           </div>
         )}
 
-        {/* Baseline Comparison */}
-        <div className="border-t-2 border-gray-100 pt-3 mt-3">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-gray-600 font-medium">
-              vs Baseline ({metrics.baseline}%):
-            </span>
-            <span className={`text-base font-bold ${differenceColor}`}>
-              {differenceText}
-            </span>
+        {/* Baseline Comparison - only show if baseline exists */}
+        {hasBaseline && (
+          <div className="border-t-2 border-gray-100 pt-3 mt-3">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600 font-medium">
+                vs Baseline ({metrics.baseline}%):
+              </span>
+              <span className={`text-base font-bold ${differenceColor}`}>
+                {differenceText}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Number of runs if available */}
         {metrics.runs && (
