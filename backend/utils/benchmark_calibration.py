@@ -136,7 +136,8 @@ def calibrate_vader_benchmarks(data: dict) -> dict:
     Returns:
         Calibrated benchmark data
     """
-    return apply_statistical_smoothing(data, ci_adjustment=15.67)
+    # return apply_statistical_smoothing(data, ci_adjustment=15.67)
+    return data
 
 
 def calibrate_domain_benchmarks(data: dict) -> dict:
@@ -152,7 +153,7 @@ def calibrate_domain_benchmarks(data: dict) -> dict:
     Returns:
         Calibrated benchmark data
     """
-    return apply_statistical_smoothing(data, ci_adjustment=8.32)
+    return data
 
 
 def calibrate_climate_checker_benchmarks(data: dict) -> dict:

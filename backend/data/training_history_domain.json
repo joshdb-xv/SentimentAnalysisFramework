@@ -1168,5 +1168,95 @@
         "max": 0.5671128705596249
       }
     }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-22T10:39:49.805695",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3525,
+    "test_samples": 882,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5657596371882087,
+        "precision_weighted": 0.5704747023846695,
+        "recall_weighted": 0.5657596371882087,
+        "f1_weighted": 0.5671128705596249,
+        "precision_macro": 0.5810940201091633,
+        "recall_macro": 0.5702316088477387,
+        "f1_macro": 0.574270349689842
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694,
+        "min": 0.5521541950113379,
+        "max": 0.5657596371882087
+      },
+      "precision": {
+        "mean": 0.555406856565593,
+        "std": 0.009165558218766698,
+        "min": 0.5449439611471385,
+        "max": 0.5704747023846695
+      },
+      "recall": {
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694,
+        "min": 0.5521541950113379,
+        "max": 0.5657596371882087
+      },
+      "f1": {
+        "mean": 0.556060921641329,
+        "std": 0.006342902887501601,
+        "min": 0.5487914665388738,
+        "max": 0.5671128705596249
+      }
+    }
+  },
+  {
+    "batch_name": "initial_training",
+    "batch_number": 1,
+    "timestamp": "2025-11-22T10:50:28.945237",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3525,
+    "test_samples": 882,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5657596371882087,
+        "precision_weighted": 0.5704747023846695,
+        "recall_weighted": 0.5657596371882087,
+        "f1_weighted": 0.5671128705596249,
+        "precision_macro": 0.5810940201091633,
+        "recall_macro": 0.5702316088477387,
+        "f1_macro": 0.574270349689842
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694,
+        "min": 0.5521541950113379,
+        "max": 0.5657596371882087
+      },
+      "precision": {
+        "mean": 0.555406856565593,
+        "std": 0.009165558218766698,
+        "min": 0.5449439611471385,
+        "max": 0.5704747023846695
+      },
+      "recall": {
+        "mean": 0.5600907029478458,
+        "std": 0.004478099242206694,
+        "min": 0.5521541950113379,
+        "max": 0.5657596371882087
+      },
+      "f1": {
+        "mean": 0.556060921641329,
+        "std": 0.006342902887501601,
+        "min": 0.5487914665388738,
+        "max": 0.5671128705596249
+      }
+    }
   }
 ]

@@ -1,4 +1,5 @@
-import { MdClose } from "react-icons/md";
+import { MdClose, MdExpandMore, MdExpandLess } from "react-icons/md";
+import { useState } from "react";
 
 // Helper function to format values (handles both decimal and percentage formats)
 const formatValue = (value) => {
@@ -10,7 +11,7 @@ const formatValue = (value) => {
 
 // Helper function to extract metrics from benchmark data
 const getMetrics = (benchmarks, model) => {
-  if (!benchmarks) return null;
+  if (!benchmarks) return { metrics: null, individualRuns: null };
 
   if (model === "vader") {
     // Use dynamic data from vader_multiple_runs if available
@@ -18,46 +19,56 @@ const getMetrics = (benchmarks, model) => {
       const stats = benchmarks.vader_multiple_runs.statistics;
 
       return {
-        name: "VADER - Tweet Sentiment Identifier",
-        accuracy: formatValue(stats.accuracy.mean),
-        std: formatValue(stats.accuracy.std),
-        precision: formatValue(stats.precision.mean),
-        recall: formatValue(stats.recall.mean),
-        f1: formatValue(stats.f1.mean),
-        runs: benchmarks.vader_multiple_runs.number_of_runs,
-        baseline: 72,
+        metrics: {
+          name: "VADER - Tweet Sentiment Identifier",
+          accuracy: formatValue(stats.accuracy.mean),
+          std: formatValue(stats.accuracy.std),
+          precision: formatValue(stats.precision.mean),
+          recall: formatValue(stats.recall.mean),
+          f1: formatValue(stats.f1.mean),
+          runs: benchmarks.vader_multiple_runs.number_of_runs,
+          baseline: 72,
+        },
+        individualRuns: benchmarks.vader_multiple_runs.individual_runs || null,
       };
     }
 
     // Fallback to single identifier value
     if (benchmarks?.vader_sentiment_identifier) {
       return {
-        name: "VADER - Tweet Sentiment Identifier",
-        accuracy: formatValue(benchmarks.vader_sentiment_identifier),
-        precision: null,
-        recall: null,
-        f1: null,
-        runs: null,
-        baseline: 72,
+        metrics: {
+          name: "VADER - Tweet Sentiment Identifier",
+          accuracy: formatValue(benchmarks.vader_sentiment_identifier),
+          precision: null,
+          recall: null,
+          f1: null,
+          runs: null,
+          baseline: 72,
+        },
+        individualRuns: null,
       };
     }
 
     // No data available
-    return null;
+    return { metrics: null, individualRuns: null };
   }
 
   if (model === "climateChecker" && benchmarks?.climate_checker_multiple_runs) {
     const stats = benchmarks.climate_checker_multiple_runs.statistics;
 
     return {
-      name: "Naive Bayes - Climate Related Checker",
-      accuracy: formatValue(stats.accuracy.mean),
-      std: formatValue(stats.accuracy.std),
-      precision: formatValue(stats.precision.mean),
-      recall: formatValue(stats.recall.mean),
-      f1: formatValue(stats.f1.mean),
-      runs: benchmarks.climate_checker_multiple_runs.number_of_runs,
-      baseline: 81,
+      metrics: {
+        name: "Naive Bayes - Climate Related Checker",
+        accuracy: formatValue(stats.accuracy.mean),
+        std: formatValue(stats.accuracy.std),
+        precision: formatValue(stats.precision.mean),
+        recall: formatValue(stats.recall.mean),
+        f1: formatValue(stats.f1.mean),
+        runs: benchmarks.climate_checker_multiple_runs.number_of_runs,
+        baseline: 81,
+      },
+      individualRuns:
+        benchmarks.climate_checker_multiple_runs.individual_runs || null,
     };
   }
 
@@ -65,25 +76,79 @@ const getMetrics = (benchmarks, model) => {
     const stats = benchmarks.multiple_runs.statistics;
 
     return {
-      name: "Naive Bayes - Climate Domain Identifier",
-      accuracy: formatValue(stats.accuracy.mean),
-      std: formatValue(stats.accuracy.std),
-      precision: formatValue(stats.precision.mean),
-      recall: formatValue(stats.recall.mean),
-      f1: formatValue(stats.f1.mean),
-      runs: benchmarks.multiple_runs.number_of_runs,
-      baseline: null, // No baseline for this model
+      metrics: {
+        name: "Naive Bayes - Climate Domain Identifier",
+        accuracy: formatValue(stats.accuracy.mean),
+        std: formatValue(stats.accuracy.std),
+        precision: formatValue(stats.precision.mean),
+        recall: formatValue(stats.recall.mean),
+        f1: formatValue(stats.f1.mean),
+        runs: benchmarks.multiple_runs.number_of_runs,
+        baseline: null, // No baseline for this model
+      },
+      individualRuns: benchmarks.multiple_runs.individual_runs || null,
     };
   }
 
-  return null;
+  return { metrics: null, individualRuns: null };
+};
+
+// Individual Run Details Component
+const RunDetails = ({ runs }) => {
+  if (!runs || runs.length === 0) return null;
+
+  return (
+    <div className="mt-4 pt-4 border-t-2 border-gray-200">
+      <h4 className="text-sm font-semibold text-gray-700 mb-3">
+        Individual Run Results
+      </h4>
+      <div className="space-y-2">
+        {runs.map((run, index) => (
+          <div key={index} className="bg-gray-50 rounded-lg p-3 text-xs">
+            <div className="font-semibold text-gray-700 mb-2">
+              Run {run.run} (Seed: {run.seed})
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Accuracy:</span>
+                <span className="font-medium text-gray-900">
+                  {run.accuracy.toFixed(2)}%
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Precision:</span>
+                <span className="font-medium text-gray-900">
+                  {run.precision.toFixed(2)}%
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Recall:</span>
+                <span className="font-medium text-gray-900">
+                  {run.recall.toFixed(2)}%
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">F1-Score:</span>
+                <span className="font-medium text-gray-900">
+                  {run.f1.toFixed(2)}%
+                </span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 // Metric Card Component
-const MetricCard = ({ metrics }) => {
+const MetricCard = ({ metrics, individualRuns }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (!metrics) return null;
 
-  const hasBaseline = metrics.baseline !== null && metrics.baseline !== undefined;
+  const hasBaseline =
+    metrics.baseline !== null && metrics.baseline !== undefined;
   const difference = hasBaseline ? metrics.accuracy - metrics.baseline : 0;
   const differenceText =
     difference >= 0
@@ -166,6 +231,29 @@ const MetricCard = ({ metrics }) => {
           </div>
         )}
       </div>
+
+      {/* Expandable Individual Runs Section */}
+      {individualRuns && individualRuns.length > 0 && (
+        <div className="mt-4">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium text-gray-700"
+          >
+            {isExpanded ? (
+              <>
+                <MdExpandLess className="text-xl" />
+                Hide Individual Runs
+              </>
+            ) : (
+              <>
+                <MdExpandMore className="text-xl" />
+                View Individual Runs
+              </>
+            )}
+          </button>
+          {isExpanded && <RunDetails runs={individualRuns} />}
+        </div>
+      )}
     </div>
   );
 };
@@ -174,9 +262,9 @@ const MetricCard = ({ metrics }) => {
 export default function MetricsModal({ isOpen, onClose, benchmarks }) {
   if (!isOpen) return null;
 
-  const vaderMetrics = getMetrics(benchmarks, "vader");
-  const climateCheckerMetrics = getMetrics(benchmarks, "climateChecker");
-  const domainIdentifierMetrics = getMetrics(benchmarks, "domainIdentifier");
+  const vaderData = getMetrics(benchmarks, "vader");
+  const climateCheckerData = getMetrics(benchmarks, "climateChecker");
+  const domainIdentifierData = getMetrics(benchmarks, "domainIdentifier");
 
   return (
     <div
@@ -202,9 +290,18 @@ export default function MetricsModal({ isOpen, onClose, benchmarks }) {
       {/* Modal Content */}
       <div className="p-6">
         <div className="flex flex-col lg:flex-row gap-6">
-          <MetricCard metrics={vaderMetrics} />
-          <MetricCard metrics={climateCheckerMetrics} />
-          <MetricCard metrics={domainIdentifierMetrics} />
+          <MetricCard
+            metrics={vaderData.metrics}
+            individualRuns={vaderData.individualRuns}
+          />
+          <MetricCard
+            metrics={climateCheckerData.metrics}
+            individualRuns={climateCheckerData.individualRuns}
+          />
+          <MetricCard
+            metrics={domainIdentifierData.metrics}
+            individualRuns={domainIdentifierData.individualRuns}
+          />
         </div>
 
         {/* Additional Info */}

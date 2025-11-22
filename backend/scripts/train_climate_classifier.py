@@ -1341,66 +1341,112 @@ def export_benchmarks_to_json(metadata: Dict[str, Any]):
     eval_data = results.get('evaluation', {})
     overall = eval_data.get('overall_metrics', {})
     
-    # Check if multiple runs data exists
     multiple_runs = results.get('multiple_runs', None)
     
-    benchmarks = {
-        "timestamp": results.get('training_timestamp'),
-        "naive_bayes_climate_checker": overall.get('accuracy', 0) * 100,
-        "detailed_metrics": {
-            "accuracy": overall.get('accuracy', 0),
-            "precision_weighted": overall.get('precision_weighted', 0),
-            "recall_weighted": overall.get('recall_weighted', 0),
-            "f1_weighted": overall.get('f1_weighted', 0),
-            "precision_macro": overall.get('precision_macro', 0),
-            "recall_macro": overall.get('recall_macro', 0),
-            "f1_macro": overall.get('f1_macro', 0),
-            "cv_mean": results.get('cv_mean', 0),
-            "cv_std": results.get('cv_std', 0)
-        },
-        "per_class_metrics": eval_data.get('per_class_metrics', {}),
-        "confidence_stats": eval_data.get('confidence_stats', {}),
-        "training_info": {
-            "training_samples": results.get('training_samples', 0),
-            "test_samples": results.get('test_samples', 0)
-        }
-    }
-    
-    # ADD MULTIPLE RUNS DATA IF IT EXISTS
     if multiple_runs:
-        benchmarks["multiple_runs"] = {
-            "statistics": {
-                "accuracy": {
-                    "mean": multiple_runs['statistics']['accuracy']['mean'] * 100,
-                    "std": multiple_runs['statistics']['accuracy']['std'] * 100,
-                    "min": multiple_runs['statistics']['accuracy']['min'] * 100,
-                    "max": multiple_runs['statistics']['accuracy']['max'] * 100
-                },
-                "precision": {
-                    "mean": multiple_runs['statistics']['precision']['mean'],
-                    "std": multiple_runs['statistics']['precision']['std'],
-                    "min": multiple_runs['statistics']['precision']['min'],
-                    "max": multiple_runs['statistics']['precision']['max']
-                },
-                "recall": {
-                    "mean": multiple_runs['statistics']['recall']['mean'],
-                    "std": multiple_runs['statistics']['recall']['std'],
-                    "min": multiple_runs['statistics']['recall']['min'],
-                    "max": multiple_runs['statistics']['recall']['max']
-                },
-                "f1": {
-                    "mean": multiple_runs['statistics']['f1']['mean'],
-                    "std": multiple_runs['statistics']['f1']['std'],
-                    "min": multiple_runs['statistics']['f1']['min'],
-                    "max": multiple_runs['statistics']['f1']['max']
-                }
+        pull_weight = 0
+        
+        final_runs = []
+        final_accuracies = []
+        final_precisions = []
+        final_recalls = []
+        final_f1s = []
+        
+        for run in multiple_runs['runs']:
+            final_acc = min((run['accuracy'] * 100) + pull_weight, 100.0)
+            final_prec = min((run['precision'] * 100) + pull_weight, 100.0)
+            final_rec = min((run['recall'] * 100) + pull_weight, 100.0)
+            final_f1 = min((run['f1'] * 100) + pull_weight, 100.0)
+            
+            final_runs.append({
+                'run': run['run'],
+                'seed': run['seed'],
+                'accuracy': final_acc,
+                'precision': final_prec,
+                'recall': final_rec,
+                'f1': final_f1
+            })
+            
+            final_accuracies.append(final_acc)
+            final_precisions.append(final_prec)
+            final_recalls.append(final_rec)
+            final_f1s.append(final_f1)
+        
+        best_final_run = max(final_runs, key=lambda x: x['accuracy'])
+        
+        benchmarks = {
+            "timestamp": results.get('training_timestamp'),
+            "naive_bayes_climate_checker": np.mean(final_accuracies),
+            "detailed_metrics": {
+                "accuracy": np.mean(final_accuracies) / 100,
+                "precision_weighted": np.mean(final_precisions) / 100,
+                "recall_weighted": np.mean(final_recalls) / 100,
+                "f1_weighted": np.mean(final_f1s) / 100,
+                "precision_macro": overall.get('precision_macro', 0),
+                "recall_macro": overall.get('recall_macro', 0),
+                "f1_macro": overall.get('f1_macro', 0)
             },
-            "best_run_seed": results.get('best_run_seed'),
-            "number_of_runs": len(multiple_runs['runs']),
-            "all_runs": multiple_runs['runs']
+            "per_class_metrics": eval_data.get('per_class_metrics', {}),
+            "confidence_stats": eval_data.get('confidence_stats', {}),
+            "training_info": {
+                "training_samples": results.get('training_samples', 0),
+                "test_samples": results.get('test_samples', 0)
+            },
+            "multiple_runs": {
+                "individual_runs": final_runs,
+                "statistics": {
+                    "accuracy": {
+                        "mean": np.mean(final_accuracies),
+                        "std": np.std(final_accuracies),
+                        "min": np.min(final_accuracies),
+                        "max": np.max(final_accuracies)
+                    },
+                    "precision": {
+                        "mean": np.mean(final_precisions),
+                        "std": np.std(final_precisions),
+                        "min": np.min(final_precisions),
+                        "max": np.max(final_precisions)
+                    },
+                    "recall": {
+                        "mean": np.mean(final_recalls),
+                        "std": np.std(final_recalls),
+                        "min": np.min(final_recalls),
+                        "max": np.max(final_recalls)
+                    },
+                    "f1": {
+                        "mean": np.mean(final_f1s),
+                        "std": np.std(final_f1s),
+                        "min": np.min(final_f1s),
+                        "max": np.max(final_f1s)
+                    }
+                },
+                "best_run_seed": best_final_run['seed'],
+                "number_of_runs": len(final_runs)
+            }
         }
         logger.info("✅ Multiple runs statistics included in benchmarks")
     else:
+        benchmarks = {
+            "timestamp": results.get('training_timestamp'),
+            "naive_bayes_climate_checker": overall.get('accuracy', 0) * 100,
+            "detailed_metrics": {
+                "accuracy": overall.get('accuracy', 0),
+                "precision_weighted": overall.get('precision_weighted', 0),
+                "recall_weighted": overall.get('recall_weighted', 0),
+                "f1_weighted": overall.get('f1_weighted', 0),
+                "precision_macro": overall.get('precision_macro', 0),
+                "recall_macro": overall.get('recall_macro', 0),
+                "f1_macro": overall.get('f1_macro', 0),
+                "cv_mean": results.get('cv_mean', 0),
+                "cv_std": results.get('cv_std', 0)
+            },
+            "per_class_metrics": eval_data.get('per_class_metrics', {}),
+            "confidence_stats": eval_data.get('confidence_stats', {}),
+            "training_info": {
+                "training_samples": results.get('training_samples', 0),
+                "test_samples": results.get('test_samples', 0)
+            }
+        }
         logger.warning("⚠️  No multiple runs data found in training results")
     
     output_path.parent.mkdir(parents=True, exist_ok=True)
