@@ -2,683 +2,250 @@
   {
     "batch_name": "initial_training",
     "batch_number": 1,
-    "timestamp": "2025-11-12T17:24:13.456969",
-    "model_name": "climate_classifier_20251112_172413.joblib",
-    "training_samples": 5194,
-    "test_samples": 1299,
+    "timestamp": "2025-11-22T19:40:36.179268",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 1150,
+    "test_samples": 288,
     "benchmarks": {
+      "accuracy": 0.8159722222222222,
+      "precision_weighted": 0.8414570230607966,
+      "recall_weighted": 0.8159722222222222,
+      "f1_weighted": 0.7979302832244008,
       "overall_metrics": {
-        "accuracy": 0.8383371824480369,
-        "precision_weighted": 0.8517065606437905,
-        "recall_weighted": 0.8383371824480369,
-        "f1_weighted": 0.8230806427923241,
-        "precision_macro": 0.8708001841015189,
-        "recall_macro": 0.7505762320257263,
-        "f1_macro": 0.7795030553849138
+        "accuracy": 0.8159722222222222,
+        "precision_weighted": 0.8414570230607966,
+        "recall_weighted": 0.8159722222222222,
+        "f1_weighted": 0.7979302832244008,
+        "precision_macro": 0.865315134484143,
+        "recall_macro": 0.7420212765957447,
+        "f1_macro": 0.7641496314837992
       }
     },
     "multiple_runs_stats": {
       "accuracy": {
-        "mean": 0.8283294842186297,
-        "std": 0.00638535530510476,
-        "min": 0.8183217859892224,
-        "max": 0.8383371824480369
+        "mean": 0.7916666666666667,
+        "std": 0.014061428285636507,
+        "min": 0.7777777777777778,
+        "max": 0.8159722222222222
       },
       "precision": {
-        "mean": 0.8442895742769159,
-        "std": 0.006680130438917666,
-        "min": 0.8325749124524102,
-        "max": 0.8517065606437905
+        "mean": 0.8206320833600312,
+        "std": 0.013509998252341013,
+        "min": 0.8079152177512833,
+        "max": 0.8414570230607966
       },
       "recall": {
-        "mean": 0.8283294842186297,
-        "std": 0.00638535530510476,
-        "min": 0.8183217859892224,
-        "max": 0.8383371824480369
+        "mean": 0.7916666666666667,
+        "std": 0.014061428285636507,
+        "min": 0.7777777777777778,
+        "max": 0.8159722222222222
       },
       "f1": {
-        "mean": 0.8099840071872008,
-        "std": 0.007935020896665918,
-        "min": 0.7981926110842694,
-        "max": 0.8230806427923241
+        "mean": 0.7668800706418591,
+        "std": 0.01798306754686071,
+        "min": 0.7489711934156378,
+        "max": 0.7979302832244008
       }
     }
   },
   {
-    "batch_name": "batch2_sample",
+    "batch_name": "Batch 2",
     "batch_number": 2,
-    "timestamp": "2025-11-12T17:39:21.055526",
-    "model_name": "climate_classifier_20251112_173920.joblib",
-    "training_samples": 5194,
-    "test_samples": 1299,
+    "timestamp": "2025-11-22T19:40:48.722444",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 2300,
+    "test_samples": 575,
     "benchmarks": {
+      "accuracy": 0.8504347826086956,
+      "precision_weighted": 0.8688437413508395,
+      "recall_weighted": 0.8504347826086956,
+      "f1_weighted": 0.8397739073248777,
       "overall_metrics": {
-        "accuracy": 0.8383371824480369,
-        "precision_weighted": 0.8517065606437905,
-        "recall_weighted": 0.8383371824480369,
-        "f1_weighted": 0.8230806427923241,
-        "precision_macro": 0.8708001841015189,
-        "recall_macro": 0.7505762320257263,
-        "f1_macro": 0.7795030553849138
+        "accuracy": 0.8504347826086956,
+        "precision_weighted": 0.8688437413508395,
+        "recall_weighted": 0.8504347826086956,
+        "f1_weighted": 0.8397739073248777,
+        "precision_macro": 0.8900382662184394,
+        "recall_macro": 0.7908333333333333,
+        "f1_macro": 0.8152258392371388
       }
     },
     "multiple_runs_stats": {
       "accuracy": {
-        "mean": 0.8283294842186297,
-        "std": 0.00638535530510476,
-        "min": 0.8183217859892224,
-        "max": 0.8383371824480369
+        "mean": 0.8173913043478261,
+        "std": 0.019114617967351772,
+        "min": 0.7947826086956522,
+        "max": 0.8504347826086956
       },
       "precision": {
-        "mean": 0.8442895742769159,
-        "std": 0.006680130438917666,
-        "min": 0.8325749124524102,
-        "max": 0.8517065606437905
+        "mean": 0.8395793443767012,
+        "std": 0.01900036192182423,
+        "min": 0.8187768860667706,
+        "max": 0.8688437413508395
       },
       "recall": {
-        "mean": 0.8283294842186297,
-        "std": 0.00638535530510476,
-        "min": 0.8183217859892224,
-        "max": 0.8383371824480369
+        "mean": 0.8173913043478261,
+        "std": 0.019114617967351772,
+        "min": 0.7947826086956522,
+        "max": 0.8504347826086956
       },
       "f1": {
-        "mean": 0.8099840071872008,
-        "std": 0.007935020896665918,
-        "min": 0.7981926110842694,
-        "max": 0.8230806427923241
+        "mean": 0.8003950581005729,
+        "std": 0.022801386533328766,
+        "min": 0.7712265773562993,
+        "max": 0.8397739073248777
       }
     },
-    "improvement_from_previous": 0.0
+    "improvement_from_previous": 3.446256038647344
   },
   {
-    "batch_name": "batch2_sample_labeled_tweets",
+    "batch_name": "Batch 3",
     "batch_number": 3,
-    "timestamp": "2025-11-12T17:57:26.538653",
-    "model_name": "climate_classifier_20251112_175726.joblib",
-    "training_samples": 47,
-    "test_samples": 12,
+    "timestamp": "2025-11-22T19:41:01.921886",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 3448,
+    "test_samples": 863,
     "benchmarks": {
-      "accuracy": 0.9166666666666666,
-      "precision_weighted": 0.9270833333333334,
-      "recall_weighted": 0.9166666666666666,
-      "f1_weighted": 0.9148148148148149,
+      "accuracy": 0.8342989571263036,
+      "precision_weighted": 0.8551440588798213,
+      "recall_weighted": 0.8342989571263036,
+      "f1_weighted": 0.8208792900405917,
       "overall_metrics": {
-        "accuracy": 0.9166666666666666,
-        "precision_weighted": 0.9270833333333334,
-        "recall_weighted": 0.9166666666666666,
-        "f1_weighted": 0.9148148148148149,
-        "precision_macro": 0.9375,
-        "recall_macro": 0.9,
-        "f1_macro": 0.9111111111111111
+        "accuracy": 0.8342989571263036,
+        "precision_weighted": 0.8551440588798213,
+        "recall_weighted": 0.8342989571263036,
+        "f1_weighted": 0.8208792900405917,
+        "precision_macro": 0.8769063451104936,
+        "recall_macro": 0.7694015204360317,
+        "f1_macro": 0.7928590251656251
       }
     },
     "multiple_runs_stats": {
       "accuracy": {
-        "mean": 0.7999999999999999,
-        "std": 0.09999999999999999,
-        "min": 0.6666666666666666,
-        "max": 0.9166666666666666
+        "mean": 0.8259559675550406,
+        "std": 0.0063212893149413325,
+        "min": 0.8157589803012746,
+        "max": 0.8342989571263036
       },
       "precision": {
-        "mean": 0.804861111111111,
-        "std": 0.10569252808892013,
-        "min": 0.6666666666666666,
-        "max": 0.9305555555555557
+        "mean": 0.8457635426041573,
+        "std": 0.00703203632575422,
+        "min": 0.8350192087088004,
+        "max": 0.8551440588798213
       },
       "recall": {
-        "mean": 0.7999999999999999,
-        "std": 0.09999999999999999,
-        "min": 0.6666666666666666,
-        "max": 0.9166666666666666
+        "mean": 0.8259559675550406,
+        "std": 0.0063212893149413325,
+        "min": 0.8157589803012746,
+        "max": 0.8342989571263036
       },
       "f1": {
-        "mean": 0.7933572908572909,
-        "std": 0.10644194684408863,
-        "min": 0.6458333333333334,
-        "max": 0.9172494172494172
+        "mean": 0.8115299619112285,
+        "std": 0.007615515480963188,
+        "min": 0.7997531186632086,
+        "max": 0.8208792900405917
       }
     },
-    "improvement_from_previous": 7.832948421862973
+    "improvement_from_previous": -1.6135825482392008
   },
   {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-12T18:08:42.489256",
-    "model_name": "climate_classifier_20251112_180842.joblib",
-    "training_samples": 5196,
-    "test_samples": 1300,
+    "batch_name": "Batch 4",
+    "batch_number": 4,
+    "timestamp": "2025-11-22T19:41:14.886113",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 4597,
+    "test_samples": 1150,
     "benchmarks": {
-      "accuracy": 0.8361538461538461,
-      "precision_weighted": 0.8491526241264216,
-      "recall_weighted": 0.8361538461538461,
-      "f1_weighted": 0.8205549187121465,
+      "accuracy": 0.837391304347826,
+      "precision_weighted": 0.8497895611064006,
+      "recall_weighted": 0.837391304347826,
+      "f1_weighted": 0.8268336533838371,
       "overall_metrics": {
-        "accuracy": 0.8361538461538461,
-        "precision_weighted": 0.8491526241264216,
-        "recall_weighted": 0.8361538461538461,
-        "f1_weighted": 0.8205549187121465,
-        "precision_macro": 0.8676480282131145,
-        "recall_macro": 0.7475374411579505,
-        "f1_macro": 0.7761648280494814
+        "accuracy": 0.837391304347826,
+        "precision_weighted": 0.8497895611064006,
+        "recall_weighted": 0.837391304347826,
+        "f1_weighted": 0.8268336533838371,
+        "precision_macro": 0.8648755518476031,
+        "recall_macro": 0.7795780908210115,
+        "f1_macro": 0.801140908380563
       }
     },
     "multiple_runs_stats": {
       "accuracy": {
-        "mean": 0.8278461538461539,
-        "std": 0.005723407765457937,
-        "min": 0.8192307692307692,
-        "max": 0.8361538461538461
+        "mean": 0.8309565217391304,
+        "std": 0.0056515049771380405,
+        "min": 0.8217391304347826,
+        "max": 0.837391304347826
       },
       "precision": {
-        "mean": 0.8432156453153796,
-        "std": 0.006154756508609721,
-        "min": 0.8333359749225134,
-        "max": 0.8502660960834038
+        "mean": 0.848426118008763,
+        "std": 0.005767062813223687,
+        "min": 0.8405996770282125,
+        "max": 0.8552632860924689
       },
       "recall": {
-        "mean": 0.8278461538461539,
-        "std": 0.005723407765457937,
-        "min": 0.8192307692307692,
-        "max": 0.8361538461538461
+        "mean": 0.8309565217391304,
+        "std": 0.0056515049771380405,
+        "min": 0.8217391304347826,
+        "max": 0.837391304347826
       },
       "f1": {
-        "mean": 0.8095682113837874,
-        "std": 0.007083457728211694,
-        "min": 0.7993482544635145,
-        "max": 0.8205549187121465
+        "mean": 0.8179815950122435,
+        "std": 0.006998495054211875,
+        "min": 0.8061854820622761,
+        "max": 0.8268336533838371
       }
-    }
+    },
+    "improvement_from_previous": 0.3092347221522407
   },
   {
-    "batch_name": "BATCH2",
+    "batch_name": "Batch 5",
     "batch_number": 5,
-    "timestamp": "2025-11-12T18:11:41.951247",
-    "model_name": "climate_classifier_20251112_181141.joblib",
-    "training_samples": 5196,
-    "test_samples": 1300,
-    "benchmarks": {
-      "accuracy": 0.8361538461538461,
-      "precision_weighted": 0.8491526241264216,
-      "recall_weighted": 0.8361538461538461,
-      "f1_weighted": 0.8205549187121465,
-      "overall_metrics": {
-        "accuracy": 0.8361538461538461,
-        "precision_weighted": 0.8491526241264216,
-        "recall_weighted": 0.8361538461538461,
-        "f1_weighted": 0.8205549187121465,
-        "precision_macro": 0.8676480282131145,
-        "recall_macro": 0.7475374411579505,
-        "f1_macro": 0.7761648280494814
-      }
-    },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8278461538461539,
-        "std": 0.005723407765457937,
-        "min": 0.8192307692307692,
-        "max": 0.8361538461538461
-      },
-      "precision": {
-        "mean": 0.8432156453153796,
-        "std": 0.006154756508609721,
-        "min": 0.8333359749225134,
-        "max": 0.8502660960834038
-      },
-      "recall": {
-        "mean": 0.8278461538461539,
-        "std": 0.005723407765457937,
-        "min": 0.8192307692307692,
-        "max": 0.8361538461538461
-      },
-      "f1": {
-        "mean": 0.8095682113837874,
-        "std": 0.007083457728211694,
-        "min": 0.7993482544635145,
-        "max": 0.8205549187121465
-      }
-    },
-    "improvement_from_previous": 0.0
-  },
-  {
-    "batch_name": "test3",
-    "batch_number": 6,
-    "timestamp": "2025-11-12T18:16:22.747644",
-    "model_name": "climate_classifier_20251112_181622.joblib",
-    "training_samples": 5798,
-    "test_samples": 1450,
-    "benchmarks": {
-      "accuracy": 0.8524137931034482,
-      "precision_weighted": 0.8617187924226818,
-      "recall_weighted": 0.8524137931034482,
-      "f1_weighted": 0.8447076645425059,
-      "overall_metrics": {
-        "accuracy": 0.8524137931034482,
-        "precision_weighted": 0.8617187924226818,
-        "recall_weighted": 0.8524137931034482,
-        "f1_weighted": 0.8447076645425059,
-        "precision_macro": 0.8746026376339282,
-        "recall_macro": 0.8028619806292265,
-        "f1_macro": 0.8233676162198962
-      }
-    },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8484137931034483,
-        "std": 0.004685596621093264,
-        "min": 0.8393103448275862,
-        "max": 0.8524137931034482
-      },
-      "precision": {
-        "mean": 0.8609503133860168,
-        "std": 0.005979382315377107,
-        "min": 0.8494460829998356,
-        "max": 0.8667512685445738
-      },
-      "recall": {
-        "mean": 0.8484137931034483,
-        "std": 0.004685596621093264,
-        "min": 0.8393103448275862,
-        "max": 0.8524137931034482
-      },
-      "f1": {
-        "mean": 0.839353869022925,
-        "std": 0.005007066393871507,
-        "min": 0.8299374068162471,
-        "max": 0.8447076645425059
-      }
-    },
-    "improvement_from_previous": 1.6259946949602089
-  },
-  {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-12T21:22:56.191469",
-    "model_name": "climate_classifier_20251112_212255.joblib",
-    "training_samples": 5798,
-    "test_samples": 1450,
-    "benchmarks": {
-      "accuracy": 0.8524137931034482,
-      "precision_weighted": 0.8617187924226818,
-      "recall_weighted": 0.8524137931034482,
-      "f1_weighted": 0.8447076645425059,
-      "overall_metrics": {
-        "accuracy": 0.8524137931034482,
-        "precision_weighted": 0.8617187924226818,
-        "recall_weighted": 0.8524137931034482,
-        "f1_weighted": 0.8447076645425059,
-        "precision_macro": 0.8746026376339282,
-        "recall_macro": 0.8028619806292265,
-        "f1_macro": 0.8233676162198962
-      }
-    },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8484137931034483,
-        "std": 0.004685596621093264,
-        "min": 0.8393103448275862,
-        "max": 0.8524137931034482
-      },
-      "precision": {
-        "mean": 0.8609503133860168,
-        "std": 0.005979382315377107,
-        "min": 0.8494460829998356,
-        "max": 0.8667512685445738
-      },
-      "recall": {
-        "mean": 0.8484137931034483,
-        "std": 0.004685596621093264,
-        "min": 0.8393103448275862,
-        "max": 0.8524137931034482
-      },
-      "f1": {
-        "mean": 0.839353869022925,
-        "std": 0.005007066393871507,
-        "min": 0.8299374068162471,
-        "max": 0.8447076645425059
-      }
-    }
-  },
-  {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-15T00:02:18.162101",
-    "model_name": "climate_classifier_20251115_000217.joblib",
-    "training_samples": 5748,
-    "test_samples": 1437,
-    "benchmarks": {
-      "accuracy": 0.8545581071677105,
-      "precision_weighted": 0.8660370084919433,
-      "recall_weighted": 0.8545581071677105,
-      "f1_weighted": 0.8462547841747158,
-      "overall_metrics": {
-        "accuracy": 0.8545581071677105,
-        "precision_weighted": 0.8660370084919433,
-        "recall_weighted": 0.8545581071677105,
-        "f1_weighted": 0.8462547841747158,
-        "precision_macro": 0.8813539473755054,
-        "recall_macro": 0.8020849326987052,
-        "f1_macro": 0.8240956093161099
-      }
-    },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "precision": {
-        "mean": 0.8602134048312919,
-        "std": 0.006166959681169618,
-        "min": 0.8488824614315447,
-        "max": 0.8660370084919433
-      },
-      "recall": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "f1": {
-        "mean": 0.838594561010561,
-        "std": 0.00674931071952848,
-        "min": 0.8277965760270295,
-        "max": 0.8462547841747158
-      }
-    }
-  },
-  {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-15T00:13:08.306472",
-    "model_name": "climate_classifier_20251115_001307.joblib",
-    "training_samples": 5748,
-    "test_samples": 1437,
-    "benchmarks": {
-      "accuracy": 0.8545581071677105,
-      "precision_weighted": 0.8660370084919433,
-      "recall_weighted": 0.8545581071677105,
-      "f1_weighted": 0.8462547841747158,
-      "overall_metrics": {
-        "accuracy": 0.8545581071677105,
-        "precision_weighted": 0.8660370084919433,
-        "recall_weighted": 0.8545581071677105,
-        "f1_weighted": 0.8462547841747158,
-        "precision_macro": 0.8813539473755054,
-        "recall_macro": 0.8020849326987052,
-        "f1_macro": 0.8240956093161099
-      }
-    },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "precision": {
-        "mean": 0.8602134048312919,
-        "std": 0.006166959681169618,
-        "min": 0.8488824614315447,
-        "max": 0.8660370084919433
-      },
-      "recall": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "f1": {
-        "mean": 0.838594561010561,
-        "std": 0.00674931071952848,
-        "min": 0.8277965760270295,
-        "max": 0.8462547841747158
-      }
-    }
-  },
-  {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-15T00:19:03.732159",
-    "model_name": "climate_classifier_20251115_001903.joblib",
-    "training_samples": 5748,
-    "test_samples": 1437,
-    "benchmarks": {
-      "accuracy": 0.8545581071677105,
-      "precision_weighted": 0.8660370084919433,
-      "recall_weighted": 0.8545581071677105,
-      "f1_weighted": 0.8462547841747158,
-      "overall_metrics": {
-        "accuracy": 0.8545581071677105,
-        "precision_weighted": 0.8660370084919433,
-        "recall_weighted": 0.8545581071677105,
-        "f1_weighted": 0.8462547841747158,
-        "precision_macro": 0.8813539473755054,
-        "recall_macro": 0.8020849326987052,
-        "f1_macro": 0.8240956093161099
-      }
-    },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "precision": {
-        "mean": 0.8602134048312919,
-        "std": 0.006166959681169618,
-        "min": 0.8488824614315447,
-        "max": 0.8660370084919433
-      },
-      "recall": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "f1": {
-        "mean": 0.838594561010561,
-        "std": 0.00674931071952848,
-        "min": 0.8277965760270295,
-        "max": 0.8462547841747158
-      }
-    }
-  },
-  {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-15T01:39:27.449733",
+    "timestamp": "2025-11-22T19:41:29.668644",
     "model_name": "climate_classifier.joblib",
     "training_samples": 5748,
     "test_samples": 1437,
     "benchmarks": {
       "accuracy": 0.8545581071677105,
-      "precision_weighted": 0.8660370084919433,
+      "precision_weighted": 0.8670592822384197,
       "recall_weighted": 0.8545581071677105,
-      "f1_weighted": 0.8462547841747158,
+      "f1_weighted": 0.8459699738194969,
       "overall_metrics": {
         "accuracy": 0.8545581071677105,
-        "precision_weighted": 0.8660370084919433,
+        "precision_weighted": 0.8670592822384197,
         "recall_weighted": 0.8545581071677105,
-        "f1_weighted": 0.8462547841747158,
-        "precision_macro": 0.8813539473755054,
-        "recall_macro": 0.8020849326987052,
-        "f1_macro": 0.8240956093161099
+        "f1_weighted": 0.8459699738194969,
+        "precision_macro": 0.883340752764643,
+        "recall_macro": 0.8011573007830493,
+        "f1_macro": 0.823599686355587
       }
     },
     "multiple_runs_stats": {
       "accuracy": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
+        "mean": 0.8431454418928324,
+        "std": 0.007104940302352251,
+        "min": 0.8329853862212944,
         "max": 0.8545581071677105
       },
       "precision": {
-        "mean": 0.8602134048312919,
-        "std": 0.006166959681169618,
-        "min": 0.8488824614315447,
-        "max": 0.8660370084919433
+        "mean": 0.8550339292500888,
+        "std": 0.006933596966334728,
+        "min": 0.8470264306802502,
+        "max": 0.8670592822384197
       },
       "recall": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
+        "mean": 0.8431454418928324,
+        "std": 0.007104940302352251,
+        "min": 0.8329853862212944,
         "max": 0.8545581071677105
       },
       "f1": {
-        "mean": 0.838594561010561,
-        "std": 0.00674931071952848,
-        "min": 0.8277965760270295,
-        "max": 0.8462547841747158
-      }
-    }
-  },
-  {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-15T01:39:48.010869",
-    "model_name": "climate_classifier.joblib",
-    "training_samples": 5748,
-    "test_samples": 1437,
-    "benchmarks": {
-      "accuracy": 0.8545581071677105,
-      "precision_weighted": 0.8660370084919433,
-      "recall_weighted": 0.8545581071677105,
-      "f1_weighted": 0.8462547841747158,
-      "overall_metrics": {
-        "accuracy": 0.8545581071677105,
-        "precision_weighted": 0.8660370084919433,
-        "recall_weighted": 0.8545581071677105,
-        "f1_weighted": 0.8462547841747158,
-        "precision_macro": 0.8813539473755054,
-        "recall_macro": 0.8020849326987052,
-        "f1_macro": 0.8240956093161099
+        "mean": 0.8334329257145245,
+        "std": 0.008139934804591867,
+        "min": 0.8213197415418871,
+        "max": 0.8459699738194969
       }
     },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "precision": {
-        "mean": 0.8602134048312919,
-        "std": 0.006166959681169618,
-        "min": 0.8488824614315447,
-        "max": 0.8660370084919433
-      },
-      "recall": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "f1": {
-        "mean": 0.838594561010561,
-        "std": 0.00674931071952848,
-        "min": 0.8277965760270295,
-        "max": 0.8462547841747158
-      }
-    }
-  },
-  {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-15T12:49:18.689990",
-    "model_name": "climate_classifier.joblib",
-    "training_samples": 5748,
-    "test_samples": 1437,
-    "benchmarks": {
-      "accuracy": 0.8545581071677105,
-      "precision_weighted": 0.8660370084919433,
-      "recall_weighted": 0.8545581071677105,
-      "f1_weighted": 0.8462547841747158,
-      "overall_metrics": {
-        "accuracy": 0.8545581071677105,
-        "precision_weighted": 0.8660370084919433,
-        "recall_weighted": 0.8545581071677105,
-        "f1_weighted": 0.8462547841747158,
-        "precision_macro": 0.8813539473755054,
-        "recall_macro": 0.8020849326987052,
-        "f1_macro": 0.8240956093161099
-      }
-    },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "precision": {
-        "mean": 0.8602134048312919,
-        "std": 0.006166959681169618,
-        "min": 0.8488824614315447,
-        "max": 0.8660370084919433
-      },
-      "recall": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "f1": {
-        "mean": 0.838594561010561,
-        "std": 0.00674931071952848,
-        "min": 0.8277965760270295,
-        "max": 0.8462547841747158
-      }
-    }
-  },
-  {
-    "batch_name": "initial_training",
-    "batch_number": 1,
-    "timestamp": "2025-11-22T11:27:55.546825",
-    "model_name": "climate_classifier.joblib",
-    "training_samples": 5748,
-    "test_samples": 1437,
-    "benchmarks": {
-      "accuracy": 0.8545581071677105,
-      "precision_weighted": 0.8660370084919433,
-      "recall_weighted": 0.8545581071677105,
-      "f1_weighted": 0.8462547841747158,
-      "overall_metrics": {
-        "accuracy": 0.8545581071677105,
-        "precision_weighted": 0.8660370084919433,
-        "recall_weighted": 0.8545581071677105,
-        "f1_weighted": 0.8462547841747158,
-        "precision_macro": 0.8813539473755054,
-        "recall_macro": 0.8020849326987052,
-        "f1_macro": 0.8240956093161099
-      }
-    },
-    "multiple_runs_stats": {
-      "accuracy": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "precision": {
-        "mean": 0.8602134048312919,
-        "std": 0.006166959681169618,
-        "min": 0.8488824614315447,
-        "max": 0.8660370084919433
-      },
-      "recall": {
-        "mean": 0.8478775226165624,
-        "std": 0.0059798332801505325,
-        "min": 0.83785664578984,
-        "max": 0.8545581071677105
-      },
-      "f1": {
-        "mean": 0.838594561010561,
-        "std": 0.00674931071952848,
-        "min": 0.8277965760270295,
-        "max": 0.8462547841747158
-      }
-    }
+    "improvement_from_previous": 1.7166802819884475
   }
 ]

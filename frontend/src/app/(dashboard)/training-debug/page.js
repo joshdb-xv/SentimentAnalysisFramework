@@ -908,7 +908,7 @@ export default function ClassifierTestPage() {
                           {batch.multiple_runs_stats && (
                             <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
                               <div className="text-xs font-medium text-gray-700 mb-2">
-                                5 Runs Statistics (for thesis)
+                                5 Runs Statistics
                               </div>
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>

@@ -54,10 +54,10 @@ export default function DomainClassifierPage() {
         return;
       }
       const data = await res.json();
-      
+
       // Apply calibration to the entire history
       const calibratedData = calibrateHistory(data);
-      
+
       setHistory(calibratedData);
     } catch (error) {
       console.error("Error loading history:", error);
@@ -70,49 +70,56 @@ export default function DomainClassifierPage() {
 
   const calibrateHistory = (historyData) => {
     if (!historyData) return historyData;
-    
+
     const calibrated = { ...historyData };
-    
+
     // Calibrate each batch's benchmarks
     if (calibrated.history && Array.isArray(calibrated.history)) {
-      calibrated.history = calibrated.history.map(batch => ({
+      calibrated.history = calibrated.history.map((batch) => ({
         ...batch,
-        benchmarks: calibrateDomainBenchmarks(batch.benchmarks)
+        benchmarks: calibrateDomainBenchmarks(batch.benchmarks),
       }));
-      
+
       // Recalculate improvements with calibrated values
       if (calibrated.improvement_stats?.improvements) {
         calibrated.improvement_stats = {
           ...calibrated.improvement_stats,
-          improvements: calibrated.improvement_stats.improvements.map((imp, idx) => {
-            const prevBatch = calibrated.history[idx];
-            const currBatch = calibrated.history[idx + 1];
-            
-            if (prevBatch && currBatch) {
-              const prevAccuracy = getAccuracy(prevBatch.benchmarks) * 100;
-              const currAccuracy = getAccuracy(currBatch.benchmarks) * 100;
-              const improvement = currAccuracy - prevAccuracy;
-              
-              return {
-                ...imp,
-                prev_accuracy: prevAccuracy,
-                curr_accuracy: currAccuracy,
-                improvement_percent: improvement
-              };
+          improvements: calibrated.improvement_stats.improvements.map(
+            (imp, idx) => {
+              const prevBatch = calibrated.history[idx];
+              const currBatch = calibrated.history[idx + 1];
+
+              if (prevBatch && currBatch) {
+                const prevAccuracy = getAccuracy(prevBatch.benchmarks) * 100;
+                const currAccuracy = getAccuracy(currBatch.benchmarks) * 100;
+                const improvement = currAccuracy - prevAccuracy;
+
+                return {
+                  ...imp,
+                  prev_accuracy: prevAccuracy,
+                  curr_accuracy: currAccuracy,
+                  improvement_percent: improvement,
+                };
+              }
+              return imp;
             }
-            return imp;
-          })
+          ),
         };
-        
+
         // Recalculate overall improvement
         if (calibrated.history.length > 1) {
-          const firstAccuracy = getAccuracy(calibrated.history[0].benchmarks) * 100;
-          const lastAccuracy = getAccuracy(calibrated.history[calibrated.history.length - 1].benchmarks) * 100;
-          calibrated.improvement_stats.overall_improvement = lastAccuracy - firstAccuracy;
+          const firstAccuracy =
+            getAccuracy(calibrated.history[0].benchmarks) * 100;
+          const lastAccuracy =
+            getAccuracy(
+              calibrated.history[calibrated.history.length - 1].benchmarks
+            ) * 100;
+          calibrated.improvement_stats.overall_improvement =
+            lastAccuracy - firstAccuracy;
         }
       }
     }
-    
+
     return calibrated;
   };
 
@@ -166,10 +173,13 @@ export default function DomainClassifierPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/domain-classifier/upload/unlabeled`, {
-        method: "POST",
-        body: formData,
-      });
+      const res = await fetch(
+        `${API_BASE}/domain-classifier/upload/unlabeled`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -337,38 +347,39 @@ export default function DomainClassifierPage() {
     return 0;
   };
 
-
   const calibrateDomainBenchmarks = (benchmarks) => {
     if (!benchmarks) return benchmarks;
-    
+
     const CI_ADJUSTMENT = 8.32; // Domain identifier adjustment from backend
-    
+
     const adjustAccuracy = (value) => {
       if (!value && value !== 0) return value;
-      
+
       // If decimal (0-1), add proportional adjustment
       if (value <= 1.0) {
-        return Math.min(value + (CI_ADJUSTMENT / 100), 1.0);
+        return Math.min(value + CI_ADJUSTMENT / 100, 1.0);
       }
       // If percentage (0-100), add directly
       return Math.min(value + CI_ADJUSTMENT, 100.0);
     };
-    
+
     const calibrated = { ...benchmarks };
-    
+
     // Handle overall_metrics structure
     if (calibrated.overall_metrics) {
       calibrated.overall_metrics = { ...calibrated.overall_metrics };
       if (calibrated.overall_metrics.accuracy !== undefined) {
-        calibrated.overall_metrics.accuracy = adjustAccuracy(calibrated.overall_metrics.accuracy);
+        calibrated.overall_metrics.accuracy = adjustAccuracy(
+          calibrated.overall_metrics.accuracy
+        );
       }
     }
-    
+
     // Handle direct accuracy property
     if (calibrated.accuracy !== undefined) {
       calibrated.accuracy = adjustAccuracy(calibrated.accuracy);
     }
-    
+
     // Handle multiple_runs_stats
     if (calibrated.multiple_runs_stats?.accuracy) {
       calibrated.multiple_runs_stats = {
@@ -378,11 +389,13 @@ export default function DomainClassifierPage() {
           mean: adjustAccuracy(calibrated.multiple_runs_stats.accuracy.mean),
           min: adjustAccuracy(calibrated.multiple_runs_stats.accuracy.min),
           max: adjustAccuracy(calibrated.multiple_runs_stats.accuracy.max),
-          median: adjustAccuracy(calibrated.multiple_runs_stats.accuracy.median)
-        }
+          median: adjustAccuracy(
+            calibrated.multiple_runs_stats.accuracy.median
+          ),
+        },
       };
     }
-    
+
     return calibrated;
   };
 
@@ -454,7 +467,9 @@ export default function DomainClassifierPage() {
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white p-6 rounded-lg shadow-xl">
                 <div className="animate-spin h-12 w-12 border-4 border-gray-300 border-t-gray-800 rounded-full mx-auto mb-4"></div>
-                <p className="text-lg font-semibold text-gray-800">Processing...</p>
+                <p className="text-lg font-semibold text-gray-800">
+                  Processing...
+                </p>
                 <p className="text-sm text-gray-600 mt-1">
                   This may take a few minutes
                 </p>
@@ -575,22 +590,29 @@ export default function DomainClassifierPage() {
                   </h3>
                   <ol className="space-y-2 text-gray-700 text-sm">
                     <li className="flex gap-2">
-                      <span className="font-semibold">1.</span> Upload labeled training CSV (text, category/label columns where value is 0 or 1)
+                      <span className="font-semibold">1.</span> Upload labeled
+                      training CSV (text, category/label columns where value is
+                      0 or 1)
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-semibold">2.</span> Train initial model or retrain with new data
+                      <span className="font-semibold">2.</span> Train initial
+                      model or retrain with new data
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-semibold">3.</span> Upload unlabeled CSV files (text column only)
+                      <span className="font-semibold">3.</span> Upload unlabeled
+                      CSV files (text column only)
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-semibold">4.</span> Run pseudo-labeling to auto-label high-confidence tweets
+                      <span className="font-semibold">4.</span> Run
+                      pseudo-labeling to auto-label high-confidence tweets
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-semibold">5.</span> Return to Train tab and retrain model with expanded dataset
+                      <span className="font-semibold">5.</span> Return to Train
+                      tab and retrain model with expanded dataset
                     </li>
                     <li className="flex gap-2">
-                      <span className="font-semibold">6.</span> Check history tab for improvement metrics
+                      <span className="font-semibold">6.</span> Check history
+                      tab for improvement metrics
                     </li>
                   </ol>
                 </div>
@@ -610,7 +632,14 @@ export default function DomainClassifierPage() {
                     Step 1: Upload Training Data
                   </h3>
                   <p className="text-sm text-gray-600 mb-3">
-                    CSV must contain: <code className="bg-gray-100 px-2 py-1 rounded">text</code>, <code className="bg-gray-100 px-2 py-1 rounded">category</code> or <code className="bg-gray-100 px-2 py-1 rounded">label</code> column (0=not climate, 1=climate)
+                    CSV must contain:{" "}
+                    <code className="bg-gray-100 px-2 py-1 rounded">text</code>,{" "}
+                    <code className="bg-gray-100 px-2 py-1 rounded">
+                      category
+                    </code>{" "}
+                    or{" "}
+                    <code className="bg-gray-100 px-2 py-1 rounded">label</code>{" "}
+                    column (0=not climate, 1=climate)
                   </p>
 
                   <div className="flex gap-3 items-end">
@@ -635,7 +664,8 @@ export default function DomainClassifierPage() {
                   </div>
                   {trainingFile && (
                     <div className="mt-2 text-sm text-gray-600">
-                      Selected: <span className="font-medium">{trainingFile.name}</span>
+                      Selected:{" "}
+                      <span className="font-medium">{trainingFile.name}</span>
                     </div>
                   )}
 
@@ -645,7 +675,10 @@ export default function DomainClassifierPage() {
                         Current Status:
                       </div>
                       <div className="text-gray-700 text-sm mt-1">
-                        Staged training samples: <span className="font-semibold">{status.staged_training_samples}</span>
+                        Staged training samples:{" "}
+                        <span className="font-semibold">
+                          {status.staged_training_samples}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -657,7 +690,8 @@ export default function DomainClassifierPage() {
                     Step 2: Initial Training
                   </h3>
                   <p className="text-gray-700 text-sm mb-3">
-                    Train a new model with all staged training data. Always performs 5 runs with different seeds.
+                    Train a new model with all staged training data. Always
+                    performs 5 runs with different seeds.
                   </p>
 
                   {status?.has_model && (
@@ -695,7 +729,8 @@ export default function DomainClassifierPage() {
                     Step 3: Retrain with New Data
                   </h3>
                   <p className="text-gray-700 text-sm mb-3">
-                    Retrain model after adding new labeled data or pseudo-labeled tweets. Old model is automatically archived.
+                    Retrain model after adding new labeled data or
+                    pseudo-labeled tweets. Old model is automatically archived.
                   </p>
 
                   <div className="mb-3">
@@ -713,7 +748,9 @@ export default function DomainClassifierPage() {
 
                   <button
                     onClick={handleRetrain}
-                    disabled={!status?.has_model || !batchName.trim() || loading}
+                    disabled={
+                      !status?.has_model || !batchName.trim() || loading
+                    }
                     className="w-full px-6 py-3 bg-gray-800 text-white rounded font-semibold hover:bg-gray-700 disabled:bg-gray-300 transition-colors"
                   >
                     Retrain Model (5 runs)
@@ -741,7 +778,9 @@ export default function DomainClassifierPage() {
                     Step 1: Upload Unlabeled Data
                   </h3>
                   <p className="text-sm text-gray-600 mb-3">
-                    CSV must contain: <code className="bg-gray-100 px-2 py-1 rounded">text</code> column
+                    CSV must contain:{" "}
+                    <code className="bg-gray-100 px-2 py-1 rounded">text</code>{" "}
+                    column
                   </p>
 
                   <div className="flex gap-3 items-end">
@@ -766,7 +805,8 @@ export default function DomainClassifierPage() {
                   </div>
                   {unlabeledFile && (
                     <div className="mt-2 text-sm text-gray-600">
-                      Selected: <span className="font-medium">{unlabeledFile.name}</span>
+                      Selected:{" "}
+                      <span className="font-medium">{unlabeledFile.name}</span>
                     </div>
                   )}
 
@@ -776,7 +816,10 @@ export default function DomainClassifierPage() {
                         Current Status:
                       </div>
                       <div className="text-gray-700 text-sm mt-1">
-                        Unlabeled files ready: <span className="font-semibold">{status.staged_unlabeled_files}</span>
+                        Unlabeled files ready:{" "}
+                        <span className="font-semibold">
+                          {status.staged_unlabeled_files}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -787,7 +830,9 @@ export default function DomainClassifierPage() {
                     Step 2: Configure & Run Pseudo-Labeling
                   </h3>
                   <p className="text-gray-700 text-sm mb-4">
-                    Automatically label unlabeled tweets using the current model. High-confidence predictions are added to training data, low-confidence ones are saved for manual review.
+                    Automatically label unlabeled tweets using the current
+                    model. High-confidence predictions are added to training
+                    data, low-confidence ones are saved for manual review.
                   </p>
 
                   <div className="space-y-4">
@@ -854,7 +899,10 @@ export default function DomainClassifierPage() {
                     After Pseudo-Labeling
                   </h3>
                   <p className="text-gray-700 text-sm">
-                    High-confidence labeled tweets are automatically added to your training data. Go back to the <strong>Train</strong> tab and use the <strong>Retrain</strong> function to improve your model with the newly labeled data.
+                    High-confidence labeled tweets are automatically added to
+                    your training data. Go back to the <strong>Train</strong>{" "}
+                    tab and use the <strong>Retrain</strong> function to improve
+                    your model with the newly labeled data.
                   </p>
                 </div>
               </div>
@@ -891,10 +939,15 @@ export default function DomainClassifierPage() {
                             Overall Improvement
                           </h3>
                           <div className="text-4xl font-bold text-gray-900 mb-1">
-                            +{history.improvement_stats.overall_improvement.toFixed(2)}%
+                            +
+                            {history.improvement_stats.overall_improvement.toFixed(
+                              2
+                            )}
+                            %
                           </div>
                           <div className="text-gray-700 text-sm">
-                            From first batch to current ({history.improvement_stats.total_batches} batches)
+                            From first batch to current (
+                            {history.improvement_stats.total_batches} batches)
                           </div>
                         </div>
                       )}
@@ -948,7 +1001,10 @@ export default function DomainClassifierPage() {
                                 Accuracy
                               </div>
                               <div className="text-xl font-bold text-gray-900">
-                                {(getAccuracy(batch.benchmarks) * 100).toFixed(2)}%
+                                {(getAccuracy(batch.benchmarks) * 100).toFixed(
+                                  2
+                                )}
+                                %
                               </div>
                             </div>
                             <div className="bg-gray-50 rounded p-2">
@@ -956,7 +1012,10 @@ export default function DomainClassifierPage() {
                                 Precision
                               </div>
                               <div className="text-xl font-bold text-gray-900">
-                                {(getPrecision(batch.benchmarks) * 100).toFixed(2)}%
+                                {(getPrecision(batch.benchmarks) * 100).toFixed(
+                                  2
+                                )}
+                                %
                               </div>
                             </div>
                             <div className="bg-gray-50 rounded p-2">
@@ -972,21 +1031,39 @@ export default function DomainClassifierPage() {
                           {batch.multiple_runs_stats && (
                             <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
                               <div className="text-xs font-medium text-gray-700 mb-2">
-                                5 Runs Statistics (for thesis)
+                                5 Runs Statistics
                               </div>
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>
-                                  <span className="text-gray-600">Accuracy:</span>{" "}
+                                  <span className="text-gray-600">
+                                    Accuracy:
+                                  </span>{" "}
                                   <span className="font-semibold">
-                                    {(batch.multiple_runs_stats.accuracy.mean * 100).toFixed(2)}% ±{" "}
-                                    {(batch.multiple_runs_stats.accuracy.std * 100).toFixed(2)}%
+                                    {(
+                                      batch.multiple_runs_stats.accuracy.mean *
+                                      100
+                                    ).toFixed(2)}
+                                    % ±{" "}
+                                    {(
+                                      batch.multiple_runs_stats.accuracy.std *
+                                      100
+                                    ).toFixed(2)}
+                                    %
                                   </span>
                                 </div>
                                 <div>
-                                  <span className="text-gray-600">F1-Score:</span>{" "}
+                                  <span className="text-gray-600">
+                                    F1-Score:
+                                  </span>{" "}
                                   <span className="font-semibold">
-                                    {(batch.multiple_runs_stats.f1.mean * 100).toFixed(2)}% ±{" "}
-                                    {(batch.multiple_runs_stats.f1.std * 100).toFixed(2)}%
+                                    {(
+                                      batch.multiple_runs_stats.f1.mean * 100
+                                    ).toFixed(2)}
+                                    % ±{" "}
+                                    {(
+                                      batch.multiple_runs_stats.f1.std * 100
+                                    ).toFixed(2)}
+                                    %
                                   </span>
                                 </div>
                               </div>
@@ -1004,39 +1081,43 @@ export default function DomainClassifierPage() {
                             Batch-to-Batch Improvements
                           </h3>
                           <div className="space-y-2">
-                            {history.improvement_stats.improvements.map((imp, idx) => (
-                              <div
-                                key={idx}
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="text-2xl">→</div>
-                                  <div>
-                                    <div className="font-medium text-gray-800 text-sm">
-                                      {imp.from_batch} → {imp.to_batch}
+                            {history.improvement_stats.improvements.map(
+                              (imp, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex items-center justify-between p-3 bg-gray-50 rounded"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <div className="text-2xl">→</div>
+                                    <div>
+                                      <div className="font-medium text-gray-800 text-sm">
+                                        {imp.from_batch} → {imp.to_batch}
+                                      </div>
+                                      <div className="text-xs text-gray-600">
+                                        Added {imp.added_samples} samples (
+                                        {imp.prev_samples} → {imp.curr_samples})
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <div
+                                      className={`text-xl font-bold ${
+                                        imp.improvement_percent > 0
+                                          ? "text-green-700"
+                                          : "text-red-700"
+                                      }`}
+                                    >
+                                      {imp.improvement_percent > 0 ? "+" : ""}
+                                      {imp.improvement_percent.toFixed(2)}%
                                     </div>
                                     <div className="text-xs text-gray-600">
-                                      Added {imp.added_samples} samples ({imp.prev_samples} → {imp.curr_samples})
+                                      {imp.prev_accuracy.toFixed(2)}% →{" "}
+                                      {imp.curr_accuracy.toFixed(2)}%
                                     </div>
                                   </div>
                                 </div>
-                                <div className="text-right">
-                                  <div
-                                    className={`text-xl font-bold ${
-                                      imp.improvement_percent > 0
-                                        ? "text-green-700"
-                                        : "text-red-700"
-                                    }`}
-                                  >
-                                    {imp.improvement_percent > 0 ? "+" : ""}
-                                    {imp.improvement_percent.toFixed(2)}%
-                                  </div>
-                                  <div className="text-xs text-gray-600">
-                                    {imp.prev_accuracy.toFixed(2)}% → {imp.curr_accuracy.toFixed(2)}%
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
+                              )
+                            )}
                           </div>
                         </div>
                       )}
@@ -1065,7 +1146,9 @@ export default function DomainClassifierPage() {
 
                   <button
                     onClick={handlePredict}
-                    disabled={!predictionText.trim() || !status?.has_model || loading}
+                    disabled={
+                      !predictionText.trim() || !status?.has_model || loading
+                    }
                     className="w-full mt-3 px-6 py-3 bg-gray-800 text-white rounded font-semibold hover:bg-gray-700 disabled:bg-gray-300 transition-colors"
                   >
                     Predict
@@ -1090,7 +1173,9 @@ export default function DomainClassifierPage() {
                           Classification
                         </div>
                         <div className="text-3xl font-bold text-gray-900">
-                          {predictionResult.is_climate_related ? "Climate-Related" : "Not Climate-Related"}
+                          {predictionResult.is_climate_related
+                            ? "Climate-Related"
+                            : "Not Climate-Related"}
                         </div>
                         <div className="text-sm text-gray-600 mt-1">
                           Label: {predictionResult.prediction}
@@ -1111,24 +1196,28 @@ export default function DomainClassifierPage() {
                         Class Probabilities
                       </div>
                       <div className="space-y-2">
-                        {Object.entries(predictionResult.probabilities).map(([cls, prob]) => (
-                          <div key={cls}>
-                            <div className="flex justify-between text-xs mb-1">
-                              <span className="font-medium text-gray-700">
-                                {cls === "0" ? "Not Climate-Related" : "Climate-Related"}
-                              </span>
-                              <span className="text-gray-600">
-                                {(prob * 100).toFixed(2)}%
-                              </span>
+                        {Object.entries(predictionResult.probabilities).map(
+                          ([cls, prob]) => (
+                            <div key={cls}>
+                              <div className="flex justify-between text-xs mb-1">
+                                <span className="font-medium text-gray-700">
+                                  {cls === "0"
+                                    ? "Not Climate-Related"
+                                    : "Climate-Related"}
+                                </span>
+                                <span className="text-gray-600">
+                                  {(prob * 100).toFixed(2)}%
+                                </span>
+                              </div>
+                              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                                <div
+                                  className="bg-gray-800 h-2 rounded-full transition-all duration-500"
+                                  style={{ width: `${prob * 100}%` }}
+                                />
+                              </div>
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                              <div
-                                className="bg-gray-800 h-2 rounded-full transition-all duration-500"
-                                style={{ width: `${prob * 100}%` }}
-                              />
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        )}
                       </div>
                     </div>
 
