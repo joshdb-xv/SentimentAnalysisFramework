@@ -836,7 +836,8 @@ def option_2_auto_label():
     trainer = ClimateClassifierTrainer()
     
     # Look for existing model files (exclude metadata files)
-    model_files = [f for f in trainer.model_dir.glob("*.joblib") if "_metadata" not in f.name]
+    model_files = [f for f in trainer.model_dir.glob("*.joblib") 
+              if "_metadata" not in f.name and f.name.startswith("climate_classifier")]
     if not model_files:
         print("❌ ERROR: No trained model found!")
         print("➡️  Please run option 1 first to train a model")
@@ -1136,7 +1137,8 @@ def option_4_test_model():
     trainer = ClimateClassifierTrainer()
     
     # List available models (exclude metadata files)
-    model_files = [f for f in trainer.model_dir.glob("*.joblib") if "_metadata" not in f.name]
+    model_files = [f for f in trainer.model_dir.glob("*.joblib") 
+              if "_metadata" not in f.name and f.name.startswith("climate_classifier")]
     if not model_files:
         print("❌ ERROR: No trained models found!")
         return
@@ -1298,8 +1300,10 @@ def option_5_list_files():
     print("\n🤖 Model files:")
     if trainer.model_dir.exists():
         # Separate actual models from metadata
-        model_files = [f for f in trainer.model_dir.glob("*.joblib") if "_metadata" not in f.name]
-        metadata_files = [f for f in trainer.model_dir.glob("*_metadata.joblib")]
+        model_files = [f for f in trainer.model_dir.glob("*.joblib") 
+                  if "_metadata" not in f.name and f.name.startswith("climate_classifier")]
+        metadata_files = [f for f in trainer.model_dir.glob("*_metadata.joblib")
+                  if f.name.startswith("climate_classifier")]
         
         if model_files:
             print("   Trained models:")

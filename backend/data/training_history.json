@@ -247,5 +247,455 @@
       }
     },
     "improvement_from_previous": 1.7166802819884475
+  },
+  {
+    "batch_name": "Added Tweets for Balancing",
+    "batch_number": 6,
+    "timestamp": "2025-11-23T10:21:04.167568",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5757,
+    "test_samples": 1440,
+    "benchmarks": {
+      "accuracy": 0.8534722222222222,
+      "precision_weighted": 0.8662547230734432,
+      "recall_weighted": 0.8534722222222222,
+      "f1_weighted": 0.8447398919058637,
+      "overall_metrics": {
+        "accuracy": 0.8534722222222222,
+        "precision_weighted": 0.8662547230734432,
+        "recall_weighted": 0.8534722222222222,
+        "f1_weighted": 0.8447398919058637,
+        "precision_macro": 0.8826677567108099,
+        "recall_macro": 0.7999272242744175,
+        "f1_macro": 0.8223148542887069
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8424999999999999,
+        "std": 0.010322724542256695,
+        "min": 0.8243055555555555,
+        "max": 0.8534722222222222
+      },
+      "precision": {
+        "mean": 0.8568079642636868,
+        "std": 0.011062808842269022,
+        "min": 0.8356456607323699,
+        "max": 0.8662547230734432
+      },
+      "recall": {
+        "mean": 0.8424999999999999,
+        "std": 0.010322724542256695,
+        "min": 0.8243055555555555,
+        "max": 0.8534722222222222
+      },
+      "f1": {
+        "mean": 0.8320310232967204,
+        "std": 0.011476576506045671,
+        "min": 0.8124035293330445,
+        "max": 0.8447398919058637
+      }
+    },
+    "improvement_from_previous": -0.10858849454883357
+  },
+  {
+    "batch_name": "Added Tweets",
+    "batch_number": 7,
+    "timestamp": "2025-11-23T10:22:33.315110",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5761,
+    "test_samples": 1441,
+    "benchmarks": {
+      "accuracy": 0.8577376821651631,
+      "precision_weighted": 0.8691927846780627,
+      "recall_weighted": 0.8577376821651631,
+      "f1_weighted": 0.8498444590804696,
+      "overall_metrics": {
+        "accuracy": 0.8577376821651631,
+        "precision_weighted": 0.8691927846780627,
+        "recall_weighted": 0.8577376821651631,
+        "f1_weighted": 0.8498444590804696,
+        "precision_macro": 0.8845966958211856,
+        "recall_macro": 0.8067127865020074,
+        "f1_macro": 0.828616101343374
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8499653018736989,
+        "std": 0.005678632212485433,
+        "min": 0.842470506592644,
+        "max": 0.8577376821651631
+      },
+      "precision": {
+        "mean": 0.8629814876146937,
+        "std": 0.0061801443979561535,
+        "min": 0.8536571307271897,
+        "max": 0.8691927846780627
+      },
+      "recall": {
+        "mean": 0.8499653018736989,
+        "std": 0.005678632212485433,
+        "min": 0.842470506592644,
+        "max": 0.8577376821651631
+      },
+      "f1": {
+        "mean": 0.8408261037804641,
+        "std": 0.006346582740346785,
+        "min": 0.8318421553590986,
+        "max": 0.8498444590804696
+      }
+    },
+    "improvement_from_previous": 0.4265459942940919
+  },
+  {
+    "batch_name": "Added Tweets",
+    "batch_number": 8,
+    "timestamp": "2025-11-23T10:23:52.451507",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5766,
+    "test_samples": 1442,
+    "benchmarks": {
+      "accuracy": 0.8578363384188626,
+      "precision_weighted": 0.8703146703679975,
+      "recall_weighted": 0.8578363384188626,
+      "f1_weighted": 0.849708539675396,
+      "overall_metrics": {
+        "accuracy": 0.8578363384188626,
+        "precision_weighted": 0.8703146703679975,
+        "recall_weighted": 0.8578363384188626,
+        "f1_weighted": 0.849708539675396,
+        "precision_macro": 0.8866499412832283,
+        "recall_macro": 0.8061593245770682,
+        "f1_macro": 0.8284284847834099
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.847018030513176,
+        "std": 0.009310228264542803,
+        "min": 0.834257975034674,
+        "max": 0.8578363384188626
+      },
+      "precision": {
+        "mean": 0.8597526823126849,
+        "std": 0.009326165078853395,
+        "min": 0.8463463359195095,
+        "max": 0.8703146703679975
+      },
+      "recall": {
+        "mean": 0.847018030513176,
+        "std": 0.009310228264542803,
+        "min": 0.834257975034674,
+        "max": 0.8578363384188626
+      },
+      "f1": {
+        "mean": 0.837636050499688,
+        "std": 0.01054386955028126,
+        "min": 0.8220602491976281,
+        "max": 0.849708539675396
+      }
+    },
+    "improvement_from_previous": 0.009865625369953612
+  },
+  {
+    "batch_name": "Added Tweets",
+    "batch_number": 9,
+    "timestamp": "2025-11-23T10:25:24.406803",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5769,
+    "test_samples": 1443,
+    "benchmarks": {
+      "accuracy": 0.8620928620928621,
+      "precision_weighted": 0.8737031478559872,
+      "recall_weighted": 0.8620928620928621,
+      "f1_weighted": 0.8545971723410031,
+      "overall_metrics": {
+        "accuracy": 0.8620928620928621,
+        "precision_weighted": 0.8737031478559872,
+        "recall_weighted": 0.8620928620928621,
+        "f1_weighted": 0.8545971723410031,
+        "precision_macro": 0.8895121218667833,
+        "recall_macro": 0.8121112964174882,
+        "f1_macro": 0.834184382010469
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8450450450450451,
+        "std": 0.00974744336660693,
+        "min": 0.8322938322938322,
+        "max": 0.8620928620928621
+      },
+      "precision": {
+        "mean": 0.8579149811590424,
+        "std": 0.008452254028470897,
+        "min": 0.8484150069910587,
+        "max": 0.8737031478559872
+      },
+      "recall": {
+        "mean": 0.8450450450450451,
+        "std": 0.00974744336660693,
+        "min": 0.8322938322938322,
+        "max": 0.8620928620928621
+      },
+      "f1": {
+        "mean": 0.8353192800336553,
+        "std": 0.011276367166052426,
+        "min": 0.8200352119271038,
+        "max": 0.8545971723410031
+      }
+    },
+    "improvement_from_previous": 0.4256523673999424
+  },
+  {
+    "batch_name": "Added Tweets",
+    "batch_number": 10,
+    "timestamp": "2025-11-23T10:41:52.623701",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5769,
+    "test_samples": 1443,
+    "benchmarks": {
+      "accuracy": 0.8620928620928621,
+      "precision_weighted": 0.8737031478559872,
+      "recall_weighted": 0.8620928620928621,
+      "f1_weighted": 0.8545971723410031,
+      "overall_metrics": {
+        "accuracy": 0.8620928620928621,
+        "precision_weighted": 0.8737031478559872,
+        "recall_weighted": 0.8620928620928621,
+        "f1_weighted": 0.8545971723410031,
+        "precision_macro": 0.8895121218667833,
+        "recall_macro": 0.8121112964174882,
+        "f1_macro": 0.834184382010469
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8450450450450451,
+        "std": 0.00974744336660693,
+        "min": 0.8322938322938322,
+        "max": 0.8620928620928621
+      },
+      "precision": {
+        "mean": 0.8579149811590424,
+        "std": 0.008452254028470897,
+        "min": 0.8484150069910587,
+        "max": 0.8737031478559872
+      },
+      "recall": {
+        "mean": 0.8450450450450451,
+        "std": 0.00974744336660693,
+        "min": 0.8322938322938322,
+        "max": 0.8620928620928621
+      },
+      "f1": {
+        "mean": 0.8353192800336553,
+        "std": 0.011276367166052426,
+        "min": 0.8200352119271038,
+        "max": 0.8545971723410031
+      }
+    },
+    "improvement_from_previous": 0.0
+  },
+  {
+    "batch_name": "Added Tweets",
+    "batch_number": 11,
+    "timestamp": "2025-11-23T10:44:32.394133",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5773,
+    "test_samples": 1444,
+    "benchmarks": {
+      "accuracy": 0.8621883656509696,
+      "precision_weighted": 0.8732853443569579,
+      "recall_weighted": 0.8621883656509696,
+      "f1_weighted": 0.8548218931539329,
+      "overall_metrics": {
+        "accuracy": 0.8621883656509696,
+        "precision_weighted": 0.8732853443569579,
+        "recall_weighted": 0.8621883656509696,
+        "f1_weighted": 0.8548218931539329,
+        "precision_macro": 0.8886232066448527,
+        "recall_macro": 0.8125802676114258,
+        "f1_macro": 0.8344585233213604
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8480609418282548,
+        "std": 0.011667279605901793,
+        "min": 0.8310249307479224,
+        "max": 0.8621883656509696
+      },
+      "precision": {
+        "mean": 0.860076150310047,
+        "std": 0.010724793153932748,
+        "min": 0.8439318391672962,
+        "max": 0.8732853443569579
+      },
+      "recall": {
+        "mean": 0.8480609418282548,
+        "std": 0.011667279605901793,
+        "min": 0.8310249307479224,
+        "max": 0.8621883656509696
+      },
+      "f1": {
+        "mean": 0.838884804335313,
+        "std": 0.013269610997944365,
+        "min": 0.8195674176558556,
+        "max": 0.8548218931539329
+      }
+    },
+    "improvement_from_previous": 0.009550355810750144
+  },
+  {
+    "batch_name": "Added Tweets",
+    "batch_number": 12,
+    "timestamp": "2025-11-23T10:49:46.280509",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5948,
+    "test_samples": 1487,
+    "benchmarks": {
+      "accuracy": 0.8433086751849361,
+      "precision_weighted": 0.8548405853759741,
+      "recall_weighted": 0.8433086751849361,
+      "f1_weighted": 0.8348829950018976,
+      "overall_metrics": {
+        "accuracy": 0.8433086751849361,
+        "precision_weighted": 0.8548405853759741,
+        "recall_weighted": 0.8433086751849361,
+        "f1_weighted": 0.8348829950018976,
+        "precision_macro": 0.8684722364399468,
+        "recall_macro": 0.7958655268781851,
+        "f1_macro": 0.8149633233552922
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8367182246133155,
+        "std": 0.004066231730418576,
+        "min": 0.8312037659717552,
+        "max": 0.8433086751849361
+      },
+      "precision": {
+        "mean": 0.8487296687780972,
+        "std": 0.004270308276192451,
+        "min": 0.8425913546633897,
+        "max": 0.8548405853759741
+      },
+      "recall": {
+        "mean": 0.8367182246133155,
+        "std": 0.004066231730418576,
+        "min": 0.8312037659717552,
+        "max": 0.8433086751849361
+      },
+      "f1": {
+        "mean": 0.8274545569787909,
+        "std": 0.00447630566895231,
+        "min": 0.8215284668648105,
+        "max": 0.8348829950018976
+      }
+    },
+    "improvement_from_previous": -1.8879690466033439
+  },
+  {
+    "batch_name": "Added Tweets",
+    "batch_number": 13,
+    "timestamp": "2025-11-23T10:52:54.383347",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5955,
+    "test_samples": 1489,
+    "benchmarks": {
+      "accuracy": 0.8408327736736064,
+      "precision_weighted": 0.8482280875994194,
+      "recall_weighted": 0.8408327736736064,
+      "f1_weighted": 0.8335056458446134,
+      "overall_metrics": {
+        "accuracy": 0.8408327736736064,
+        "precision_weighted": 0.8482280875994194,
+        "recall_weighted": 0.8408327736736064,
+        "f1_weighted": 0.8335056458446134,
+        "precision_macro": 0.8579851308112177,
+        "recall_macro": 0.796916832533271,
+        "f1_macro": 0.8141714827345612
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8339825386165212,
+        "std": 0.005191712045691786,
+        "min": 0.8253861652115514,
+        "max": 0.8408327736736064
+      },
+      "precision": {
+        "mean": 0.8454461228074234,
+        "std": 0.003369777432871466,
+        "min": 0.8404215943970694,
+        "max": 0.8496577499834929
+      },
+      "recall": {
+        "mean": 0.8339825386165212,
+        "std": 0.005191712045691786,
+        "min": 0.8253861652115514,
+        "max": 0.8408327736736064
+      },
+      "f1": {
+        "mean": 0.8246001869087977,
+        "std": 0.006474617794252636,
+        "min": 0.8138665550431914,
+        "max": 0.8335056458446134
+      }
+    },
+    "improvement_from_previous": -0.24759015113297034
+  },
+  {
+    "batch_name": "Added Tweets",
+    "batch_number": 14,
+    "timestamp": "2025-11-23T10:55:55.591117",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5964,
+    "test_samples": 1491,
+    "benchmarks": {
+      "accuracy": 0.8423876592890678,
+      "precision_weighted": 0.8504260694167584,
+      "recall_weighted": 0.8423876592890678,
+      "f1_weighted": 0.8350960813308548,
+      "overall_metrics": {
+        "accuracy": 0.8423876592890678,
+        "precision_weighted": 0.8504260694167584,
+        "recall_weighted": 0.8423876592890678,
+        "f1_weighted": 0.8350960813308548,
+        "precision_macro": 0.8607940824795441,
+        "recall_macro": 0.7989515583840362,
+        "f1_macro": 0.8162865967889675
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8372904091213951,
+        "std": 0.004540928472115566,
+        "min": 0.8316566063044937,
+        "max": 0.8423876592890678
+      },
+      "precision": {
+        "mean": 0.8486640942339487,
+        "std": 0.0029998697131769585,
+        "min": 0.8431447854531975,
+        "max": 0.851895776090233
+      },
+      "recall": {
+        "mean": 0.8372904091213951,
+        "std": 0.004540928472115566,
+        "min": 0.8316566063044937,
+        "max": 0.8423876592890678
+      },
+      "f1": {
+        "mean": 0.8284315662603028,
+        "std": 0.0056569738009541685,
+        "min": 0.8215612760691255,
+        "max": 0.8350960813308548
+      }
+    },
+    "improvement_from_previous": 0.15548856154613544
   }
 ]
