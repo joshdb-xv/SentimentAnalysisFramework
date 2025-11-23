@@ -16,6 +16,127 @@ from services.lexical_dictionary_manager import get_dictionary_manager
 router = APIRouter(prefix="/lexical", tags=["Lexical Dictionary"])
 
 
+# Add this helper function near the top of your router file (after imports)
+
+def regenerate_breakdown_for_word(word: str, word_info: dict, dict_manager) -> dict:
+    """
+    Regenerate the detailed breakdown for a word based on current state
+    This ensures the breakdown matches the current score after manual edits
+    """
+    try:
+        from services.lexical_processor import LexicalProcessor
+        
+        # Get the processor
+        processor = dict_manager.processor
+        if not processor:
+            return None
+        
+        # Get sentiment and other attributes
+        sentiment = word_info['sentiment_label']
+        is_climate = word_info['is_climate']
+        dialect = word_info['dialect']
+        score = word_info['sentiment_score']
+        
+        # Determine polarity from current sentiment label
+        if 'positive' in sentiment.lower():
+            polarity = +1
+            base_magnitude = 2.5
+            polarity_label = "positive"
+        elif 'negative' in sentiment.lower():
+            polarity = -1
+            base_magnitude = 2.5
+            polarity_label = "negative"
+        else:
+            polarity = 0
+            base_magnitude = 0.3
+            polarity_label = "neutral"
+        
+        # Create breakdown structure
+        breakdown = {
+            "word": word,
+            "original_sentiment_label": sentiment,
+            "dialect": dialect,
+            "is_climate_related": is_climate,
+            "stages": {}
+        }
+        
+        # Stage 1: Base Polarity
+        breakdown["stages"]["stage_1_base"] = {
+            "polarity": polarity,
+            "polarity_label": polarity_label,
+            "base_magnitude": base_magnitude,
+            "explanation": f"Base magnitude for {polarity_label} words"
+        }
+        
+        # Stage 2: Semantic Intensity
+        intensity = 1.0
+        intensity_breakdown = {"note": "Intensity calculated during update"}
+        
+        # Try to get model for semantic analysis
+        model = None
+        if hasattr(processor, 'fasttext_manager'):
+            model = processor.fasttext_manager.get_model(dialect)
+        
+        if model and word in model:
+            # Recalculate intensity
+            intensity, intensity_breakdown = processor.calculate_semantic_intensity(
+                word=word,
+                model=model,
+                dialect=dialect,
+                expected_polarity=polarity
+            )
+        
+        breakdown["stages"]["stage_2_intensity"] = {
+            "intensity_multiplier": round(intensity, 4),
+            "semantic_polarity": polarity,
+            "explanation": "Semantic intensity from word embeddings (range: 0.6-1.4)",
+            "details": intensity_breakdown
+        }
+        
+        # Stage 3: Domain Weight
+        domain_weight = 1.3 if is_climate else 1.0
+        
+        breakdown["stages"]["stage_3_domain"] = {
+            "domain_weight": domain_weight,
+            "explanation": "Climate-related words get 1.3x boost, general words stay at 1.0",
+            "reason": "Climate words more impactful in climate context" if is_climate else "General word"
+        }
+        
+        # Final Calculation
+        # Back-calculate what the intensity must have been to get this score
+        # score = polarity × base_magnitude × intensity × domain_weight
+        # intensity = score / (polarity × base_magnitude × domain_weight)
+        
+        if polarity != 0:
+            calculated_intensity = score / (polarity * base_magnitude * domain_weight)
+        else:
+            calculated_intensity = 0.0
+        
+        breakdown["calculation"] = {
+            "formula": "polarity × base_magnitude × intensity × domain_weight",
+            "substituted": f"{polarity} × {base_magnitude} × {round(calculated_intensity, 4)} × {domain_weight}",
+            "result": round(score, 4),
+            "note": "Intensity recalculated based on current score"
+        }
+        
+        breakdown["final_score"] = round(score, 4)
+        
+        # Check if manually updated
+        if dict_manager.metadata.get('manual_updates'):
+            for update in dict_manager.metadata['manual_updates']:
+                if update['word'] == word:
+                    breakdown["manual_override"] = True
+                    breakdown["manual_update_info"] = update
+                    break
+        
+        return breakdown
+        
+    except Exception as e:
+        print(f"Error regenerating breakdown: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return None
+
 def convert_numpy_types(obj):
     """Recursively convert numpy types to Python native types for JSON serialization"""
     if isinstance(obj, dict):
@@ -543,12 +664,16 @@ class SearchRequest(BaseModel):
     word: str
 
 
+# Replace your existing @router.post("/search") endpoint with this updated version:
+
 @router.post("/search")
 async def search_word(request: SearchRequest):
     """
     Search for a word in the lexical dictionary
     Automatically loads from cache if not in memory
     Returns the word's sentiment score and detailed breakdown
+    
+    UPDATED: Always regenerates breakdown to reflect current state (including manual edits)
     """
     try:
         word = request.word.strip().lower()
@@ -639,12 +764,12 @@ async def search_word(request: SearchRequest):
             polarity = "neutral"
             intensity_label = "neutral"
         
-        # Get detailed breakdown from processor if available
-        breakdown = None
-        if dict_manager.processor:
-            breakdown = dict_manager.processor.get_word_breakdown(word)
-            if breakdown:
-                breakdown = convert_numpy_types(breakdown)
+        # UPDATED: Always regenerate breakdown to reflect current state
+        breakdown = regenerate_breakdown_for_word(word, word_info, dict_manager)
+        
+        # Convert numpy types if breakdown exists
+        if breakdown:
+            breakdown = convert_numpy_types(breakdown)
         
         response = {
             "found": True,
@@ -677,7 +802,6 @@ async def search_word(request: SearchRequest):
         print(f"Error searching word: {str(e)}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Error searching: {str(e)}")
-
 
 def get_intensity_label(score: float, positive: bool) -> str:
     """Get intensity label based on score"""

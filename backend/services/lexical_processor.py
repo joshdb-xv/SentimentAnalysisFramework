@@ -210,85 +210,129 @@ class LexicalProcessor:
         return dot_product / (norm1 * norm2)
     
     def calculate_semantic_intensity(self, word: str, model, dialect: str, expected_polarity: int):
-        """
-        Use embedding space to determine if word is semantically "strong" or "weak"
-        
-        Args:
-            word: The word to analyze
-            model: FastText model
-            dialect: Language/dialect of the word
-            expected_polarity: +1 for positive, -1 for negative
-            
-        Returns:
-            tuple: (intensity, breakdown_dict)
-        """
-        breakdown = {
-            "method": "semantic_embedding_analysis",
-            "word_in_model": False,
-            "similarity_to_positive": 0.0,
-            "similarity_to_negative": 0.0,
-            "semantic_strength": 0.0,
-            "semantic_clarity": 0.0,
-            "raw_intensity": 0.0,
-            "notes": []
-        }
-        
-        try:
-            if word not in model:
-                breakdown["notes"].append("Word not found in FastText model")
-                return 1.0, breakdown
-            
-            breakdown["word_in_model"] = True
-            word_vector = model[word]
-            
-            # Get sentiment prototypes
-            pos_prototype = self.get_sentiment_prototype(model, dialect, 'positive')
-            neg_prototype = self.get_sentiment_prototype(model, dialect, 'negative')
-            
-            if pos_prototype is None or neg_prototype is None:
-                breakdown["notes"].append("Sentiment prototypes unavailable")
-                return 1.0, breakdown
-            
-            # Calculate cosine similarities
-            sim_positive = self.cosine_similarity(word_vector, pos_prototype)
-            sim_negative = self.cosine_similarity(word_vector, neg_prototype)
-            
-            breakdown["similarity_to_positive"] = round(sim_positive, 4)
-            breakdown["similarity_to_negative"] = round(sim_negative, 4)
-            
-            # Key insight: words closer to their expected pole are STRONGER
-            if expected_polarity > 0:
-                # For positive words
-                semantic_strength = sim_positive
-                semantic_clarity = sim_positive - sim_negative
-                breakdown["notes"].append(f"Positive word: using similarity to positive prototype")
-            else:
-                # For negative words
-                semantic_strength = sim_negative
-                semantic_clarity = sim_negative - sim_positive
-                breakdown["notes"].append(f"Negative word: using similarity to negative prototype")
-            
-            # Ensure clarity is non-negative
-            semantic_clarity = max(0, semantic_clarity)
-            
-            breakdown["semantic_strength"] = round(semantic_strength, 4)
-            breakdown["semantic_clarity"] = round(semantic_clarity, 4)
-            
-            # Combine: strong + clear = high intensity
-            raw_intensity = (semantic_strength + semantic_clarity) / 2
-            breakdown["raw_intensity"] = round(raw_intensity, 4)
-            
-            # Normalize to 0.6-1.4 range
-            intensity = 0.6 + (raw_intensity * 0.8)
-            intensity = max(0.6, min(1.4, intensity))
-            
-            breakdown["notes"].append(f"Normalized to range [0.6, 1.4]")
-            
-            return intensity, breakdown
-            
-        except Exception as e:
-            breakdown["notes"].append(f"Error: {str(e)}")
-            return 1.0, breakdown
+      """
+      Use embedding space to determine if word is semantically "strong" or "weak"
+      
+      HYBRID APPROACH (Thesis-Quality):
+      1. Calculate similarities to positive/negative prototypes
+      2. Check if embeddings contradict manual label
+      3. If contradiction exists: Trust manual label with moderate intensity
+      4. If alignment exists: Use embedding-based intensity calculation
+      
+      This handles cases where general-purpose embeddings (FastText) differ
+      from domain-specific sentiment (climate discourse).
+      
+      Args:
+          word: The word to analyze
+          model: FastText model
+          dialect: Language/dialect of the word
+          expected_polarity: +1 for positive, -1 for negative
+          
+      Returns:
+          tuple: (intensity, breakdown_dict)
+      """
+      breakdown = {
+          "method": "semantic_embedding_analysis",
+          "word_in_model": False,
+          "similarity_to_positive": 0.0,
+          "similarity_to_negative": 0.0,
+          "semantic_strength": 0.0,
+          "semantic_clarity": 0.0,
+          "raw_intensity": 0.0,
+          "notes": [],
+          "contradiction_detected": False
+      }
+      
+      try:
+          if word not in model:
+              breakdown["notes"].append("Word not found in FastText model")
+              return 1.0, breakdown
+          
+          breakdown["word_in_model"] = True
+          word_vector = model[word]
+          
+          # Get sentiment prototypes (now with climate-specific anchors)
+          pos_prototype = self.get_sentiment_prototype(model, dialect, 'positive')
+          neg_prototype = self.get_sentiment_prototype(model, dialect, 'negative')
+          
+          if pos_prototype is None or neg_prototype is None:
+              breakdown["notes"].append("Sentiment prototypes unavailable")
+              return 1.0, breakdown
+          
+          # Calculate cosine similarities
+          sim_positive = self.cosine_similarity(word_vector, pos_prototype)
+          sim_negative = self.cosine_similarity(word_vector, neg_prototype)
+          
+          breakdown["similarity_to_positive"] = round(sim_positive, 4)
+          breakdown["similarity_to_negative"] = round(sim_negative, 4)
+          
+          # Check for contradiction between embeddings and manual label
+          contradiction = False
+          if expected_polarity > 0 and sim_negative > sim_positive:
+              contradiction = True
+              breakdown["notes"].append("⚠️ Embeddings suggest negative, but manually labeled positive")
+          elif expected_polarity < 0 and sim_positive > sim_negative:
+              contradiction = True
+              breakdown["notes"].append("⚠️ Embeddings suggest positive, but manually labeled negative")
+          
+          breakdown["contradiction_detected"] = contradiction
+          
+          # HYBRID LOGIC
+          if contradiction:
+              # Trust manual label (domain-specific knowledge)
+              # Use moderate intensity (0.8 - 1.0 range)
+              base_intensity = 0.8
+              
+              # Use the HIGHER similarity as strength indicator
+              # (word has clear semantic meaning, just different context)
+              max_sim = max(sim_positive, sim_negative)
+              adjustment = (max_sim - 0.5) * 0.4  # Maps 0.5-1.0 to 0.0-0.2
+              
+              intensity = base_intensity + max(0, adjustment)
+              intensity = min(1.2, intensity)  # Cap at 1.2
+              
+              breakdown["semantic_strength"] = round(max_sim, 4)
+              breakdown["semantic_clarity"] = 0.0  # No clarity in contradiction
+              breakdown["raw_intensity"] = round(intensity, 4)
+              breakdown["notes"].append(
+                  f"Using manual label with moderate intensity ({intensity:.2f}) "
+                  f"due to embedding-label mismatch (domain-specific sentiment)"
+              )
+              
+              return intensity, breakdown
+          
+          else:
+              # Normal calculation: embeddings align with manual label
+              if expected_polarity > 0:
+                  semantic_strength = sim_positive
+                  semantic_clarity = sim_positive - sim_negative
+                  breakdown["notes"].append(f"Positive word: using similarity to positive prototype")
+              else:
+                  semantic_strength = sim_negative
+                  semantic_clarity = sim_negative - sim_positive
+                  breakdown["notes"].append(f"Negative word: using similarity to negative prototype")
+              
+              # Ensure clarity is non-negative
+              semantic_clarity = max(0, semantic_clarity)
+              
+              breakdown["semantic_strength"] = round(semantic_strength, 4)
+              breakdown["semantic_clarity"] = round(semantic_clarity, 4)
+              
+              # Combine: strong + clear = high intensity
+              raw_intensity = (semantic_strength + semantic_clarity) / 2
+              breakdown["raw_intensity"] = round(raw_intensity, 4)
+              
+              # Normalize to 0.6-1.4 range
+              intensity = 0.6 + (raw_intensity * 0.8)
+              intensity = max(0.6, min(1.4, intensity))
+              
+              breakdown["notes"].append(f"Normalized to range [0.6, 1.4]")
+              
+              return intensity, breakdown
+          
+      except Exception as e:
+          breakdown["notes"].append(f"Error: {str(e)}")
+          return 1.0, breakdown
     
     def calculate_sentiment_scores(self):
         """

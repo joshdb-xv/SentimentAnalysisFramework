@@ -405,25 +405,144 @@ class LexicalDictionaryManager:
         
         # Fallback: create prototype from anchor words
         sentiment_anchors = {
-            'cebuano': {
-                'positive': ['maayo', 'nindot', 'matahum', 'dako', 'kusog',
-                          'maayong', 'hayahay', 'malipayon'],
-                'negative': ['dili', 'dautan', 'grabe', 'lisud', 'makuyaw',
-                          'sakit', 'maskin', 'katalagman']
-            },
-            'tagalog': {
-                'positive': ['mabuti', 'maganda', 'masaya', 'mahusay', 'malaki',
-                          'malakas', 'perpekto', 'napakaganda'],
-                'negative': ['masama', 'pangit', 'malungkot', 'mahirap',
-                          'mapanganib', 'sakit', 'delikado', 'malala']
-            },
-            'filipino': {
-                'positive': ['mabuti', 'maganda', 'masaya', 'mahusay', 'malaki',
-                          'malakas', 'perpekto', 'napakaganda'],
-                'negative': ['masama', 'pangit', 'malungkot', 'mahirap',
-                          'mapanganib', 'sakit', 'delikado', 'malala']
-            }
-        }
+                'cebuano': {
+                  'positive': [
+                      # Quality & Beauty
+                      'maayo', 'nindot', 'matahum', 'gwapa', 'gwapo', 'chada',
+                      # Happiness & Joy
+                      'malipayon', 'lipay', 'kalipay', 'happy', 'malipayong',
+                      # Comfort & Peace
+                      'hayahay', 'maayong', 'malinawon', 'kalinaw', 'tarong',
+                      # Strength & Power
+                      'kusog', 'lig-on', 'dako', 'daghan', 'baskog',
+                      # Success & Achievement
+                      'swerte', 'sakto', 'perpekto', 'daog', 'kadaogan',
+                      # Safety & Security
+                      'luwas', 'seguro', 'protektado', 'saligan',
+                      # Health & Wellness
+                      'himsog', 'lawas', 'presko', 'buhi',
+                      # Climate Positive (good weather, recovery)
+                      'uwan', 'bugnaw', 'lunhaw', 'sariwa', 'lamig'
+                  ],
+                  'negative': [
+                      # Bad Quality
+                      'dili', 'dautan', 'daotan', 'grabe', 'grabeng',
+                      # Difficulty & Hardship
+                      'lisud', 'kabudlay', 'malisud', 'bug-at', 'kalisud',
+                      # Danger & Risk
+                      'makuyaw', 'katalagman', 'peligro', 'delikado',
+                      # Pain & Suffering
+                      'sakit', 'kasakit', 'masakit', 'kapit-os', 'kalisang',
+                      # Sadness & Sorrow
+                      'kasubo', 'masulub-on', 'lungkot', 'kasubo',
+                      # Fear & Worry
+                      'kahadlok', 'mahadlok', 'kuyaw', 'kakuyaw', 'balaka',
+                      # Destruction & Damage
+                      'guba', 'dagdag', 'laglag', 'gadaot', 'dungag',
+                      # Weakness & Frailty
+                      'luya', 'maluya', 'kahuyang', 'kakapoy', 'maskin',
+                      # CLIMATE-SPECIFIC NEGATIVE (disasters, extreme weather, discomfort)
+                      'init', 'kainit', 'alinsangan', 'uga', 'hubag',
+                      'baha', 'bagyo', 'unos', 'linog', 'lindol',
+                      'tuyo', 'haw-ang', 'uhaw', 'tigang', 'guwang',
+                      'taas', 'lunod', 'hangin', 'duling', 'kusog'
+                  ]
+              },
+              'tagalog': {
+                  'positive': [
+                      # Quality & Beauty
+                      'mabuti', 'maganda', 'ganda', 'magandang', 'marilag',
+                      # Happiness & Joy
+                      'masaya', 'saya', 'tuwa', 'ligaya', 'galak',
+                      # Comfort & Peace
+                      'komportable', 'tahimik', 'mapayapa', 'payapa', 'kapanatagan',
+                      # Strength & Power
+                      'malakas', 'lakas', 'malaki', 'dakila', 'matibay',
+                      # Success & Achievement
+                      'mahusay', 'tagumpay', 'swerte', 'perpekto', 'sakto',
+                      # Safety & Security
+                      'ligtas', 'secure', 'protektado', 'sigurado',
+                      # Health & Wellness
+                      'malusog', 'kalusugan', 'buhay', 'sariwang',
+                      # Love & Care
+                      'mahal', 'pagmamahal', 'pag-ibig', 'mabait', 'napakaganda',
+                      # Climate Positive
+                      'ulan', 'malamig', 'luntian', 'sariwa', 'presko'
+                  ],
+                  'negative': [
+                      # Bad Quality
+                      'masama', 'sama', 'pangit', 'nakakainis', 'basura',
+                      # Difficulty & Hardship
+                      'mahirap', 'hirap', 'kahirapan', 'pagod', 'napakahirap',
+                      # Danger & Risk
+                      'mapanganib', 'panganib', 'delikado', 'peligro', 'banta',
+                      # Pain & Suffering
+                      'sakit', 'masakit', 'kirot', 'hapdi', 'hirap',
+                      # Sadness & Sorrow
+                      'malungkot', 'lungkot', 'kalungkutan', 'pighati', 'dalamhati',
+                      # Fear & Worry
+                      'takot', 'natatakot', 'sindak', 'pangamba', 'alarma',
+                      # Destruction & Damage
+                      'sira', 'wasak', 'giba', 'pinsala', 'kapinsalaan',
+                      # Weakness & Frailty
+                      'mahina', 'hina', 'kahinaan', 'kapaguran',
+                      # Death & Loss
+                      'patay', 'kamatayan', 'nawala', 'pagkalugi', 'malala',
+                      # CLIMATE-SPECIFIC NEGATIVE
+                      'init', 'mainit', 'sobrang-init', 'alinsangan', 'tuyot',
+                      'baha', 'bagyo', 'unos', 'lindol', 'pagguho',
+                      'tagtuyot', 'uhaw', 'tuyo', 'tigang', 'lubog',
+                      'mataas', 'grabe', 'matindi', 'extreme', 'nakakapaso'
+                  ]
+              },
+              'filipino': {
+                  'positive': [
+                      # Quality & Beauty
+                      'mabuti', 'maganda', 'ganda', 'magandang', 'marilag',
+                      # Happiness & Joy
+                      'masaya', 'saya', 'tuwa', 'ligaya', 'galak',
+                      # Comfort & Peace
+                      'komportable', 'tahimik', 'mapayapa', 'payapa', 'kapanatagan',
+                      # Strength & Power
+                      'malakas', 'lakas', 'malaki', 'dakila', 'matibay',
+                      # Success & Achievement
+                      'mahusay', 'tagumpay', 'swerte', 'perpekto', 'sakto',
+                      # Safety & Security
+                      'ligtas', 'secure', 'protektado', 'sigurado',
+                      # Health & Wellness
+                      'malusog', 'kalusugan', 'buhay', 'sariwang',
+                      # Love & Care
+                      'mahal', 'pagmamahal', 'pag-ibig', 'mabait', 'napakaganda',
+                      # Climate Positive
+                      'ulan', 'malamig', 'luntian', 'sariwa', 'presko'
+                  ],
+                  'negative': [
+                      # Bad Quality
+                      'masama', 'sama', 'pangit', 'nakakainis', 'basura',
+                      # Difficulty & Hardship
+                      'mahirap', 'hirap', 'kahirapan', 'pagod', 'napakahirap',
+                      # Danger & Risk
+                      'mapanganib', 'panganib', 'delikado', 'peligro', 'banta',
+                      # Pain & Suffering
+                      'sakit', 'masakit', 'kirot', 'hapdi', 'hirap',
+                      # Sadness & Sorrow
+                      'malungkot', 'lungkot', 'kalungkutan', 'pighati', 'dalamhati',
+                      # Fear & Worry
+                      'takot', 'natatakot', 'sindak', 'pangamba', 'alarma',
+                      # Destruction & Damage
+                      'sira', 'wasak', 'giba', 'pinsala', 'kapinsalaan',
+                      # Weakness & Frailty
+                      'mahina', 'hina', 'kahinaan', 'kapaguran',
+                      # Death & Loss
+                      'patay', 'kamatayan', 'nawala', 'pagkalugi', 'malala',
+                      # CLIMATE-SPECIFIC NEGATIVE
+                      'init', 'mainit', 'sobrang-init', 'alinsangan', 'tuyot',
+                      'baha', 'bagyo', 'unos', 'lindol', 'pagguho',
+                      'tagtuyot', 'uhaw', 'tuyo', 'tigang', 'lubog',
+                      'mataas', 'grabe', 'matindi', 'extreme', 'nakakapaso'
+                  ]
+              }
+          }
         
         import numpy as np
         

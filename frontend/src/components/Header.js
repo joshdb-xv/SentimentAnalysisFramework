@@ -11,7 +11,13 @@ export default function Header() {
     { name: "Home", path: "/home" },
     { name: "Observations", path: "/observations" },
     { name: "WeatherAPI", path: "/weatherapi" },
-    { name: "Lexical Dictionary", path: "/lexicaldictionary" },
+    { name: "TwitterAPI", path: "/twitter-debug" },
+    { name: "Lexical Dictionary", path: "/lexical-debug" },
+    {
+      name: "Naive Bayes - Climate Related Checker",
+      path: "/training-debug",
+    },
+    { name: "Naive Bayes - Climate Domain Classifier", path: "/domain-debug" },
   ];
 
   // Find the current page based on the URL

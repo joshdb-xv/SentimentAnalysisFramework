@@ -1,5 +1,5 @@
 {
-  "created_at": "2025-11-23T10:14:51.231421",
+  "created_at": "2025-11-23T18:36:09.424983",
   "version": "1.0",
   "total_words": 71613,
   "stats": {
@@ -9,8 +9,8 @@
     "positive_words": 11890,
     "negative_words": 21821,
     "neutral_words": 37903,
-    "avg_score_climate": -0.587,
-    "avg_score_general": -0.259,
+    "avg_score_climate": -0.588,
+    "avg_score_general": -0.258,
     "climate_breakdown": {
       "positive": 1599,
       "negative": 2974
@@ -22,13 +22,13 @@
     "score_range": {
       "min": -3.2593863010406494,
       "max": 3.287477731704712,
-      "mean": -0.29072597200026445,
-      "std": 1.478289078184985
+      "mean": -0.29057079404936875,
+      "std": 1.4901593789438783
     },
     "by_dialect": {
       "tagalog": 38420,
       "cebuano": 33194
     }
   },
-  "last_updated": "2025-11-23T10:14:51.231421"
+  "last_updated": "2025-11-23T18:36:09.424983"
 }
