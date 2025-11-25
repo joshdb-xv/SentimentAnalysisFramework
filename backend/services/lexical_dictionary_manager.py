@@ -279,9 +279,8 @@ class LexicalDictionaryManager:
             base_magnitude = 2.5
             is_neutral = False
         else:
-            # NEUTRAL - needs semantic analysis
             polarity = 0
-            base_magnitude = 0.3  # Much smaller than pos/neg
+            base_magnitude = 0.3
             is_neutral = True
         
         # STAGE 2: Semantic Intensity

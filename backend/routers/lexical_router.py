@@ -24,13 +24,6 @@ def regenerate_breakdown_for_word(word: str, word_info: dict, dict_manager) -> d
     This ensures the breakdown matches the current score after manual edits
     """
     try:
-        from services.lexical_processor import LexicalProcessor
-        
-        # Get the processor
-        processor = dict_manager.processor
-        if not processor:
-            return None
-        
         # Get sentiment and other attributes
         sentiment = word_info['sentiment_label']
         is_climate = word_info['is_climate']
@@ -69,33 +62,44 @@ def regenerate_breakdown_for_word(word: str, word_info: dict, dict_manager) -> d
         }
         
         # Stage 2: Semantic Intensity
-        intensity = 1.0
-        intensity_breakdown = {"note": "Intensity calculated during update"}
+        # Calculate intensity from the score
+        domain_weight = 1.3 if is_climate else 1.0
         
-        # Try to get model for semantic analysis
-        model = None
-        if hasattr(processor, 'fasttext_manager'):
-            model = processor.fasttext_manager.get_model(dialect)
+        # Back-calculate intensity: score = polarity × base_magnitude × intensity × domain_weight
+        if polarity != 0:
+            intensity = score / (polarity * base_magnitude * domain_weight)
+        else:
+            intensity = 1.0
         
-        if model and word in model:
-            # Recalculate intensity
-            intensity, intensity_breakdown = processor.calculate_semantic_intensity(
-                word=word,
-                model=model,
-                dialect=dialect,
-                expected_polarity=polarity
-            )
+        # Try to get model for semantic analysis (optional)
+        intensity_details = {"method": "back_calculated", "note": "Calculated from final score"}
+        
+        processor = dict_manager.processor
+        if processor and hasattr(processor, 'fasttext_manager'):
+            try:
+                from services.lexical_processor import LexicalProcessor
+                model = processor.fasttext_manager.get_model(dialect)
+                if model and word in model:
+                    # Recalculate intensity using model
+                    intensity_new, intensity_breakdown = processor.calculate_semantic_intensity(
+                        word=word,
+                        model=model,
+                        dialect=dialect,
+                        expected_polarity=polarity
+                    )
+                    intensity = intensity_new
+                    intensity_details = intensity_breakdown
+            except Exception as e:
+                print(f"Could not recalculate semantic intensity: {e}")
         
         breakdown["stages"]["stage_2_intensity"] = {
-            "intensity_multiplier": round(intensity, 4),
+            "intensity_multiplier": round(float(intensity), 4),
             "semantic_polarity": polarity,
             "explanation": "Semantic intensity from word embeddings (range: 0.6-1.4)",
-            "details": intensity_breakdown
+            "details": intensity_details
         }
         
         # Stage 3: Domain Weight
-        domain_weight = 1.3 if is_climate else 1.0
-        
         breakdown["stages"]["stage_3_domain"] = {
             "domain_weight": domain_weight,
             "explanation": "Climate-related words get 1.3x boost, general words stay at 1.0",
@@ -103,26 +107,19 @@ def regenerate_breakdown_for_word(word: str, word_info: dict, dict_manager) -> d
         }
         
         # Final Calculation
-        # Back-calculate what the intensity must have been to get this score
-        # score = polarity × base_magnitude × intensity × domain_weight
-        # intensity = score / (polarity × base_magnitude × domain_weight)
-        
-        if polarity != 0:
-            calculated_intensity = score / (polarity * base_magnitude * domain_weight)
-        else:
-            calculated_intensity = 0.0
+        calculated_score = polarity * base_magnitude * intensity * domain_weight
         
         breakdown["calculation"] = {
             "formula": "polarity × base_magnitude × intensity × domain_weight",
-            "substituted": f"{polarity} × {base_magnitude} × {round(calculated_intensity, 4)} × {domain_weight}",
-            "result": round(score, 4),
-            "note": "Intensity recalculated based on current score"
+            "substituted": f"{polarity} × {base_magnitude} × {round(float(intensity), 4)} × {domain_weight}",
+            "result": round(float(score), 4),
+            "note": "Score reflects current state (including any manual updates)"
         }
         
-        breakdown["final_score"] = round(score, 4)
+        breakdown["final_score"] = round(float(score), 4)
         
         # Check if manually updated
-        if dict_manager.metadata.get('manual_updates'):
+        if dict_manager.metadata and dict_manager.metadata.get('manual_updates'):
             for update in dict_manager.metadata['manual_updates']:
                 if update['word'] == word:
                     breakdown["manual_override"] = True
@@ -135,7 +132,17 @@ def regenerate_breakdown_for_word(word: str, word_info: dict, dict_manager) -> d
         print(f"Error regenerating breakdown: {str(e)}")
         import traceback
         traceback.print_exc()
-        return None
+        # Return a minimal breakdown instead of None
+        return {
+            "word": word,
+            "error": str(e),
+            "note": "Could not generate full breakdown",
+            "stages": {},
+            "calculation": {
+                "formula": "polarity × base_magnitude × intensity × domain_weight",
+                "result": round(float(word_info['sentiment_score']), 4)
+            }
+        }
 
 def convert_numpy_types(obj):
     """Recursively convert numpy types to Python native types for JSON serialization"""
