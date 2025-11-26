@@ -655,6 +655,27 @@ export default function LexicalDebug() {
                           </div>
                         </div>
 
+                        {/* Debug Info */}
+                        <div className="mt-3 bg-gray-100 rounded p-2 text-xs">
+                          <strong>Debug:</strong> detailed_breakdown{" "}
+                          {searchResult.detailed_breakdown
+                            ? "EXISTS"
+                            : "MISSING"}
+                          {searchResult.detailed_breakdown && (
+                            <div className="mt-1">
+                              Has stages:{" "}
+                              {searchResult.detailed_breakdown.stages
+                                ? "YES"
+                                : "NO"}
+                              {" | "}
+                              Has calculation:{" "}
+                              {searchResult.detailed_breakdown.calculation
+                                ? "YES"
+                                : "NO"}
+                            </div>
+                          )}
+                        </div>
+
                         {/* Score Computation Breakdown */}
                         {searchResult.detailed_breakdown && (
                           <div className="mt-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
