@@ -16,6 +16,7 @@ export default function HomePageClient() {
   const [showJson, setShowJson] = useState(false);
   const [parsedResult, setParsedResult] = useState(null);
   const fileInputRef = useRef(null);
+  const [isBatchResult, setIsBatchResult] = useState(false);
 
   const handleCopyOutput = () => {
     navigator.clipboard
@@ -67,9 +68,11 @@ export default function HomePageClient() {
         setError(result.error || "Analysis failed");
         setOutput("");
         setParsedResult(null);
+        setIsBatchResult(false);
       } else {
         setOutput(JSON.stringify(result, null, 2));
         setParsedResult(result);
+        setIsBatchResult(false);
         setError(null);
       }
     } catch (err) {
@@ -127,14 +130,18 @@ export default function HomePageClient() {
       }
 
       const result = await response.json();
+      console.log("Backend result:", result); // ADD THIS
+      console.log("Summary structure:", result.summary); // AND THIS
 
       if (result.status === "error") {
         setError(result.error || "CSV analysis failed");
         setOutput("");
         setParsedResult(null);
+        setIsBatchResult(false);
       } else {
         setOutput(JSON.stringify(result, null, 2));
         setParsedResult(result);
+        setIsBatchResult(true);
         setError(null);
       }
     } catch (err) {
@@ -144,6 +151,7 @@ export default function HomePageClient() {
       );
       setOutput("");
       setParsedResult(null);
+      setIsBatchResult(false);
     } finally {
       setLoading(false);
     }
@@ -168,6 +176,7 @@ export default function HomePageClient() {
     setLocation("");
     setError(null);
     setShowJson(false);
+    setIsBatchResult(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -292,7 +301,7 @@ export default function HomePageClient() {
                   </button>
                 </div>
 
-                <div className="border border-gray-light rounded-2xl p-4 bg-white shadow-sm relative">
+                <div className="border border-gray-light rounded-2xl p-4 bg-white shadow-sm relative mt-8">
                   {/* Copy Button - only show in JSON view */}
                   {showJson && (
                     <>
@@ -317,6 +326,197 @@ export default function HomePageClient() {
                       <pre className="text-sm text-blue font-mono leading-relaxed whitespace-pre-wrap">
                         {output}
                       </pre>
+                    </div>
+                  ) : isBatchResult && parsedResult ? (
+                    // CSV BATCH RESULTS
+                    <div className="space-y-4">
+                      {/* Batch Summary */}
+                      <div className="bg-gradient-to-r from-primary/20 to-primary/10 p-4 rounded-lg border border-primary">
+                        <h3 className="font-semibold text-lg text-black mb-2">
+                          Batch Analysis Complete
+                        </h3>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <p className="text-gray-mid">Total Tweets</p>
+                            <p className="text-2xl font-bold text-primary">
+                              {parsedResult.summary?.total || 0}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-mid">Climate Related</p>
+                            <p className="text-2xl font-bold text-primary">
+                              {parsedResult.summary?.climate || 0}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-mid">Not Climate</p>
+                            <p className="text-2xl font-bold text-gray-dark">
+                              {parsedResult.summary?.not_climate || 0}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-mid">Errors</p>
+                            <p className="text-2xl font-bold text-red">
+                              {parsedResult.summary?.errors || 0}
+                            </p>
+                          </div>
+                        </div>
+                        {parsedResult.saved_to_db && (
+                          <p className="mt-3 text-xs text-gray-mid">
+                            ✅ Saved to database (Batch ID:{" "}
+                            {parsedResult.batch_id})
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Sentiment Distribution */}
+                      {parsedResult.summary?.sentiment_distribution && (
+                        <div className="bg-gray/10 p-4 rounded-lg border border-gray">
+                          <h3 className="font-semibold text-lg text-black mb-3">
+                            Sentiment Distribution (Climate Tweets)
+                          </h3>
+                          <div className="grid grid-cols-3 gap-4">
+                            <div className="text-center">
+                              <p className="text-3xl font-bold text-primary">
+                                {parsedResult.summary.sentiment_distribution
+                                  .positive || 0}
+                              </p>
+                              <p className="text-sm text-gray-mid">Positive</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-3xl font-bold text-gray-dark">
+                                {parsedResult.summary.sentiment_distribution
+                                  .neutral || 0}
+                              </p>
+                              <p className="text-sm text-gray-mid">Neutral</p>
+                            </div>
+                            <div className="text-center">
+                              <p className="text-3xl font-bold text-red">
+                                {parsedResult.summary.sentiment_distribution
+                                  .negative || 0}
+                              </p>
+                              <p className="text-sm text-gray-mid">Negative</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Individual Tweet Results */}
+                      {parsedResult.results &&
+                        parsedResult.results.length > 0 && (
+                          <div className="space-y-3">
+                            <h3 className="font-semibold text-lg text-black">
+                              Analyzed Tweets ({parsedResult.results.length})
+                            </h3>
+                            <div className="max-h-96 overflow-y-auto space-y-3">
+                              {parsedResult.results.map((tweet, index) => (
+                                <div
+                                  key={index}
+                                  className={`p-4 rounded-lg border ${
+                                    tweet.climate_classification
+                                      ?.is_climate_related
+                                      ? "bg-primary/5 border-primary"
+                                      : "bg-white border-gray-light"
+                                  }`}
+                                >
+                                  <div className="flex justify-between items-start mb-2">
+                                    <p className="text-sm text-primary-dark flex-1 italic">
+                                      "{tweet.tweet}"
+                                    </p>
+                                    <span
+                                      className={`ml-3 px-2 py-1 rounded-full text-xs font-semibold flex-shrink-0 ${
+                                        tweet.climate_classification
+                                          ?.is_climate_related
+                                          ? "bg-primary/20 text-primary"
+                                          : "bg-gray/20 text-gray-dark"
+                                      }`}
+                                    >
+                                      {tweet.climate_classification
+                                        ?.is_climate_related
+                                        ? "Climate"
+                                        : "Not Climate"}
+                                    </span>
+                                  </div>
+
+                                  {tweet.climate_classification
+                                    ?.is_climate_related && (
+                                    <div className="mt-2 space-y-2">
+                                      {tweet.category_classification && (
+                                        <div className="flex items-center gap-2 text-xs">
+                                          <span className="text-gray-mid">
+                                            Category:
+                                          </span>
+                                          <span className="font-semibold text-primary">
+                                            {
+                                              tweet.category_classification
+                                                .prediction
+                                            }
+                                          </span>
+                                          <span className="text-gray-mid">
+                                            (
+                                            {(
+                                              tweet.category_classification
+                                                .confidence * 100
+                                            ).toFixed(1)}
+                                            %)
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      {tweet.sentiment_analysis?.sentiment && (
+                                        <div className="flex items-center gap-2 text-xs">
+                                          <span className="text-gray-mid">
+                                            Sentiment:
+                                          </span>
+                                          <span
+                                            className={`font-semibold ${
+                                              tweet.sentiment_analysis.sentiment
+                                                .classification === "positive"
+                                                ? "text-primary"
+                                                : tweet.sentiment_analysis
+                                                    .sentiment
+                                                    .classification ===
+                                                  "negative"
+                                                ? "text-red"
+                                                : "text-gray-dark"
+                                            }`}
+                                          >
+                                            {tweet.sentiment_analysis.sentiment.classification.toUpperCase()}
+                                          </span>
+                                          <span className="text-gray-mid">
+                                            (compound:{" "}
+                                            {tweet.sentiment_analysis.sentiment.compound.toFixed(
+                                              3
+                                            )}
+                                            )
+                                          </span>
+                                        </div>
+                                      )}
+
+                                      {tweet.weather_flag && (
+                                        <div className="flex items-center gap-2 text-xs">
+                                          <span className="text-gray-mid">
+                                            Weather:
+                                          </span>
+                                          <span
+                                            className={`font-semibold ${
+                                              tweet.weather_flag ===
+                                              "consistent"
+                                                ? "text-primary"
+                                                : "text-gray-dark"
+                                            }`}
+                                          >
+                                            {tweet.weather_flag}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                     </div>
                   ) : parsedResult ? (
                     <div className="space-y-4">
