@@ -227,5 +227,97 @@
       }
     },
     "improvement_from_previous": 2.1011993088075553
+  },
+  {
+    "batch_name": "Added Domain Samples",
+    "batch_number": 6,
+    "timestamp": "2025-12-04T00:01:23.164467",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3533,
+    "test_samples": 884,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.5927601809954751,
+        "precision_weighted": 0.5885178991598429,
+        "recall_weighted": 0.5927601809954751,
+        "f1_weighted": 0.5899073124946315,
+        "precision_macro": 0.6023602521239965,
+        "recall_macro": 0.6087245743592493,
+        "f1_macro": 0.6044934322883234
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5728506787330316,
+        "std": 0.018950580625675964,
+        "min": 0.5407239819004525,
+        "max": 0.5927601809954751
+      },
+      "precision": {
+        "mean": 0.575974504254356,
+        "std": 0.014569886192549172,
+        "min": 0.5536403773334945,
+        "max": 0.590666388173234
+      },
+      "recall": {
+        "mean": 0.5728506787330316,
+        "std": 0.018950580625675964,
+        "min": 0.5407239819004525,
+        "max": 0.5927601809954751
+      },
+      "f1": {
+        "mean": 0.5729076500018939,
+        "std": 0.01648372675984672,
+        "min": 0.5455832140096604,
+        "max": 0.5900108772969382
+      }
+    },
+    "improvement_from_previous": 0.659238054196043
+  },
+  {
+    "batch_name": "Added Domain Samples",
+    "batch_number": 7,
+    "timestamp": "2025-12-04T00:06:42.318983",
+    "model_name": "climate_domain_classifier.joblib",
+    "training_samples": 3536,
+    "test_samples": 884,
+    "benchmarks": {
+      "overall_metrics": {
+        "accuracy": 0.584841628959276,
+        "precision_weighted": 0.5895481645353816,
+        "recall_weighted": 0.584841628959276,
+        "f1_weighted": 0.585911684328549,
+        "precision_macro": 0.5954121037897078,
+        "recall_macro": 0.605424986758836,
+        "f1_macro": 0.5990333453238984
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.5667420814479638,
+        "std": 0.01432682370949104,
+        "min": 0.5452488687782805,
+        "max": 0.584841628959276
+      },
+      "precision": {
+        "mean": 0.5721546139442082,
+        "std": 0.016416397610029856,
+        "min": 0.5491835981091658,
+        "max": 0.5895481645353816
+      },
+      "recall": {
+        "mean": 0.5667420814479638,
+        "std": 0.01432682370949104,
+        "min": 0.5452488687782805,
+        "max": 0.584841628959276
+      },
+      "f1": {
+        "mean": 0.5672903408327401,
+        "std": 0.014892798365029023,
+        "min": 0.5446643175186595,
+        "max": 0.585911684328549
+      }
+    },
+    "improvement_from_previous": -0.7918552036199067
   }
 ]

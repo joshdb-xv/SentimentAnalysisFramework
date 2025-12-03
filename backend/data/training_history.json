@@ -747,5 +747,55 @@
       }
     },
     "improvement_from_previous": 0.0
+  },
+  {
+    "batch_name": "Added tweets",
+    "batch_number": 16,
+    "timestamp": "2025-12-04T00:03:36.315771",
+    "model_name": "climate_classifier.joblib",
+    "training_samples": 5967,
+    "test_samples": 1492,
+    "benchmarks": {
+      "accuracy": 0.8505361930294906,
+      "precision_weighted": 0.8613106975101046,
+      "recall_weighted": 0.8505361930294906,
+      "f1_weighted": 0.8431248445491161,
+      "overall_metrics": {
+        "accuracy": 0.8505361930294906,
+        "precision_weighted": 0.8613106975101046,
+        "recall_weighted": 0.8505361930294906,
+        "f1_weighted": 0.8431248445491161,
+        "precision_macro": 0.8745666030226174,
+        "recall_macro": 0.8060835579567132,
+        "f1_macro": 0.8248884355610432
+      }
+    },
+    "multiple_runs_stats": {
+      "accuracy": {
+        "mean": 0.8394101876675603,
+        "std": 0.011442100446580849,
+        "min": 0.8230563002680965,
+        "max": 0.8505361930294906
+      },
+      "precision": {
+        "mean": 0.8526944440978923,
+        "std": 0.00869205832527831,
+        "min": 0.8381553367426473,
+        "max": 0.8613106975101046
+      },
+      "recall": {
+        "mean": 0.8394101876675603,
+        "std": 0.011442100446580849,
+        "min": 0.8230563002680965,
+        "max": 0.8505361930294906
+      },
+      "f1": {
+        "mean": 0.8300832703669856,
+        "std": 0.013558432816779877,
+        "min": 0.811350031454116,
+        "max": 0.8431248445491161
+      }
+    },
+    "improvement_from_previous": 0.8148533740422792
   }
 ]
