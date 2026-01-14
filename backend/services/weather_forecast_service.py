@@ -1,5 +1,6 @@
 # services/weather_forecast_service.py
 
+import os
 import requests
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
@@ -7,8 +8,8 @@ import json
 
 class WeatherService:
     def __init__(self):
-        self.api_key = "c52164a9afdb47a8ac875017251201"
-        self.base_url = "http://api.weatherapi.com/v1"
+        self.api_key = os.getenv('WEATHER_API_KEY')
+        self.base_url = os.getenv('WEATHER_API_BASE_URL', 'http://api.weatherapi.com/v1')
         
         # Keep location mappings as fallback for backward compatibility
         self.location_mappings = {

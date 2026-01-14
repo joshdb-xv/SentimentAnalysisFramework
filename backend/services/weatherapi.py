@@ -8,8 +8,8 @@ import re
 
 class WeatherValidator:
     def __init__(self):
-        self.api_key = "c52164a9afdb47a8ac875017251201"
-        self.base_url = "http://api.weatherapi.com/v1"
+        self.api_key = os.getenv('WEATHER_API_KEY')
+        self.base_url = os.getenv('WEATHER_API_BASE_URL', 'http://api.weatherapi.com/v1')
         
         # Location mappings - you can expand this
         self.location_mappings = {
