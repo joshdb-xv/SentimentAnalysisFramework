@@ -6,11 +6,11 @@ from difflib import SequenceMatcher
 import re
 
 # Twitter API credentials
-consumer_key = os.getenv('TWITTER_CONSUMER_KEY', "XET9KpGU3J6nN48S6qXFCUtLV")
-consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET', "PBFMiBqRO0DFdXgck7JuvTcG7Rglpd7NoPBnZavD8Nho3n40wx")
-access_token = os.getenv('TWITTER_ACCESS_TOKEN', "1194686821956849664-a99N52yzbqdmlolpKP9GLqNVR1kKp3")
-access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET', "NgkNaeoEhUMWaRgGTFD4V4R18I79XaRlyRsHZru8WqLyB")
-bearer_token = os.getenv('TWITTER_BEARER_TOKEN', "AAAAAAAAAAAAAAAAAAAAAHXk1gEAAAAAO%2BNDKFpsCUMmgMc4Eix27hH2EUs%3D84Gyu9Jxss1QQ28z315d4DDhGhppnAUTpOxjHE4U7njLEXlpsl")
+consumer_key = os.getenv('TWITTER_CONSUMER_KEY')
+consumer_secret = os.getenv('TWITTER_CONSUMER_SECRET')
+access_token = os.getenv('TWITTER_ACCESS_TOKEN')
+access_token_secret = os.getenv('TWITTER_ACCESS_TOKEN_SECRET')
+bearer_token = os.getenv('TWITTER_BEARER_TOKEN')
 
 def clean_text_for_comparison(text):
     """Clean text for duplicate comparison"""
